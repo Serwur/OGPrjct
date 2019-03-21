@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 /// <summary>
 /// Klasa, która będzie posiadała podstawowe informacje o wszystkich statycznych oraz dynamicznych obiektach</br>
@@ -11,8 +10,6 @@ public class GameMaster : MonoBehaviour
     // SINGLETON
     public static GameMaster Instance;
 
-    private HashSet<IInteractable> interactables = new HashSet<IInteractable>();
-
     private void Awake()
     {
         if (Instance == null)
@@ -22,17 +19,6 @@ public class GameMaster : MonoBehaviour
             Destroy( gameObject );
             return;
         }
-        
     }
 
-    public IInteractable NearestInteractable(Vector2 position)
-    {
-        float minDistance = float.MaxValue;
-        IInteractable nearest = null;
-        foreach (IInteractable interactable in interactables) {
-        }
-        return nearest;
-    }
-
-    public HashSet<IInteractable> Interactables { get => interactables; }
 }

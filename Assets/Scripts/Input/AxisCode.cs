@@ -1,7 +1,7 @@
-﻿
-public enum AxisCode
+﻿namespace Inputs
 {
-    LeftStick, RightStick, Arrows, LeftTrigger, RightTrigger
+    public enum AxisCode
+    {
+        LeftStick, RightStick, Arrows, LeftTrigger, RightTrigger
+    }
 }
-
-

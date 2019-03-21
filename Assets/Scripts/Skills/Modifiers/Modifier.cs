@@ -14,12 +14,12 @@ public abstract class Modifier
         POSITIVE, NEGATIVE
     }
 
-    public MyAttribute attribute;
+    public PAttribute attribute;
     public float modifer;
     public string modifierName;
     public Mod mod;
 
-    public Modifier(float modifer, Mod mod, MyAttribute attribute) : this(modifer, mod, "", attribute)
+    public Modifier(float modifer, Mod mod, PAttribute attribute) : this(modifer, mod, "", attribute)
     {  }
 
     /// <summary>
@@ -31,7 +31,7 @@ public abstract class Modifier
     /// <param name="modifierName">Nazwa modyfikatora</param>
     /// <param name="attribute">Atrybut do którego będzie przypisany modyfikator, jeżeli parametr ten nie jest <b>NULL</b>
     /// wtedy modyfikator jest automatycznie dodany do atrybutu</param>
-    public Modifier(float modifer, Mod mod, string modifierName, MyAttribute attribute)
+    public Modifier(float modifer, Mod mod, string modifierName, PAttribute attribute)
     {
         if (modifer < 0) {
             throw new System.Exception( "Modifier::Constructor::Name::" + modifierName + "::" + "(Modifier value cannot be less than 0!)" );

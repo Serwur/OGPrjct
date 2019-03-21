@@ -1,12 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using UnityEditor;
 using UnityEngine;
-using UnityEditor;
+using Inputs;
 
 public class MakeScriptableObject
 {
-        [MenuItem("Assets/Create/Alternative Keyboard Setup")]
-        public static void CreateMyAsset()
+    [MenuItem( "Assets/Create/Alternative Keyboard Setup" )]
+    public static void CreateMyAsset()
     {
         KeyboardSettings asset = ScriptableObject.CreateInstance<KeyboardSettings>();
 

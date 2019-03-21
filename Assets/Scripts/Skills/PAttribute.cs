@@ -9,7 +9,7 @@ using UnityEngine;
 /// <br>aktualnego stanu...</br>
 /// </summary>
 [System.Serializable]
-public class MyAttribute
+public class PAttribute
 {
     /// <summary>
     /// Bazowa statystyka bez żadnych modyfikatorów
@@ -97,8 +97,10 @@ public class MyAttribute
             current = max;
     }
 
+    /* GetMaxModifier
     protected Modifier GetMaxModifier<T>(HashSet<T> modifiers) where T: Modifier
     {
         return null;
     }
+    */
 }

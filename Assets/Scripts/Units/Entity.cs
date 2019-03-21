@@ -1,15 +1,15 @@
 ﻿using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Rigidbody))]
 public abstract class Entity : MonoBehaviour
 {
     [Header("Attributes")]
-    public MyAttribute hitPoints;
-    public MyAttribute sourcePoints;
-    public MyAttribute armor;
-    public MyAttribute magicResist;
-    public MyAttribute moveSpeed;
-    public MyAttribute jumpPower;
+    public PAttribute hitPoints;
+    public PAttribute sourcePoints;
+    public PAttribute armor;
+    public PAttribute moveSpeed;
+    public PAttribute jumpPower;
+    public PAttribute damage;
 
     [Header("Regeneration")]
     public float regenHitPoints = 0f;
@@ -22,12 +22,11 @@ public abstract class Entity : MonoBehaviour
     /// </summary>
     protected bool isDead = false;
     protected bool canMove = true;
-
-    protected Rigidbody2D rb2d;
+    protected Rigidbody rb;
 
     public virtual void Awake()
     {
-        rb2d = GetComponent<Rigidbody2D>();
+        rb = GetComponent<Rigidbody>();
     }
 
     public virtual void Start()
@@ -36,28 +35,18 @@ public abstract class Entity : MonoBehaviour
         hitPoints.current = hitPoints.max;
         sourcePoints.current = sourcePoints.max;
         armor.current = armor.max;
-        magicResist.current = magicResist.max;
         moveSpeed.current = moveSpeed.max;
         jumpPower.current = jumpPower.max;
     }
 
     /// <summary>
-    /// Zadaje obrażenia jednostce danego typu.
+    /// Zadaje obrażenia jednostce.
     /// </summary>
     /// <param name="damage">Ilość zadanych obrażeń</param>
-    /// <param name="type">Typ obrażeń</param>
     /// <returns>Zwraca TRUE, jeżeli jednostka otrzymała jakiekolwiek obrażenia w przeciwnym wypadku zwraca FALSE</returns>
-    public virtual bool DealDamage(float damage, DamageType type)
+    public virtual bool TakeDamage(float damage)
     {
         float damageToDeal = 0f;
-        switch (type) {
-            case DamageType.PHYSICAL:
-                damageToDeal = damage * ( 100f - armor.current );
-                break;
-            case DamageType.MAGIC:
-                damageToDeal = damage * ( 100f - magicResist.current );
-                break;
-        }
         if (damageToDeal > 0f) {
             if ( damageToDeal < 1f ) damageToDeal = 1f;
             hitPoints.current -= damageToDeal;
@@ -67,7 +56,6 @@ public abstract class Entity : MonoBehaviour
         } else {
             return false;
         }
-
     }
 
     /// <summary>
@@ -113,7 +101,6 @@ public abstract class Entity : MonoBehaviour
         hitPoints.UpdateAttribute();
         sourcePoints.UpdateAttribute();
         armor.UpdateAttribute();
-        magicResist.UpdateAttribute();
         moveSpeed.UpdateAttribute();
         jumpPower.UpdateAttribute();
     }

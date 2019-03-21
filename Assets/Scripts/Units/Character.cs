@@ -1,71 +1,165 @@
-﻿using System.Collections;
+﻿using Inputs;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(PlayerInput))]
-public abstract class Character : Entity, PlayerInput.IStickListener, PlayerInput.IButtonListener, PlayerInput.ITriggerListener
+[RequireComponent( typeof( PInput ) )]
+public class Character : Entity, IStickListener, IButtonListener,
+    ITriggerListener, IArrowsListener, TimerManager.IOnCountdownEnd
 {
-    // Item który jest trzymany - PROPOZYCJA JEŻELI COŚ TAKIEGO BĘDZIE W GRZE
-    //public Item holdingItem;
 
-    // Referencja do klasy ekwipunku tj. przedmioty w plecaku - KOLEJNA PROPOZYCJA
-    //public Equipment equipment;
+    #region Static Fields
+    private static readonly float SIMPLE_ATTACK_TIME = 0.55f;
+    private static readonly float FLY_ATTACK_TIME = 0.3f;
+    private static readonly float BACKWARD_ATTACK_TIME = 0.47f;
+    private static readonly float COMBO_BREAK_TIME = 0.15f;
+    #endregion
 
-    /*
-     * Okej, ta klasa powinna być bazą pod dwie klasy postaci. Trzeba tu zawrzeć najważniejsze rzeczy takie jak sterowanie
-     * najlepiej za pomocą klasy PlayerInput do wykorzystwania skilli. Referencje do drzewka talentów, ew. przedmiotów
-     * które moglibyśmy dodać, jeżeli będzie taka potrzeba. Ekwipunek co najważniejsze chyba jeżeli nasza gra
-     * będzie to obsługiwać.
-     */
+    #region Private Fields
+    private float attackMoveSpeed = 3.5f;
+    private int direction = 1;
 
-    [Header( "Useable Skills Reference" )]
-    public Skill basicSkill;
-    public Skill firstSkill;
-    public Skill secondSkill;
+    #region Countdowns IDs
+    private long simpleAttackCountdown;
+    private long flyAttackCountdown;
+    private long backwardAttackCountdown;
+    private long comboBreakCountdown;
+    #endregion
+
+    private ButtonCode lastLeftRightAtack;
+    private List<Combo> combos = new List<Combo>();
+    private LinkedList<ButtonCode> currentCombination = new LinkedList<ButtonCode>();
+    private PInput input;
+
+    #region Dev Fields
+    // For dev test, use Start on Joystick or R on keyboard to reset position and velocity
+    private Vector3 startPosition;
+    #endregion
+    #endregion
+
+    #region Public Methods
+    public override void Start()
+    {
+        base.Start();
+        input = GetComponent<PInput>();
+        simpleAttackCountdown = TimerManager.StartCountdown( SIMPLE_ATTACK_TIME, false, null );
+        flyAttackCountdown = TimerManager.StartCountdown( FLY_ATTACK_TIME, false, null );
+        backwardAttackCountdown = TimerManager.StartCountdown( BACKWARD_ATTACK_TIME, false, this );
+        comboBreakCountdown = TimerManager.StartCountdown( COMBO_BREAK_TIME, false, this );
+
+        Combo combo = new Combo( this, "Szakalaka",
+            new ButtonCode[] { ButtonCode.Y, ButtonCode.A, ButtonCode.X, ButtonCode.B },
+            () => { Debug.Log( "Szkalaka" ); } );
+
+        combos.Add( combo );
+        combos.Sort();
+        startPosition = transform.position;
+    }
 
     /// <summary>
     /// Do zaimplementowania skrypt ruchu gracza.
     /// </summary>
     public void Move(float x)
     {
-        rb2d.velocity = new Vector2( x * moveSpeed.max * Time.fixedDeltaTime, rb2d.velocity.y ) ; 
+        if (canMove) {
+            direction = x > 0 ? 1 : -1;
+            rb.velocity = new Vector3( x * moveSpeed.max, rb.velocity.y );
+        }
     }
 
+    /// <summary>
+    /// Just a simple jump method
+    /// </summary>
     public void Jump()
     {
-        rb2d.velocity = new Vector2( rb2d.velocity.x, jumpPower.max );
+        if (canMove)
+            rb.velocity = new Vector2( rb.velocity.x, jumpPower.max );
     }
 
+    /// <summary>
+    /// Character do a simple left/right attack
+    /// </summary>
+    /// <param name="code">Button code to know if fast attack should be done</param>
+    public void SimpleAtack(ButtonCode code)
+    {
+        // Jeżeli atak jest wykonany z tego samego klawisza oraz nie zakończył się timer odliczający
+        // czas od możliwego kolejnego ataku z tego samego klawisza, to elo
+        if (lastLeftRightAtack == code && !TimerManager.HasEnded( simpleAttackCountdown )) {
+            return;
+        }
+
+        // W innym wypadku jest on wykonany, ale jeżeli jesteśmy w aktualnie w locie
+        // to atak jest wykonany w miejscu
+        if (rb.velocity.y == 0)
+            rb.velocity = new Vector3( attackMoveSpeed * direction, rb.velocity.y );
+
+        // Przypisujemy ostatni klawisz ze zwykłego ataku oraz resetujemy timer
+        lastLeftRightAtack = code;
+        TimerManager.ResetCountdown( simpleAttackCountdown );
+    }
+
+    /// <summary>
+    /// Wykonanie ataku podrzucającego wroga oraz skaczącego postacią
+    /// na niewielką wysokość
+    /// </summary>
+    public void FlyAttack()
+    {
+        if (TimerManager.HasEnded( flyAttackCountdown )) {
+            TimerManager.ResetCountdown( flyAttackCountdown );
+            rb.velocity = new Vector3( rb.velocity.x, attackMoveSpeed );
+            Debug.Log( "FLY ATTACK" );
+        }
+    }
+
+    /// <summary>
+    /// Atak wykonany w tył
+    /// </summary>
+    public void BackwardAttack()
+    {
+        if (TimerManager.HasEnded( backwardAttackCountdown )) {
+            TimerManager.ResetCountdown( backwardAttackCountdown );
+            direction *= -1;
+            rb.velocity = new Vector3( attackMoveSpeed * 2 * direction, rb.velocity.y );
+            Debug.Log( "BACKWARD ATTACK" );
+            canMove = false;
+        }
+    }
+
+    #region Buttons
     public void OnButtonHeld(ButtonCode code)
     {
-        Debug.Log("Held: " + code);
     }
 
     public void OnButtonPressed(ButtonCode code)
     {
+        TimerManager.ResetCountdown( comboBreakCountdown );
         switch (code) {
             case ButtonCode.A:
-                if ( rb2d.velocity.y == 0)
+                if (rb.velocity.y == 0) {
                     Jump();
+                }
+                currentCombination.AddLast( code );
                 break;
             case ButtonCode.B:
-                TemplateModifier jumpModifier = new TemplateModifier(0.2f, Modifier.Mod.POSITIVE, jumpPower, 5f);
-                jumpModifier.StartTimer();
+                SimpleAtack( code );
+                currentCombination.AddLast( code );
                 break;
             case ButtonCode.X:
-                // INTERAKCJA
+                SimpleAtack( code );
+                currentCombination.AddLast( code );
                 break;
             case ButtonCode.Y:
-                TemplateModifier speedMod = new TemplateModifier( 0.1f, Modifier.Mod.NEGATIVE, moveSpeed, 3f );
-                speedMod.StartTimer();
+                FlyAttack();
+                currentCombination.AddLast( code );
                 break;
             case ButtonCode.LeftBumper:
-                firstSkill.Use(); 
                 break;
             case ButtonCode.RightBumper:
-                secondSkill.Use();
+                BackwardAttack();
+                currentCombination.AddLast( code );
                 break;
             case ButtonCode.Start:
+                rb.velocity = Vector3.zero;
+                transform.position = startPosition;
                 break;
             case ButtonCode.Back:
                 break;
@@ -73,12 +167,16 @@ public abstract class Character : Entity, PlayerInput.IStickListener, PlayerInpu
                 break;
             case ButtonCode.RightStick:
                 break;
+        }
+        // Jeżeli kombinacje są za długie to są sprawdzane oraz czyszczone
+        if (currentCombination.Count >= 8) {
+            CheckCombos();
+            currentCombination.Clear();
         }
     }
 
     public void OnButtonReleased(ButtonCode code)
     {
-        Debug.Log("Released: " + code);
         switch (code) {
             case ButtonCode.A:
                 break;
@@ -102,7 +200,9 @@ public abstract class Character : Entity, PlayerInput.IStickListener, PlayerInpu
                 break;
         }
     }
+    #endregion
 
+    #region Sticks
     public void OnStickChange(JoystickDoubleAxis stick)
     {
     }
@@ -118,6 +218,13 @@ public abstract class Character : Entity, PlayerInput.IStickListener, PlayerInpu
         }
     }
 
+    public void OnStickDeadZone(JoystickDoubleAxis stick)
+    {
+
+    }
+    #endregion
+
+    #region Triggers
     public void OnTriggerChange(JoystickAxis trigger)
     {
         if (trigger.Code == AxisCode.LeftTrigger) {
@@ -127,13 +234,66 @@ public abstract class Character : Entity, PlayerInput.IStickListener, PlayerInpu
 
     public void OnTriggerHold(JoystickAxis trigger)
     {
-        if ( trigger.Code == AxisCode.RightTrigger) {
+        if (trigger.Code == AxisCode.RightTrigger) {
             // BAZOWY ATAK
         }
     }
 
-    public void OnDeadZone(JoystickDoubleAxis stick)
+    public void OnTriggerDeadZone(JoystickAxis trigger)
     {
+    }
+    #endregion
 
+    #region Arrows
+    public void OnArrowsChange(JoystickDoubleAxis arrows)
+    {
+    }
+
+    public void OnArrowsHold(JoystickDoubleAxis arrows)
+    {
+    }
+
+    public void OnArrowsDeadZone(JoystickDoubleAxis arrows)
+    {
+    }
+    #endregion
+
+    public override void ResetUnit()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override void Die()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public void OnCountdownEnd(long id)
+    {
+        if (id == backwardAttackCountdown) {
+            canMove = true;
+        } else if (id == comboBreakCountdown) {
+            if (currentCombination.Count >= 3) {
+                CheckCombos();
+            }
+            currentCombination.Clear();
+            Debug.Log( "End of combo" );
+        }
+    }
+    #endregion
+
+    /// <summary>
+    /// Sprawdza wszystkie możliwe combosy poczynając od combosów najbardziej
+    /// skomplikowanych klawiszowo (najwięcej klawiszy), jeżeli których z nich
+    /// jest poprawny to combos się wykona (tylko jeden combos może się wykonać)
+    /// </summary>
+    private void CheckCombos()
+    {
+        foreach (Combo combo in combos) {
+            if (combo.IsValid( currentCombination )) {
+                combo.action();
+                return;
+            }
+        }
     }
 }

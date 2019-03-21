@@ -1,4 +1,7 @@
-﻿public enum ButtonCode
+﻿namespace Inputs
 {
-    A, B, X, Y, LeftBumper, RightBumper, Start, Back, LeftStick, RightStick
+    public enum ButtonCode
+    {
+        A, B, X, Y, LeftBumper, RightBumper, Start, Back, LeftStick, RightStick
+    }
 }

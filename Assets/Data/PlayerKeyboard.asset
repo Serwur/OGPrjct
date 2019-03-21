@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3b49b9e965a24d47a333f079726db16, type: 3}
+  m_Name: PlayerKeyboard
+  m_EditorClassIdentifier: 
+  a: 119
+  b: 275
+  x: 276
+  y: 273
+  leftStick: 122
+  rightStick: 120
+  back: 99
+  start: 114
+  leftBumper: 0
+  rightBumper: 274
+  leftTrigger: 323
+  rightTrigger: 324
+  leftStick_LX: 97
+  leftStick_RX: 100
+  leftStick_UY: 0
+  leftStick_DY: 115
+  rightStick_LX: 0
+  rightStick_RX: 0
+  rightStick_UY: 0
+  rightStick_DY: 0
+  arrows_LX: 97
+  arrows_RX: 100
+  arrows_UY: 119
+  arrows_DY: 115

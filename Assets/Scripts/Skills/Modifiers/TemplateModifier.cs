@@ -15,7 +15,7 @@ public class TemplateModifier : Modifier, TimerManager.IOnCountdownEnd
     /// <param name="mod">Tryb modyfikacji</param>
     /// <param name="attribute">Atrbut do modyfikacji</param>
     /// <param name="time">Czas trwania modyfikacji</param>
-    public TemplateModifier(float modifer, Mod mod, MyAttribute attribute, float time) : this( modifer, mod, "", attribute, time )
+    public TemplateModifier(float modifer, Mod mod, PAttribute attribute, float time) : this( modifer, mod, "", attribute, time )
     {
     }
 
@@ -30,12 +30,12 @@ public class TemplateModifier : Modifier, TimerManager.IOnCountdownEnd
     /// <param name="name">Nazwa modyfikacji</param>
     /// <param name="attribute">Atrbut do modyfikacji</param>
     /// <param name="time">Czas trwania modyfikacji</param>
-    public TemplateModifier(float modifer, Mod mod, string name, MyAttribute attribute, float time) : base( modifer, mod, name, attribute )
+    public TemplateModifier(float modifer, Mod mod, string name, PAttribute attribute, float time) : base( modifer, mod, name, attribute )
     {
         if (time <= 0)
             throw new System.Exception( "TemplateModifier::Constructor::Name::" + modifierName + "::" + "(Modifier time cannot be less than 0!)" );
         this.time = time;
-        countdown = TimerManager.StartCountdown( 0, this );
+        countdown = TimerManager.StartCountdown( 0, false, this );
         TimerManager.RemoveWhenEnds( countdown, true );
     }
 

@@ -23,7 +23,7 @@ public class TimerManager : MonoBehaviour
     // PRIVATE STATIC
     private static TimerManager Instance;
 
-    // PUBLIC
+    //PUBLIC
     [Header( "Properties" )]
     public float startTime = 0f;
     [Range( 0.1f, 5f )]
@@ -62,17 +62,18 @@ public class TimerManager : MonoBehaviour
         time += passedTime * timeSpeed;
         LinkedList<long> countdownsToRemove = new LinkedList<long>();
         foreach (long key in notEndedCountdowns.Keys) {
-            if (notEndedCountdowns[key].HasEnded()) {
+            if (notEndedCountdowns[key].HasEnded) {
                 countdownsToRemove.AddLast( key );
-                if (notEndedCountdowns[key].Listener != null) {
-                    notEndedCountdowns[key].Listener.OnCountdownEnd( key );
-                }
                 if (!notEndedCountdowns[key].RemoveWhenEnds)
                     endedCountdowns.Add( key, notEndedCountdowns[key] );
             }
         }
         foreach (long key in countdownsToRemove) {
+            Countdown countdown = notEndedCountdowns[key];
             notEndedCountdowns.Remove( key );
+            if (countdown.Listener != null) {
+                countdown.Listener.OnCountdownEnd( key );
+            }
         }
     }
 
@@ -92,21 +93,35 @@ public class TimerManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Starts a new countdown with given time. If time is less that 0 then countdown is marked as ended.
+    /// Starts a new countdown with given time. If time is less than 0 then exception is thrown.
     /// It's important to take <b>id</b> as returned long value.
     /// </summary>
     /// <param name="countdown">Time to countdown</param>
     /// <returns>id of new countdown</returns>
     public static long StartCountdown(float countdown)
     {
-        return StartCountdown( countdown, null );
+        return StartCountdown( countdown, true, null );
     }
 
-    public static long StartCountdown(float countdown, IOnCountdownEnd listener)
+    /// <summary>
+    /// Starts a new countdown with given time. If time is less than 0 then exception is thrown.
+    /// It's important to take <b>id</b> as returned long value.
+    /// </summary>
+    /// <param name="countdown">Time to countdown</param>
+    /// <param name="start">Marked if it should start now</param>
+    /// <returns>id of new countdown</returns>
+    public static long StartCountdown(float countdown, bool start)
     {
-        long id = (long) (Time.time * 1000);
+        return StartCountdown( countdown, start, null );
+    }
+
+    public static long StartCountdown(float countdown, bool start, IOnCountdownEnd listener)
+    {
+        if (countdown < 0)
+            throw new Exception( "Time for countdown cannot be less than 0!" );
+        long id = (long) ( Time.time * 10000 ) + Instance.notEndedCountdowns.Count + Instance.endedCountdowns.Count;
         Countdown _countdown = new Countdown( countdown, listener );
-        if (countdown > 0)
+        if (start)
             Instance.notEndedCountdowns.Add( id, _countdown );
         else
             Instance.endedCountdowns.Add( id, _countdown );
@@ -122,7 +137,7 @@ public class TimerManager : MonoBehaviour
     {
         Countdown countdown;
         if (GetCountdown( id, out countdown )) {
-            seconds = countdown.InSec();
+            seconds = countdown.InSec;
             return true;
         }
         seconds = null;
@@ -130,15 +145,16 @@ public class TimerManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Resetuje timer używając podanego czasu odliczania
+    /// Resets a countdown with given ID and sets a new countdown time.
     /// </summary>
-    /// <param name="countdown">Timer do zresetowania</param>
-    /// <param name="newCountdown">Nowy czas odliczania dla timer'a</param>
+    /// <param name="id">ID of countdown</param>
+    /// <param name="newCountdown">New time for countdown</param>
+    /// <returns>TRUE if countdown has been reseted (it means that countdown exists), otherwise it returns FALSE</returns>
     public static bool ResetCountdown(long id, float newCountdown)
     {
         Countdown countdown;
         if (GetCountdown( id, out countdown )) {
-            if (countdown.HasEnded()) {
+            if (countdown.HasEnded) {
                 Instance.notEndedCountdowns.Add( id, countdown );
                 Instance.endedCountdowns.Remove( id );
             }
@@ -168,14 +184,12 @@ public class TimerManager : MonoBehaviour
     /// <param name="id">id of countdown</param>
     /// <param name="hasEnded">Information if countdown has ended</param>
     /// <returns>TRUE if countdown exists, otherwise it returns FALSE</returns>
-    public static bool HasEnded(long id, out bool hasEnded)
+    public static bool HasEnded(long id)
     {
         Countdown countdown;
         if (GetCountdown( id, out countdown )) {
-            hasEnded = countdown.HasEnded();
-            return true;
+            return countdown.HasEnded;
         }
-        hasEnded = false;
         return false;
     }
 
@@ -237,19 +251,10 @@ public class TimerManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Gives past time in seconds of created singleton.
-    /// </summary>
-    /// <returns>Gives past time in seconds</returns>
-    public static float Seconds()
-    {
-        return Instance.time;
-    }
-
-    /// <summary>
-    /// 
+    /// Sets time speed represented how fast time passes for specified countdown.
     /// </summary>
     /// <param name="timeSpeed">Time speed to set for countdown</param>
-    /// <returns></returns>
+    /// <returns>TRUE if countdown exists, otherwise it returns FALSE</returns>
     public static bool SetCountdownTimeSpeed(long id, float timeSpeed)
     {
         if (timeSpeed <= 0f)
@@ -260,47 +265,6 @@ public class TimerManager : MonoBehaviour
             return true;
         }
         return false;
-    }
-
-    public static float Minutes()
-    {
-        return Instance.time / MINUTE_UNIT;
-    }
-
-    public static float Hours()
-    {
-        return Instance.time / HOUR_UNIT;
-    }
-
-    public static string InSeconds()
-    {
-        int seconds = ( (int) Instance.time % MINUTE_UNIT );
-        return ( ( seconds < 10 ) ? "0" : "" ) + seconds.ToString();
-    }
-
-    public static string InMinutesSeconds()
-    {
-        int minutes = ( (int) Instance.time % HOUR_UNIT ) / MINUTE_UNIT;
-        return ( ( minutes < 10 ) ? "0" : "" ) + minutes.ToString() + ":" + InSeconds();
-    }
-
-    public static string InHoursMinutesSeconds()
-    {
-        int hours = ( (int) Instance.time % DAY_UNIT ) / HOUR_UNIT;
-        return ( ( hours < 10 ) ? "0" : "" ) + hours.ToString() + ":" + InMinutesSeconds();
-    }
-
-    public static float TimeSpeed
-    {
-        get {
-            return Instance.timeSpeed;
-        }
-
-        set {
-            if (value <= 0f)
-                throw new SystemException( "Time speed cannot be 0 or less!" );
-            Instance.timeSpeed = value;
-        }
     }
 
     /// <summary>
@@ -316,6 +280,65 @@ public class TimerManager : MonoBehaviour
         return Instance.endedCountdowns.TryGetValue( id, out countdown );
     }
 
+    /// <summary>
+    /// How fast time passes. If trying to set 0 or less then it throws exception.
+    /// </summary>
+    public static float TimeSpeed
+    {
+        get {
+            return Instance.timeSpeed;
+        }
+
+        set {
+            if (value <= 0f)
+                throw new SystemException( "Time speed cannot be 0 or less!" );
+            Instance.timeSpeed = value;
+        }
+    }
+
+    /// <summary>
+    /// Time in seconds represented in format: 00
+    /// </summary>
+    public static string InSeconds
+    {
+        get {
+            int seconds = ( (int) Instance.time % MINUTE_UNIT );
+            return ( ( seconds < 10 ) ? "0" : "" ) + seconds.ToString();
+        }
+    }
+
+    /// <summary>
+    /// Time in minutes and seconds represented in format: 00:00
+    /// </summary>
+    public static string InMinutesSeconds
+    {
+        get {
+            int minutes = ( (int) Instance.time % HOUR_UNIT ) / MINUTE_UNIT;
+            return ( ( minutes < 10 ) ? "0" : "" ) + minutes.ToString() + ":" + InSeconds;
+        }
+    }
+
+    /// <summary>
+    /// Time in hours, minutes and seconds represented in format: 00:00:00
+    /// </summary>
+    public static string InHoursMinutesSeconds
+    {
+        get {
+            int hours = ( (int) Instance.time % DAY_UNIT ) / HOUR_UNIT;
+            return ( ( hours < 10 ) ? "0" : "" ) + hours.ToString() + ":" + InMinutesSeconds;
+        }
+    }
+
+    /// <summary>
+    /// Gives past time in seconds of created singleton.
+    /// </summary>
+    /// <returns>Gives past time in seconds</returns>
+    public static float Seconds => Instance.time;
+    public static float Minutes => Instance.time / MINUTE_UNIT;
+    public static float Hours => Instance.time / HOUR_UNIT;
+    public static int CountNotEndedCountdowns => Instance.notEndedCountdowns.Count;
+    public static int CountEndedCountdowns => Instance.endedCountdowns.Count;
+
     private class Countdown
     {
         private float countdownTime = 0f;
@@ -324,10 +347,30 @@ public class TimerManager : MonoBehaviour
         private IOnCountdownEnd listener = null;
         private bool removeWhenEnds = false;
 
-        internal Countdown(float countdownTime, IOnCountdownEnd listener)
+        public Countdown(float countdownTime, IOnCountdownEnd listener)
         {
             this.countdownTime = countdownTime;
             this.listener = listener;
+            countdownStartTime = Instance.time;
+        }
+
+        public Countdown(float countdownTime, IOnCountdownEnd listener, bool removeWhenEnds)
+        {
+            this.countdownTime = countdownTime;
+            this.listener = listener;
+            this.removeWhenEnds = removeWhenEnds;
+            countdownStartTime = Instance.time;
+        }
+
+        /// <summary>
+        /// Resets the countdown with new countdown time.
+        /// </summary>
+        /// <param name="newCountdown">
+        /// New countdown time to end.
+        /// </param>
+        public void Reset(float newCountdown)
+        {
+            countdownTime = newCountdown;
             countdownStartTime = Instance.time;
         }
 
@@ -337,45 +380,30 @@ public class TimerManager : MonoBehaviour
         /// <returns>
         /// TRUE, if countdown ended otherwise FALSE.
         /// </returns>
-        internal virtual bool HasEnded()
-        {
-            return ( Instance.time - countdownStartTime ) * timeSpeed >= countdownTime;
-        }
-
-        /// <summary>
-        /// Resets the countdown with new countdown time.
-        /// </summary>
-        /// <param name="newCountdown">
-        /// New countdown time to end.
-        /// </param>
-        internal void Reset(float newCountdown)
-        {
-            countdownTime = newCountdown;
-            countdownStartTime = Instance.time;
-        }
-
+        public virtual bool HasEnded => ( Instance.time - countdownStartTime ) * timeSpeed >= countdownTime;
         /// <summary>
         /// Gets time in seconds to end the countdown.
         /// </summary>
         /// <returns>
         /// Time in seconds left to end countdown.
         /// </returns>
-        internal int Seconds()
+        public float Seconds => ( countdownTime - ( Instance.time - countdownStartTime ) );
+        public string InSec
         {
-            return (int) ( countdownTime - ( Instance.time - countdownStartTime ) );
+            get {
+                int seconds = (int) ( Seconds % MINUTE_UNIT );
+                return ( ( seconds < 10 ) ? "0" : "" ) + seconds.ToString();
+            }
         }
-
-        internal string InSec()
+        public IOnCountdownEnd Listener { get { return listener; } set { listener = value; } }
+        public bool RemoveWhenEnds { get { return removeWhenEnds; } set { removeWhenEnds = value; } }
+        public float CountdownTime { get { return countdownTime; } }
+        public float CountdownStartTime { get { return countdownStartTime; } }
+        public float TimeSpeed
         {
-            int seconds = Seconds() % MINUTE_UNIT;
-            return ( ( seconds < 10 ) ? "0" : "" ) + seconds.ToString();
+            get { return timeSpeed; }
+            set { timeSpeed = value; }
         }
-
-        public IOnCountdownEnd Listener { get => listener; set => listener = value; }
-        public bool RemoveWhenEnds { get => removeWhenEnds; set => removeWhenEnds = value; }
-        public float CountdownTime { get => countdownTime; }
-        public float CountdownStartTime { get => countdownStartTime; }
-        public float TimeSpeed { get => timeSpeed; set => timeSpeed = value; }
     }
 
     /// <summary>

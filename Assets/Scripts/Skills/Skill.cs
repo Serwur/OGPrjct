@@ -14,7 +14,7 @@ public abstract class Skill : MonoBehaviour, TimerManager.IOnCountdownEnd
 
     private void Awake()
     {
-        countdown = TimerManager.StartCountdown( 0, this );
+        countdown = TimerManager.StartCountdown( 0, false, this );
     }
 
     /// <summary>

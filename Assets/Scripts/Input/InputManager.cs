@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Serwur
+namespace Inputs
 {
     public class InputManager : MonoBehaviour
     {
