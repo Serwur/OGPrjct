@@ -6,6 +6,10 @@ using UnityEngine;
 public class Character : Entity, IStickListener, IButtonListener,
     ITriggerListener, IArrowsListener, TimerManager.IOnCountdownEnd
 {
+    #region Public Fields
+    [Header( "Others" )]
+    public LayerMask groundLayers;
+    #endregion
 
     #region Static Fields
     private static readonly float SIMPLE_ATTACK_TIME = 0.55f;
@@ -15,8 +19,11 @@ public class Character : Entity, IStickListener, IButtonListener,
     #endregion
 
     #region Private Fields
-    private float attackMoveSpeed = 3.5f;
+    private float simpleAttackSpeed = 5.75f;
+    private float flyAttackSpeed = 11.5f;
     private int direction = 1;
+    private float verticalVelocity = 0f;
+    private bool doubleJumped = false;
 
     #region Countdowns IDs
     private long simpleAttackCountdown;
@@ -29,6 +36,7 @@ public class Character : Entity, IStickListener, IButtonListener,
     private List<Combo> combos = new List<Combo>();
     private LinkedList<ButtonCode> currentCombination = new LinkedList<ButtonCode>();
     private PInput input;
+    private BoxCollider coll;
 
     #region Dev Fields
     // For dev test, use Start on Joystick or R on keyboard to reset position and velocity
@@ -37,23 +45,43 @@ public class Character : Entity, IStickListener, IButtonListener,
     #endregion
 
     #region Public Methods
+    #region Unity API
+    public override void Awake()
+    {
+        base.Awake();
+        input = GetComponent<PInput>();
+        coll = GetComponent<BoxCollider>();
+    }
+
     public override void Start()
     {
         base.Start();
-        input = GetComponent<PInput>();
         simpleAttackCountdown = TimerManager.StartCountdown( SIMPLE_ATTACK_TIME, false, null );
         flyAttackCountdown = TimerManager.StartCountdown( FLY_ATTACK_TIME, false, null );
         backwardAttackCountdown = TimerManager.StartCountdown( BACKWARD_ATTACK_TIME, false, this );
         comboBreakCountdown = TimerManager.StartCountdown( COMBO_BREAK_TIME, false, this );
 
-        Combo combo = new Combo( this, "Szakalaka",
+        Combo combo1 = new Combo( this, "Szakalaka",
             new ButtonCode[] { ButtonCode.Y, ButtonCode.A, ButtonCode.X, ButtonCode.B },
             () => { Debug.Log( "Szkalaka" ); } );
 
-        combos.Add( combo );
+        Combo combo2 = new Combo( this, "WAKAMAKA FĄ",
+            new ButtonCode[] { ButtonCode.Y, ButtonCode.A, ButtonCode.X, ButtonCode.B, ButtonCode.B },
+            () => { Debug.Log( "WAKAMAKA FĄ" ); } );
+
+        combos.Add( combo1 );
+        combos.Add( combo2 );
         combos.Sort();
         startPosition = transform.position;
     }
+
+    public void FixedUpdate()
+    {
+        if (rb.velocity.y < 0) {
+            rb.velocity = new Vector3( rb.velocity.x, rb.velocity.y * 1.01f );
+        }
+    }
+    #endregion
 
     /// <summary>
     /// Do zaimplementowania skrypt ruchu gracza.
@@ -62,17 +90,22 @@ public class Character : Entity, IStickListener, IButtonListener,
     {
         if (canMove) {
             direction = x > 0 ? 1 : -1;
-            rb.velocity = new Vector3( x * moveSpeed.max, rb.velocity.y );
+            //rb.velocity = new Vector3( x * moveSpeed.max, rb.velocity.y );
+            rb.velocity = new Vector3( 0, rb.velocity.y );
+            transform.Translate( new Vector3( x * moveSpeed.max * Time.deltaTime, 0 ) );
+            /* Vector3 moveDirection = Vector3.zero;
+             moveDirection.x = moveSpeed.max * Time.deltaTime * x;
+             moveDirection.y = verticalVelocity;
+             characterController.Move( moveDirection );*/
         }
     }
 
     /// <summary>
     /// Just a simple jump method
     /// </summary>
-    public void Jump()
+    public void Jump(float jumpPower)
     {
-        if (canMove)
-            rb.velocity = new Vector2( rb.velocity.x, jumpPower.max );
+        rb.velocity = new Vector2( rb.velocity.x, jumpPower);
     }
 
     /// <summary>
@@ -89,8 +122,8 @@ public class Character : Entity, IStickListener, IButtonListener,
 
         // W innym wypadku jest on wykonany, ale jeżeli jesteśmy w aktualnie w locie
         // to atak jest wykonany w miejscu
-        if (rb.velocity.y == 0)
-            rb.velocity = new Vector3( attackMoveSpeed * direction, rb.velocity.y );
+        if (IsTouchingGround())
+            rb.velocity = new Vector3( simpleAttackSpeed * direction, rb.velocity.y );
 
         // Przypisujemy ostatni klawisz ze zwykłego ataku oraz resetujemy timer
         lastLeftRightAtack = code;
@@ -105,8 +138,7 @@ public class Character : Entity, IStickListener, IButtonListener,
     {
         if (TimerManager.HasEnded( flyAttackCountdown )) {
             TimerManager.ResetCountdown( flyAttackCountdown );
-            rb.velocity = new Vector3( rb.velocity.x, attackMoveSpeed );
-            Debug.Log( "FLY ATTACK" );
+            rb.velocity = new Vector3( rb.velocity.x, flyAttackSpeed );
         }
     }
 
@@ -118,7 +150,7 @@ public class Character : Entity, IStickListener, IButtonListener,
         if (TimerManager.HasEnded( backwardAttackCountdown )) {
             TimerManager.ResetCountdown( backwardAttackCountdown );
             direction *= -1;
-            rb.velocity = new Vector3( attackMoveSpeed * 2 * direction, rb.velocity.y );
+            rb.velocity = new Vector3( simpleAttackSpeed * 2 * direction, rb.velocity.y );
             Debug.Log( "BACKWARD ATTACK" );
             canMove = false;
         }
@@ -134,8 +166,14 @@ public class Character : Entity, IStickListener, IButtonListener,
         TimerManager.ResetCountdown( comboBreakCountdown );
         switch (code) {
             case ButtonCode.A:
-                if (rb.velocity.y == 0) {
-                    Jump();
+                if (canMove) {
+                    if (IsTouchingGround()) {
+                        doubleJumped = false;
+                        Jump(jumpPower.max);
+                    } else if (!doubleJumped) {
+                        doubleJumped = true;
+                        Jump(jumpPower.max * 0.7f);
+                    }
                 }
                 currentCombination.AddLast( code );
                 break;
@@ -148,7 +186,9 @@ public class Character : Entity, IStickListener, IButtonListener,
                 currentCombination.AddLast( code );
                 break;
             case ButtonCode.Y:
-                FlyAttack();
+                if (IsTouchingGround()) {
+                    FlyAttack();
+                }
                 currentCombination.AddLast( code );
                 break;
             case ButtonCode.LeftBumper:
@@ -277,7 +317,6 @@ public class Character : Entity, IStickListener, IButtonListener,
                 CheckCombos();
             }
             currentCombination.Clear();
-            Debug.Log( "End of combo" );
         }
     }
     #endregion
@@ -295,5 +334,16 @@ public class Character : Entity, IStickListener, IButtonListener,
                 return;
             }
         }
+    }
+
+    /// <summary>
+    /// Checks if character is touching ground
+    /// </summary>
+    /// <returns>TRUE if character is touching ground, otherwise FALSE</returns>
+    private bool IsTouchingGround()
+    {
+        return Physics.CheckBox( new Vector3( coll.bounds.center.x, coll.bounds.min.y, coll.bounds.center.z ),
+            new Vector3( coll.bounds.extents.x * 0.85f, coll.bounds.extents.y * 0.1f, coll.bounds.extents.z * 0.85f ),
+            coll.transform.rotation, groundLayers );
     }
 }

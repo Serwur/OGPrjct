@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-public class Combo : IComparer<Combo>
+public class Combo : IComparable<Combo>
 {
     #region Private Fields
     private Character character;
@@ -90,8 +90,8 @@ public class Combo : IComparer<Combo>
     /// <param name="y">Drugi obiekt klasy Combo</param>
     /// <returns>Jeżeli zwróci liczbę większa od 0 to znaczy, że x jest większy niżeli
     /// y, jeżeli zwróci 0 to są one równe, w innych przypadkach y jest większy od x.</returns>
-    public int Compare(Combo x, Combo y)
+    public int CompareTo(Combo other)
     {
-        return x.comboButtons.Length - y.comboButtons.Length;
+        return other.comboButtons.Length - comboButtons.Length;
     }
 }
