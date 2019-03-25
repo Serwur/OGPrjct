@@ -163,9 +163,11 @@ public class Character : Entity, IStickListener, IButtonListener,
 
     public void OnButtonPressed(ButtonCode code)
     {
+        Debug.Log(code);
         TimerManager.ResetCountdown( comboBreakCountdown );
         switch (code) {
             case ButtonCode.A:
+
                 if (canMove) {
                     if (IsTouchingGround()) {
                         doubleJumped = false;
@@ -192,6 +194,8 @@ public class Character : Entity, IStickListener, IButtonListener,
                 currentCombination.AddLast( code );
                 break;
             case ButtonCode.LeftBumper:
+                
+                GetComponent<MainSkill>().ChangeToOtherWorld();
                 break;
             case ButtonCode.RightBumper:
                 BackwardAttack();
@@ -207,6 +211,10 @@ public class Character : Entity, IStickListener, IButtonListener,
                 break;
             case ButtonCode.RightStick:
                 break;
+
+
+                
+
         }
         // Jeżeli kombinacje są za długie to są sprawdzane oraz czyszczone
         if (currentCombination.Count >= 8) {
@@ -346,4 +354,8 @@ public class Character : Entity, IStickListener, IButtonListener,
             new Vector3( coll.bounds.extents.x * 0.85f, coll.bounds.extents.y * 0.1f, coll.bounds.extents.z * 0.85f ),
             coll.transform.rotation, groundLayers );
     }
+
+
+
+
 }
