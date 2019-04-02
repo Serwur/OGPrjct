@@ -2,7 +2,7 @@
 
 namespace Inputs
 {
-    [CreateAssetMenu()]
+    [CreateAssetMenu(fileName = "Keyboard Settings", menuName = "Input/Keyboard Settings")]
     public class KeyboardSettings : ScriptableObject
     {
         [SerializeField]
@@ -138,6 +138,7 @@ namespace Inputs
             return result;
         }
 
+        #region Getters
         public KeyCode A { get => a; }
         public KeyCode B { get => b; }
         public KeyCode X { get => x; }
@@ -162,6 +163,7 @@ namespace Inputs
         public KeyCode Arrows_RX { get => arrows_RX; }
         public KeyCode Arrows_UY { get => arrows_UY; }
         public KeyCode Arrows_DY { get => arrows_DY; }
+        #endregion
     }
 
 }

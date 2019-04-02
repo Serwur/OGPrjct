@@ -105,7 +105,7 @@ public class Character : Entity, IStickListener, IButtonListener,
     /// </summary>
     public void Jump(float jumpPower)
     {
-        rb.velocity = new Vector2( rb.velocity.x, jumpPower);
+        rb.velocity = new Vector2( rb.velocity.x, jumpPower );
     }
 
     /// <summary>
@@ -163,90 +163,74 @@ public class Character : Entity, IStickListener, IButtonListener,
 
     public void OnButtonPressed(ButtonCode code)
     {
-        Debug.Log(code);
-        TimerManager.ResetCountdown( comboBreakCountdown );
-        switch (code) {
-            case ButtonCode.A:
+        // TESTOWO TYLKO
+        if (code == ButtonCode.Back) {
+            if (DialogueManager.HasEndedDialogueList()) {
+                DialogueManager.StartDialogues( dialogueLists[0] );
+            } else {
+                DialogueManager.PushNextDialogue();
+            }
+        }
+        if (!isPaused) {
+            TimerManager.ResetCountdown( comboBreakCountdown );
+            switch (code) {
+                case ButtonCode.A:
 
-                if (canMove) {
-                    if (IsTouchingGround()) {
-                        doubleJumped = false;
-                        Jump(jumpPower.max);
-                    } else if (!doubleJumped) {
-                        doubleJumped = true;
-                        Jump(jumpPower.max * 0.7f);
+                    if (canMove) {
+                        if (IsTouchingGround()) {
+                            doubleJumped = false;
+                            Jump( jumpPower.max );
+                        } else if (!doubleJumped) {
+                            doubleJumped = true;
+                            Jump( jumpPower.max * 0.7f );
+                        }
                     }
-                }
-                currentCombination.AddLast( code );
-                break;
-            case ButtonCode.B:
-                SimpleAtack( code );
-                currentCombination.AddLast( code );
-                break;
-            case ButtonCode.X:
-                SimpleAtack( code );
-                currentCombination.AddLast( code );
-                break;
-            case ButtonCode.Y:
-                if (IsTouchingGround()) {
-                    FlyAttack();
-                }
-                currentCombination.AddLast( code );
-                break;
-            case ButtonCode.LeftBumper:
-                
-                GetComponent<MainSkill>().ChangeToOtherWorld();
-                break;
-            case ButtonCode.RightBumper:
-                BackwardAttack();
-                currentCombination.AddLast( code );
-                break;
-            case ButtonCode.Start:
-                rb.velocity = Vector3.zero;
-                transform.position = startPosition;
-                break;
-            case ButtonCode.Back:
-                break;
-            case ButtonCode.LeftStick:
-                break;
-            case ButtonCode.RightStick:
-                break;
-
-
-                
-
+                    currentCombination.AddLast( code );
+                    break;
+                case ButtonCode.B:
+                    SimpleAtack( code );
+                    currentCombination.AddLast( code );
+                    break;
+                case ButtonCode.X:
+                    SimpleAtack( code );
+                    currentCombination.AddLast( code );
+                    break;
+                case ButtonCode.Y:
+                    if (IsTouchingGround()) {
+                        FlyAttack();
+                    }
+                    currentCombination.AddLast( code );
+                    break;
+                case ButtonCode.LeftBumper:
+                    GetComponent<MainSkill>().ChangeToOtherWorld();
+                    break;
+                case ButtonCode.RightBumper:
+                    BackwardAttack();
+                    currentCombination.AddLast( code );
+                    break;
+                case ButtonCode.Start:
+                    rb.velocity = Vector3.zero;
+                    transform.position = startPosition;
+                    break;
+                case ButtonCode.Back:
+                    break;
+                case ButtonCode.LeftStick:
+                    break;
+                case ButtonCode.RightStick:
+                    break;
+            }
+            // Jeżeli kombinacje są za długie to są sprawdzane oraz czyszczone
+            if (currentCombination.Count >= 8) {
+                CheckCombos();
+                currentCombination.Clear();
+            }
         }
-        // Jeżeli kombinacje są za długie to są sprawdzane oraz czyszczone
-        if (currentCombination.Count >= 8) {
-            CheckCombos();
-            currentCombination.Clear();
-        }
+
     }
 
     public void OnButtonReleased(ButtonCode code)
     {
-        switch (code) {
-            case ButtonCode.A:
-                break;
-            case ButtonCode.B:
-                break;
-            case ButtonCode.X:
-                break;
-            case ButtonCode.Y:
-                break;
-            case ButtonCode.LeftBumper:
-                break;
-            case ButtonCode.RightBumper:
-                break;
-            case ButtonCode.Start:
-                break;
-            case ButtonCode.Back:
-                break;
-            case ButtonCode.LeftStick:
-                break;
-            case ButtonCode.RightStick:
-                break;
-        }
+
     }
     #endregion
 
@@ -257,12 +241,8 @@ public class Character : Entity, IStickListener, IButtonListener,
 
     public void OnStickHold(JoystickDoubleAxis stick)
     {
-        switch (stick.Code) {
-            case AxisCode.LeftStick:
-                Move( stick.X );
-                break;
-            case AxisCode.RightStick:
-                break;
+        if (!IsPaused && stick.Code == AxisCode.LeftStick) {
+            Move( stick.X );
         }
     }
 
@@ -308,12 +288,12 @@ public class Character : Entity, IStickListener, IButtonListener,
 
     public override void ResetUnit()
     {
-        throw new System.NotImplementedException();
+
     }
 
     public override void Die()
     {
-        throw new System.NotImplementedException();
+
     }
 
     public void OnCountdownEnd(long id)

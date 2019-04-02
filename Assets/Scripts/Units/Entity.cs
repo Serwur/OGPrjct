@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody))]
+[RequireComponent( typeof( Rigidbody ) )]
 public abstract class Entity : MonoBehaviour
 {
-    [Header("Attributes")]
+    [Header( "Attributes" )]
     public PAttribute hitPoints;
     public PAttribute sourcePoints;
     public PAttribute armor;
@@ -11,19 +11,27 @@ public abstract class Entity : MonoBehaviour
     public PAttribute jumpPower;
     public PAttribute damage;
 
-    [Header("Regeneration")]
+    [Header( "Regeneration" )]
     public float regenHitPoints = 0f;
     public float regenSourcePoints = 0f;
 
+    [Header( "Utility" )]
     /// <summary>
     /// <br>Ważne pole, które informuje nas o tym czy jednostke jest martwa, jeżeli tak to wiele akcji nie jest wykonywane.</br>
     /// <br>Pole jest po to, aby kolejno zdecydować co zrobić z jednostką, nie koniecznie musimy ją usuwać z gry, tylko</br>
     /// <br>wykorzystać w innym potrzebnym etapie.</br>
     /// </summary>
-    protected bool isDead = false;
-    protected bool canMove = true;
+    [SerializeField] protected bool isDead = false;
+    [SerializeField] protected bool canMove = true;
+    [SerializeField] protected bool isInviolability = false;
+    [SerializeField] protected bool isPaused = false;
+
+    [Header( "Dialogs" )]
+    public DialogueList[] dialogueLists;
+
     protected Rigidbody rb;
 
+    #region Unity API
     public virtual void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -31,6 +39,8 @@ public abstract class Entity : MonoBehaviour
 
     public virtual void Start()
     {
+        GameManager.AddEntity( this );
+
         UpdateAttributes();
         hitPoints.current = hitPoints.max;
         sourcePoints.current = sourcePoints.max;
@@ -38,7 +48,9 @@ public abstract class Entity : MonoBehaviour
         moveSpeed.current = moveSpeed.max;
         jumpPower.current = jumpPower.max;
     }
+    #endregion
 
+    #region Public Methods
     /// <summary>
     /// Zadaje obrażenia jednostce.
     /// </summary>
@@ -46,9 +58,12 @@ public abstract class Entity : MonoBehaviour
     /// <returns>Zwraca TRUE, jeżeli jednostka otrzymała jakiekolwiek obrażenia w przeciwnym wypadku zwraca FALSE</returns>
     public virtual bool TakeDamage(float damage)
     {
+        if (isInviolability)
+            return false;
         float damageToDeal = 0f;
         if (damageToDeal > 0f) {
-            if ( damageToDeal < 1f ) damageToDeal = 1f;
+            if (damageToDeal < 1f)
+                damageToDeal = 1f;
             hitPoints.current -= damageToDeal;
             if (hitPoints.current < 0f)
                 Die();
@@ -116,4 +131,9 @@ public abstract class Entity : MonoBehaviour
     /// <br>punktów graczom itp. itd.</br>
     /// </summary>
     public abstract void Die();
+    #endregion
+
+    #region Setter And Getters
+    public bool IsPaused { get => isPaused; set => isPaused = value; }
+    #endregion
 }
