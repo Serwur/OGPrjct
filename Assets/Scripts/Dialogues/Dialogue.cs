@@ -8,14 +8,13 @@ public class Dialogue : TimerManager.IOnCountdownEnd
     public string dialogue = "";
     public string ownerName = "";
     public string objectName = "";
-    [Range( 0f, 1f )] public float speed = 0.85f;
+    public float speed = 0.65f;
     public AudioClip audioClip = null;
 
     private Entity entity = null;
     private long countdownID;
     private int currentChar = 0;
     private bool hasEnded = false;
-    private DialogueList dialogueList = null;
     private Text dialogueText = null;
 
     #region Public Methods
@@ -39,11 +38,10 @@ public class Dialogue : TimerManager.IOnCountdownEnd
         return entity != null;
     }
 
-    public void StartDialogue(DialogueList dialogueList)
+    public void StartDialogue(DialogueType type)
     {
-        this.dialogueList = dialogueList;
         // Creates frames
-        if (dialogueList.type == DialogueType.CLOUD) {
+        if (type == DialogueType.CLOUD) {
             dialogueText = DialogueManager.GetCloudFrame( entity );
         } else {
             dialogueText = DialogueManager.GetCinematicFrame();
@@ -74,11 +72,23 @@ public class Dialogue : TimerManager.IOnCountdownEnd
     public void _Reset()
     {
         TimerManager.RemoveCountdown( countdownID );
-        dialogueList = null;
         dialogueText = null;
         hasEnded = false;
         currentChar = 0;
         entity = null;
+    }
+
+    public Dialogue Clone()
+    {
+        Dialogue clone = new Dialogue {
+            dialogueName = dialogueName,
+            dialogue = dialogue,
+            audioClip = audioClip,
+            objectName = objectName,
+            ownerName = ownerName,
+            speed = speed
+        };
+        return clone;
     }
     #endregion
 

@@ -72,10 +72,10 @@ public class DialogueManager : MonoBehaviour
     public static void PushNextDialogue()
     {
         if (Instance.currentDialogueList != null) {
-            if (Instance.currentDialogueList.CurrentDialog.HasEnded) {
+            if (Instance.currentDialogueList.CurrentDialogue.HasEnded) {
                 Instance.currentDialogueList.NextDialog();
             } else {
-                Instance.currentDialogueList.CurrentDialog.PushToEnd();
+                Instance.currentDialogueList.CurrentDialogue.PushToEnd();
             }
         }
     }

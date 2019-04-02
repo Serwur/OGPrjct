@@ -23,7 +23,7 @@ public class DialogueList : ScriptableObject
         if (!currentDialogue.Init()) {
             NextDialog();
         } else {
-            currentDialogue.StartDialogue( this );
+            currentDialogue.StartDialogue( type );
         }
     }
 
@@ -41,6 +41,18 @@ public class DialogueList : ScriptableObject
         return basic.Substring( 0, basic.LastIndexOf( '(' ) - 1 );
     }
 
+    public DialogueList Clone()
+    {
+        DialogueList clone = CreateInstance<DialogueList>();
+        clone.dialogues = new List<Dialogue>( dialogues );
+        clone.type = type;
+        clone.currentDialogue = currentDialogue;
+        clone.currentDialogueIndex = currentDialogueIndex;
+        return clone;
+    }
+
+    // public 
+
     public bool HasEndedList { get => currentDialogueIndex == dialogues.Count; }
-    public Dialogue CurrentDialog { get => currentDialogue; }
+    public Dialogue CurrentDialogue { get => currentDialogue; }
 }

@@ -12,5 +12,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53a95cd62157b0c4a92b442689517d0e, type: 3}
   m_Name: DialoguesList
   m_EditorClassIdentifier: 
-  dialogues: []
+  dialogues:
+  - dialogueName: Pizda
+    dialogue: Jebac was szmaty, w chuj!
+    ownerName: Lamus
+    objectName: Player
+    speed: 0.531
+    audioClip: {fileID: 0}
+  - dialogueName: Jebana
+    dialogue: Was tez kurwa
+    ownerName: Pizdotron
+    objectName: Player
+    speed: 0.328
+    audioClip: {fileID: 0}
+  - dialogueName: Pierdolona
+    dialogue: Was najbardziej kurwy
+    ownerName: Nikt
+    objectName: Player
+    speed: 0.483
+    audioClip: {fileID: 0}
+  - dialogueName: Pizda
+    dialogue: "Ponownie wam m\xF3wie kurwa, jeba\u0107 was\nw pizde!"
+    ownerName: Lamus
+    objectName: Player
+    speed: 0.597
+    audioClip: {fileID: 0}
   type: 0

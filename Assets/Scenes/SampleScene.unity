@@ -585,7 +585,7 @@ MonoBehaviour:
   isInviolability: 0
   isPaused: 0
   dialogueLists:
-  - {fileID: 11400000, guid: a1ee667fd3938f74d934a871fe911aaa, type: 2}
+  - {fileID: 11400000, guid: b8f4373dfcd3e224dbd9f2069039ba26, type: 2}
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
@@ -2056,7 +2056,7 @@ MonoBehaviour:
   isInviolability: 0
   isPaused: 0
   dialogueLists:
-  - {fileID: 11400000, guid: a1ee667fd3938f74d934a871fe911aaa, type: 2}
+  - {fileID: 0}
 --- !u!54 &1324198681
 Rigidbody:
   m_ObjectHideFlags: 0
