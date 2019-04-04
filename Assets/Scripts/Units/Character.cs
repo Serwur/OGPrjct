@@ -12,7 +12,7 @@ public class Character : Entity, IStickListener, IButtonListener,
     #endregion
 
     #region Static Fields
-    private static readonly float SIMPLE_ATTACK_TIME = 0.55f;
+    private static readonly float SIMPLE_ATTACK_TIME = 0.10f;
     private static readonly float FLY_ATTACK_TIME = 0.3f;
     private static readonly float BACKWARD_ATTACK_TIME = 0.47f;
     private static readonly float COMBO_BREAK_TIME = 0.15f;
@@ -24,6 +24,12 @@ public class Character : Entity, IStickListener, IButtonListener,
     private int direction = 1;
     private float verticalVelocity = 0f;
     private bool doubleJumped = false;
+    private MainSkill mainSkill;
+    private bool isBlocking = false;
+
+    private bool shouldCheckIfIsInAir = false;
+
+    private Animator animator;
 
     #region Countdowns IDs
     private long simpleAttackCountdown;
@@ -32,7 +38,6 @@ public class Character : Entity, IStickListener, IButtonListener,
     private long comboBreakCountdown;
     #endregion
 
-    private ButtonCode lastLeftRightAtack;
     private List<Combo> combos = new List<Combo>();
     private LinkedList<ButtonCode> currentCombination = new LinkedList<ButtonCode>();
     private PInput input;
@@ -51,6 +56,8 @@ public class Character : Entity, IStickListener, IButtonListener,
         base.Awake();
         input = GetComponent<PInput>();
         coll = GetComponent<BoxCollider>();
+        mainSkill = GetComponent<MainSkill>();
+        animator = GetComponent<Animator>();
     }
 
     public override void Start()
@@ -75,11 +82,26 @@ public class Character : Entity, IStickListener, IButtonListener,
         startPosition = transform.position;
     }
 
+    public void Update()
+    {
+        if (shouldCheckIfIsInAir) {
+            shouldCheckIfIsInAir = false;
+            if (Mathf.Clamp( rb.velocity.y, -0.1f, 0.1f ) == rb.velocity.y)
+                animator.SetBool( "isInAir", false );
+        }
+    }
+
     public void FixedUpdate()
     {
         if (rb.velocity.y < 0) {
             rb.velocity = new Vector3( rb.velocity.x, rb.velocity.y * 1.01f );
         }
+    }
+
+    public void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.layer != groundLayers)
+            shouldCheckIfIsInAir = true;
     }
     #endregion
 
@@ -106,28 +128,26 @@ public class Character : Entity, IStickListener, IButtonListener,
     public void Jump(float jumpPower)
     {
         rb.velocity = new Vector2( rb.velocity.x, jumpPower );
+        animator.SetBool( "isInAir", true );
     }
 
     /// <summary>
     /// Character do a simple left/right attack
     /// </summary>
     /// <param name="code">Button code to know if fast attack should be done</param>
-    public void SimpleAtack(ButtonCode code)
+    public void SimpleAtack()
     {
-        // Jeżeli atak jest wykonany z tego samego klawisza oraz nie zakończył się timer odliczający
-        // czas od możliwego kolejnego ataku z tego samego klawisza, to elo
-        if (lastLeftRightAtack == code && !TimerManager.HasEnded( simpleAttackCountdown )) {
-            return;
+        // Jeżeli zakończył się timer odliczający czas od możliwego kolejnego ataku
+        if (TimerManager.HasEnded( simpleAttackCountdown )) {
+            // W innym wypadku jest on wykonany, ale jeżeli jesteśmy w aktualnie w locie
+            // to atak jest wykonany w miejscu
+            if (IsTouchingGround())
+                rb.velocity = new Vector3( simpleAttackSpeed * direction, rb.velocity.y );
+            // Przypisujemy ostatni klawisz ze zwykłego ataku oraz resetujemy timer
+            TimerManager.ResetCountdown( simpleAttackCountdown );
         }
 
-        // W innym wypadku jest on wykonany, ale jeżeli jesteśmy w aktualnie w locie
-        // to atak jest wykonany w miejscu
-        if (IsTouchingGround())
-            rb.velocity = new Vector3( simpleAttackSpeed * direction, rb.velocity.y );
 
-        // Przypisujemy ostatni klawisz ze zwykłego ataku oraz resetujemy timer
-        lastLeftRightAtack = code;
-        TimerManager.ResetCountdown( simpleAttackCountdown );
     }
 
     /// <summary>
@@ -159,23 +179,18 @@ public class Character : Entity, IStickListener, IButtonListener,
     #region Buttons
     public void OnButtonHeld(ButtonCode code)
     {
+        if (code == ButtonCode.RightBumper) {
+            isBlocking = true;
+            // BLOCK SCRIPT
+        }
     }
 
     public void OnButtonPressed(ButtonCode code)
     {
-        // TESTOWO TYLKO
-        if (code == ButtonCode.Back) {
-            if (DialogueManager.HasEndedDialogueList()) {
-                DialogueManager.StartDialogues( dialogueLists[0] );
-            } else {
-                DialogueManager.PushNextDialogue();
-            }
-        }
         if (!isPaused) {
             TimerManager.ResetCountdown( comboBreakCountdown );
             switch (code) {
                 case ButtonCode.A:
-
                     if (canMove) {
                         if (IsTouchingGround()) {
                             doubleJumped = false;
@@ -188,31 +203,41 @@ public class Character : Entity, IStickListener, IButtonListener,
                     currentCombination.AddLast( code );
                     break;
                 case ButtonCode.B:
-                    SimpleAtack( code );
+                    if (canMove) {
+                        BackwardAttack();
+                    }
                     currentCombination.AddLast( code );
                     break;
                 case ButtonCode.X:
-                    SimpleAtack( code );
+                    if (canMove) {
+                        SimpleAtack();
+                    }
                     currentCombination.AddLast( code );
                     break;
                 case ButtonCode.Y:
-                    if (IsTouchingGround()) {
+                    if (IsTouchingGround() && canMove) {
                         FlyAttack();
                     }
                     currentCombination.AddLast( code );
                     break;
                 case ButtonCode.LeftBumper:
-                    GetComponent<MainSkill>().ChangeToOtherWorld();
+                    if (canMove) {
+                        mainSkill.ChangeToOtherWorld();
+                    }
+                    currentCombination.AddLast( code );
                     break;
                 case ButtonCode.RightBumper:
-                    BackwardAttack();
                     currentCombination.AddLast( code );
                     break;
                 case ButtonCode.Start:
-                    rb.velocity = Vector3.zero;
-                    transform.position = startPosition;
+                    ResetUnit();
                     break;
                 case ButtonCode.Back:
+                    if (DialogueManager.HasEndedDialogueList()) {
+                        DialogueManager.StartDialogues( dialogueLists[0] );
+                    } else {
+                        DialogueManager.PushNextDialogue();
+                    }
                     break;
                 case ButtonCode.LeftStick:
                     break;
@@ -220,7 +245,7 @@ public class Character : Entity, IStickListener, IButtonListener,
                     break;
             }
             // Jeżeli kombinacje są za długie to są sprawdzane oraz czyszczone
-            if (currentCombination.Count >= 8) {
+            if (currentCombination.Count >= 5) {
                 CheckCombos();
                 currentCombination.Clear();
             }
@@ -230,7 +255,9 @@ public class Character : Entity, IStickListener, IButtonListener,
 
     public void OnButtonReleased(ButtonCode code)
     {
-
+        if (code == ButtonCode.RightBumper) {
+            isBlocking = false;
+        }
     }
     #endregion
 
@@ -243,12 +270,14 @@ public class Character : Entity, IStickListener, IButtonListener,
     {
         if (!IsPaused && stick.Code == AxisCode.LeftStick) {
             Move( stick.X );
+            animator.SetBool( "isRunning", true );
         }
     }
 
     public void OnStickDeadZone(JoystickDoubleAxis stick)
     {
-
+        if (stick.Code == AxisCode.LeftStick)
+            animator.SetBool( "isRunning", false );
     }
     #endregion
 
@@ -288,7 +317,12 @@ public class Character : Entity, IStickListener, IButtonListener,
 
     public override void ResetUnit()
     {
-
+        rb.velocity = Vector3.zero;
+        transform.position = startPosition;
+        isBlocking = false;
+        canMove = true;
+        isInviolability = false;
+        DialogueManager._Reset();
     }
 
     public override void Die()
@@ -334,8 +368,4 @@ public class Character : Entity, IStickListener, IButtonListener,
             new Vector3( coll.bounds.extents.x * 0.85f, coll.bounds.extents.y * 0.1f, coll.bounds.extents.z * 0.85f ),
             coll.transform.rotation, groundLayers );
     }
-
-
-
-
 }
