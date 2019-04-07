@@ -1,61 +1,130 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class MainSkill : MonoBehaviour //This class is meant for features of the "change to other world skill"
+/*using UnityEngine.VFX;                                                                /////////////VFX\\\\\\\\\\\\\\
+using UnityEditor.Experimental.Rendering.HDPipeline;
+using UnityEditor.VFX; */
+public class MainSkill : MonoBehaviour
 {
-    private GameObject deathWorld, realWorld; //Normally i would just make "Find("").activeSelf" but apparently if the object is not active, it's
-    private GameObject enemies;               //Also not detectable for script so you have to make the object active on start, attach it on script
-                                              //awake and in Start set it false (kto to wymyślił XD).
-    
-    public void Awake()
+
+    private float size = 0;
+    public float changeSpeed = 3f;
+    private bool changingCircleAtTheMoment = false;   
+    private bool isInRealLife = false;
+    private float timeStartedLerping;
+    public float timeOfLerp;
+
+
+    /*private bool changingVFXAtTheMoment = false;                                      /////////////VFX\\\\\\\\\\\\\\
+    public GameObject vfx;
+    public UnityEngine.Experimental.VFX.VisualEffect visualEffect;
+    private float minorRadius;
+    private float majorRadius = 0f; */
+
+    void Awake()
     {
-        deathWorld = GameObject.Find("Death World");
-        realWorld = GameObject.Find("Real World");
-        enemies = GameObject.Find("Enemies");
+        transform.localScale = new Vector3(0,0,0);
+        /* vfx.SetActive(false);                                                        /////////////VFX\\\\\\\\\\\\\\
+        visualEffect.SetFloat("minor radius", 1f); */
     }
 
-    public void Start()
-    {
-        deathWorld.SetActive(false);
-        
-    }
 
-    public void ChangeToOtherWorld() //Here we switch the objects from "Real World" to "Death World" and opposite
+
+    public void ChangeWorld()
     {
-        
-        
-        if (realWorld.activeSelf == true)
+        if (isInRealLife == false)
         {
-            realWorld.SetActive(false);
-            deathWorld.SetActive(true);
-            ChangeTheTransprencyOfEnemies(0.5f);
+            isInRealLife = true;
         }
-        else if (deathWorld.activeSelf == true)
+        else isInRealLife = false;
+
+        changingCircleAtTheMoment = true;
+        //changingVFXAtTheMoment = true;                                            /////////////VFX\\\\\\\\\\\\\\
+        StartLerping();
+    }
+
+    void Update()
+    {
+
+        if (changingCircleAtTheMoment == true)
         {
-            realWorld.SetActive(true);
-            deathWorld.SetActive(false);
-            ChangeTheTransprencyOfEnemies(1f);
+            if (isInRealLife == true)
+            {
+                size = Lerp(size, Screen.width/128, timeStartedLerping, 0.7f);
+                transform.localScale = new Vector3(size, size, 0);
+                
+
+                if (size >= Screen.width / 128)
+                {
+                    changingCircleAtTheMoment = false;
+                }
+
+
+            }
+            else
+            {
+                size = Lerp(size, 0, timeStartedLerping, 0.7f);
+                transform.localScale = new Vector3(size, size, 0);
+
+
+                if (size <= 0)
+                {
+                    changingCircleAtTheMoment = false;
+                }
+            }
         }
+        /*if (changingVFXAtTheMoment == true)                                           /////////////VFX\\\\\\\\\\\\\\
+        {
+            visualEffect.SetInt("particles", 10000);
+            if (isInRealLife == true)
+            {
+                vfx.SetActive(true);
+                
+                majorRadius = Lerp(majorRadius, 8, timeStartedLerping, 0.7f);
+                visualEffect.SetFloat("major radius", majorRadius);
+
+
+                if (majorRadius >= 6)
+                {
+                    changingVFXAtTheMoment = false;
+
+                }
+
+            }
+            else
+            {
+                Debug.Log("Down");
+                majorRadius = Lerp(majorRadius, 0, timeStartedLerping, 0.7f);
+                visualEffect.SetFloat("major radius", majorRadius);
+                if (majorRadius <= 0)
+                {
+                    changingVFXAtTheMoment = false;
+
+                }
+            }
+        }
+        else
+        {
+            visualEffect.SetInt("particles", 0);
+        }*/
+        
         
     }
 
 
-    private void ChangeTheTransprencyOfEnemies(float transparency)  //Change the transparency of enemy (later we will use it for other people and objects)
+
+    private void StartLerping() //Function for taking the starting time of lerping
     {
-
-        foreach (Transform enemy in enemies.transform)
-        {
-
-            Color enemyColor = enemy.transform.Find("Sprite").gameObject.GetComponent<SpriteRenderer>().color;
-            enemyColor.a = transparency;
-            enemy.transform.Find("Sprite").gameObject.GetComponent<SpriteRenderer>().color = enemyColor;
-        }
+        timeStartedLerping = Time.time;
     }
 
-    //Here we can change the transparency of other characters
-    //We also need to change the speed of the game somehow (f.e. attach a constant to each object we want the speed to go slower)
-    //If you're at position of an obstacle in another world and you suddenly change the world, you glitch in the obstacle (we need to come up with an idea to remove the zajebany glitch)
+    private float Lerp(float start, float end, float timeStartedLerping, float lerpTime = 1) //Easier usage of lerp
+    {
+        float timeSinceStarted = Time.time - timeStartedLerping;
+        float percentageComplete = timeSinceStarted / lerpTime;
+        float result = Mathf.Lerp(start, end, percentageComplete);
+        return result;
+    }
 
 
 }

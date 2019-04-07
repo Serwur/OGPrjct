@@ -221,8 +221,10 @@ public class Character : Entity, IStickListener, IButtonListener,
                     currentCombination.AddLast( code );
                     break;
                 case ButtonCode.LeftBumper:
+                    Debug.Log("0");
                     if (canMove) {
-                        mainSkill.ChangeToOtherWorld();
+                        Debug.Log("1");
+                        mainSkill.ChangeWorld();
                     }
                     currentCombination.AddLast( code );
                     break;
