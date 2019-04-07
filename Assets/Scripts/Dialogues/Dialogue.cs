@@ -10,12 +10,15 @@ public class Dialogue : TimerManager.IOnCountdownEnd
     public string objectName = "";
     public float speed = 0.65f;
     public AudioClip audioClip = null;
+    public bool followObject = false;
+    public float followSpeed = 0.45f;
 
     private Entity entity = null;
     private long countdownID;
     private int currentChar = 0;
     private bool hasEnded = false;
     private Text dialogueText = null;
+    private bool failed = false;
 
     #region Public Methods
     /// <summary>
@@ -24,10 +27,13 @@ public class Dialogue : TimerManager.IOnCountdownEnd
     /// <returns>TRUE if entity by given <b>object name</b> exists, otherwise FALSE</returns>
     public bool Init()
     {
-        if (ownerName == null)
+        if (ownerName == null) {
+            failed = true;
             return false;
-        Entity entity = GameManager.GetEntityByName( objectName );
-        return entity != null;
+        }
+        entity = GameManager.GetEntityByName( objectName );
+        failed = entity == null;
+        return !failed;
     }
 
     /// <summary>
@@ -64,6 +70,9 @@ public class Dialogue : TimerManager.IOnCountdownEnd
         } else {
             countdownID = TimerManager.StartCountdown( 1 / ( 0.9f + speed / 10f ) - 1, true, this );
         }
+        if (followObject) {
+            CameraManager.FollowTarget( entity.transform, followSpeed );
+        }
     }
 
     /// <summary>
@@ -94,6 +103,7 @@ public class Dialogue : TimerManager.IOnCountdownEnd
         hasEnded = false;
         currentChar = 0;
         entity = null;
+        failed = false;
     }
 
     /// <summary>
@@ -118,5 +128,6 @@ public class Dialogue : TimerManager.IOnCountdownEnd
     public string Text { get => dialogue; }
     public float Speed { get => speed; }
     public bool HasEnded { get => hasEnded; }
+    public bool Failed { get => failed; }
     #endregion
 }

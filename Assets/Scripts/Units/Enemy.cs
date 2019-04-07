@@ -31,6 +31,7 @@ public class Enemy : Entity
 
     public override void UpdateAttributes()
     {
+        base.UpdateAttributes();
     }
 
     public override bool ShouldBlockAttack(Attack attack)

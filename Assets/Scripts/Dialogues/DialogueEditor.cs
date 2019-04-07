@@ -63,6 +63,7 @@ public class DialogueEditor : EditorWindow
             GUILayout.BeginHorizontal();
             GUILayout.Label( "Dialogue List Type", GUILayout.ExpandWidth( false ) );
             dialogueList.type = (DialogueType) EditorGUILayout.EnumPopup( dialogueList.type, GUILayout.ExpandWidth( false ) );
+            dialogueList.continueIfFails = EditorGUILayout.Toggle( "Continue If Dialogue Fails", dialogueList.continueIfFails );
             GUILayout.EndHorizontal();
 
             GUILayout.Space( 10 );
@@ -74,7 +75,7 @@ public class DialogueEditor : EditorWindow
                 if (viewIndex > 1) {
                     EditorUtility.FocusProjectWindow();
                     viewIndex--;
-                }                  
+                }
             }
 
             GUILayout.Space( 5 );
@@ -120,6 +121,8 @@ public class DialogueEditor : EditorWindow
                 GUILayout.BeginVertical();
                 dialogueList.dialogues[viewIndex - 1].speed = EditorGUILayout.Slider( "Dialogue Speed", dialogueList.dialogues[viewIndex - 1].speed, 0f, 1f );
                 dialogueList.dialogues[viewIndex - 1].audioClip = EditorGUILayout.ObjectField( "Dialogue Audio", dialogueList.dialogues[viewIndex - 1].audioClip, typeof( AudioClip ), false ) as AudioClip;
+                dialogueList.dialogues[viewIndex - 1].followObject = EditorGUILayout.Toggle( "Follow Target", dialogueList.dialogues[viewIndex - 1].followObject );
+                dialogueList.dialogues[viewIndex - 1].followSpeed = EditorGUILayout.Slider( "Follow Speed", dialogueList.dialogues[viewIndex - 1].followSpeed, 0.01f, 1f );
                 GUILayout.EndVertical();
                 GUILayout.EndHorizontal();
             } else {
@@ -156,7 +159,7 @@ public class DialogueEditor : EditorWindow
         EditorPrefs.SetString( "ObjectPath", relPath );
         FocusList( dialogueList );
     }
-    
+
     /// <summary>
     /// Opens existing dialogue list. It opens selected object in Project window or creates file manager window to select the object.
     /// </summary>
@@ -167,7 +170,7 @@ public class DialogueEditor : EditorWindow
             dialogueList = (DialogueList) Selection.activeObject;
         } else {
             // Otwieramy panel z wyborem plików
-            string absPath = EditorUtility.OpenFilePanel( "Select Dialogue List", "Assets/Resources/" + DIALOGUES_FOLDER, ".asset" );
+            string absPath = EditorUtility.OpenFilePanel( "Select Dialogue List", "Assets/Resources/" + DIALOGUES_FOLDER, "asset" );
             if (absPath.Equals( "" ))
                 return;
             // Jeżeli ścieżka zaczyna się od tego czegoś??

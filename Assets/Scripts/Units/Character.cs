@@ -9,10 +9,6 @@ public class Character : Entity, IStickListener, IButtonListener,
     #region Public Fields
     [Header( "Others" )]
     public LayerMask groundLayers;
-
-    [Header( "Dev Tools" )]
-    public bool anotherCollider = true;
-    public string colliderChild = "";
     #endregion
 
     #region Static Fields
@@ -25,7 +21,6 @@ public class Character : Entity, IStickListener, IButtonListener,
     #endregion
 
     #region Private Fields
-    private int direction = 1;
 
     private bool doubleJumped = false;
     private bool shouldCheckIfIsInAir = false;
@@ -46,12 +41,14 @@ public class Character : Entity, IStickListener, IButtonListener,
     #endregion
 
     #region Dev Fields
+    [Header( "Dev Tools" )]
+    public bool anotherCollider = true;
+    public string colliderChild = "";
     // For dev test, use Start on Joystick or R on keyboard to reset position and velocity
     private Vector3 startPosition;
     #endregion
     #endregion
 
-    #region Public Methods
     #region Unity API
     public override void Awake()
     {
@@ -116,18 +113,19 @@ public class Character : Entity, IStickListener, IButtonListener,
     }
     #endregion
 
+    #region Public Methods
     /// <summary>
     /// Do zaimplementowania skrypt ruchu gracza.
     /// </summary>
     public void Move(float x)
     {
         if (canMove) {
-            direction = x > 0 ? 1 : -1;
+            lookDirection = x > 0 ? 1 : -1;
             rb.velocity = new Vector3( 0, rb.velocity.y );
             if (animator != null)
                 animator.SetBool( "isRunning", true );
             transform.Translate( new Vector3( x * moveSpeed.max * Time.deltaTime, 0 ), Space.World );
-            transform.rotation = Quaternion.LookRotation( new Vector3( 0, 0, direction ), transform.up );
+            transform.rotation = Quaternion.LookRotation( new Vector3( 0, 0, lookDirection ), transform.up );
         }
     }
 
@@ -151,11 +149,12 @@ public class Character : Entity, IStickListener, IButtonListener,
         if (TimerManager.HasEnded( simpleAttackCountdown )) {
             // W innym wypadku jest on wykonany, ale jeżeli jesteśmy w aktualnie w locie
             // to atak jest wykonany w miejscu
+            Vector3 attackDirection = new Vector3( SIMPLE_ATTACK_MOVE * lookDirection, rb.velocity.y );
             if (IsTouchingGround())
-                rb.velocity = new Vector3( SIMPLE_ATTACK_MOVE * direction, rb.velocity.y );
+                rb.velocity = attackDirection;
             // Przypisujemy ostatni klawisz ze zwykłego ataku oraz resetujemy timer
             TimerManager.ResetCountdown( simpleAttackCountdown );
-            weapon.SetNextAttackInfo( Attack.One );
+            weapon.SetNextAttackInfo( new Attack( 1, new Vector3( lookDirection, 0 ) ) );
             animator.Play( "Player_SimpleAttack", 0 );
             canMove = false;
         }
@@ -170,6 +169,7 @@ public class Character : Entity, IStickListener, IButtonListener,
         if (TimerManager.HasEnded( flyAttackCountdown )) {
             TimerManager.ResetCountdown( flyAttackCountdown );
             rb.velocity = new Vector3( rb.velocity.x, FLY_ATTACL_MOVE );
+            animator.Play( "Player_JumpAttack", 0 );
         }
     }
 
@@ -180,8 +180,8 @@ public class Character : Entity, IStickListener, IButtonListener,
     {
         if (TimerManager.HasEnded( backwardAttackCountdown )) {
             TimerManager.ResetCountdown( backwardAttackCountdown );
-            direction *= -1;
-            rb.velocity = new Vector3( SIMPLE_ATTACK_MOVE * 2 * direction, rb.velocity.y );
+            lookDirection *= -1;
+            rb.velocity = new Vector3( SIMPLE_ATTACK_MOVE * 2 * lookDirection, rb.velocity.y );
             canMove = false;
             if (animator != null) {
                 animator.SetTrigger( "backwardAttack" );
@@ -191,7 +191,42 @@ public class Character : Entity, IStickListener, IButtonListener,
 
     public override bool ShouldBlockAttack(Attack attack)
     {
-        return false;
+        return base.ShouldBlockAttack( attack );
+    }
+
+    public override void ResetUnit()
+    {
+        rb.velocity = Vector3.zero;
+        transform.position = startPosition;
+        isBlocking = false;
+        canMove = true;
+        isInviolability = false;
+        DialogueManager._Reset();
+    }
+
+    public override void Die()
+    {
+
+    }
+
+    /// <summary>
+    /// For timer when one from countdowns ends.
+    /// </summary>
+    /// <param name="id">Countdown id</param>
+    public void OnCountdownEnd(long id)
+    {
+        if (id == backwardAttackCountdown) {
+            canMove = true;
+            transform.rotation = Quaternion.LookRotation( new Vector3( 0, 0, lookDirection ), transform.up );
+        } else if (id == comboBreakCountdown) {
+            if (currentCombination.Count >= 3) {
+                CheckCombos();
+            }
+            currentCombination.Clear();
+        } else if (id == simpleAttackCountdown) {
+            canMove = true;
+            weapon.SetNextAttackInfo( null );
+        }
     }
 
     #region Buttons
@@ -255,11 +290,6 @@ public class Character : Entity, IStickListener, IButtonListener,
                     ResetUnit();
                     break;
                 case ButtonCode.Back:
-                    if (DialogueManager.HasEndedDialogueList()) {
-                        DialogueManager.StartDialogues( dialogueLists[0] );
-                    } else {
-                        DialogueManager.PushNextDialogue();
-                    }
                     break;
                 case ButtonCode.LeftStick:
                     break;
@@ -272,7 +302,13 @@ public class Character : Entity, IStickListener, IButtonListener,
                 currentCombination.Clear();
             }
         }
-
+        if (code == ButtonCode.Back) {
+            if (DialogueManager.HasEndedDialogueList()) {
+                DialogueManager.StartDialogues( dialogueLists[0] );
+            } else {
+                DialogueManager.PushNextDialogue();
+            }
+        }
     }
 
     public void OnButtonReleased(ButtonCode code)
@@ -339,37 +375,6 @@ public class Character : Entity, IStickListener, IButtonListener,
     {
     }
     #endregion
-
-    public override void ResetUnit()
-    {
-        rb.velocity = Vector3.zero;
-        transform.position = startPosition;
-        isBlocking = false;
-        canMove = true;
-        isInviolability = false;
-        DialogueManager._Reset();
-    }
-
-    public override void Die()
-    {
-
-    }
-
-    public void OnCountdownEnd(long id)
-    {
-        if (id == backwardAttackCountdown) {
-            canMove = true;
-            transform.rotation = Quaternion.LookRotation( new Vector3( 0, 0, direction ), transform.up );
-        } else if (id == comboBreakCountdown) {
-            if (currentCombination.Count >= 3) {
-                CheckCombos();
-            }
-            currentCombination.Clear();
-        } else if (id == simpleAttackCountdown) {
-            canMove = true;
-            weapon.SetNextAttackInfo(null);
-        }
-    }
     #endregion
 
     /// <summary>

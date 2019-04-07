@@ -1,11 +1,13 @@
-﻿public class Attack
-{
-    public readonly float damage = 1f;
+﻿using UnityEngine;
 
-    public Attack(float damage)
+public class Attack
+{
+    public readonly float damage;
+    public readonly Vector3 direction;
+
+    public Attack(float damage, Vector3 direction)
     {
         this.damage = damage;
+        this.direction = direction;
     }
-
-    public static Attack One { get => new Attack( 1 ); }
 }

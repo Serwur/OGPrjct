@@ -25,24 +25,29 @@ public abstract class Entity : MonoBehaviour
     [SerializeField] protected bool canMove = true;
     [SerializeField] protected bool isInviolability = false;
     [SerializeField] protected bool isPaused = false;
+    [SerializeField] public bool isBlocking = false;
 
     [Header( "Dialogs" )]
     public DialogueList[] dialogueLists;
 
     protected Rigidbody rb;
-    protected bool isBlocking = false;
+    // -1 = left, 1 = right
+    protected int lookDirection = 1;
 
     #region Unity API
     public virtual void Awake()
     {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
+        if (transform.right.z == 1f)
+            lookDirection = 1;
+        else
+            lookDirection = -1;
     }
 
     public virtual void Start()
     {
         GameManager.AddEntity( this );
-
         UpdateAttributes();
         hitPoints.current = hitPoints.max;
         sourcePoints.current = sourcePoints.max;
@@ -60,11 +65,9 @@ public abstract class Entity : MonoBehaviour
     /// <returns>Zwraca TRUE, jeżeli jednostka otrzymała jakiekolwiek obrażenia w przeciwnym wypadku zwraca FALSE</returns>
     public virtual bool TakeDamage(Attack attack)
     {
-        if (isInviolability)
+        Debug.Log( ShouldBlockAttack( attack ) );
+        if (isInviolability || ShouldBlockAttack( attack ))
             return false;
-        if (isBlocking && ShouldBlockAttack( attack )) {
-            return false;
-        }
         if (attack.damage > 0f) {
             hitPoints.current -= attack.damage;
             if (hitPoints.current < 0f)
@@ -123,6 +126,20 @@ public abstract class Entity : MonoBehaviour
     }
 
     /// <summary>
+    /// Checks if attack should be blocked
+    /// </summary>
+    /// <returns></returns>
+    public virtual bool ShouldBlockAttack(Attack attack)
+    {
+        if (isBlocking) {
+            float dot = Vector3.Dot( attack.direction, LookRotation );
+            Debug.Log( dot );
+            return dot == 0;
+        }
+        return false;
+    }
+
+    /// <summary>
     /// <br>Zamysł tej metody jest taki, że resetuje stan gracza ustawiajac jego hp i zasoby do 100%,</br>
     /// <br>usuwając wszystkie czasowe oraz pasywne buffy/debuffy (wliczajac w to wzmocnienia, stuny itd. itp)</br>
     /// </summary>
@@ -133,13 +150,9 @@ public abstract class Entity : MonoBehaviour
     /// <br>punktów graczom itp. itd.</br>
     /// </summary>
     public abstract void Die();
-
-    /// <summary>
-    /// Checks if attack should be blocked
-    /// </summary>
-    /// <returns></returns>
-    public abstract bool ShouldBlockAttack(Attack attack);
     #endregion
+
+    public Vector3 LookRotation { get => new Vector3( 0, 0, lookDirection ); }
 
     #region Setter And Getters
     public bool IsPaused { get => isPaused; set => isPaused = value; }

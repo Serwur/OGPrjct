@@ -14,27 +14,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dialogues:
   - dialogueName: Pizda
-    dialogue: Jebac was szmaty, w chuj!
-    ownerName: Lamus
-    objectName: Player
+    dialogue: "Zniszcze Ci\u0119, kurwo! Ca\u0142e \u017Cycie na to czeka\u0142em!"
+    ownerName: Kurwinox
+    objectName: Body_Model
     speed: 0.531
     audioClip: {fileID: 0}
+    followObject: 1
+    followSpeed: 0.65
   - dialogueName: Jebana
-    dialogue: Was tez kurwa
+    dialogue: "Jaki\u015B dialog, bo nie mam pomys\u0142u"
     ownerName: Pizdotron
     objectName: Player
     speed: 0.328
     audioClip: {fileID: 0}
+    followObject: 1
+    followSpeed: 0.65
   - dialogueName: Pierdolona
-    dialogue: Was najbardziej kurwy
+    dialogue: "Kolejny bezsensowny dialog bez pomys\u0142u, ehhh"
     ownerName: Nikt
-    objectName: Player
+    objectName: Body_Model
     speed: 0.483
     audioClip: {fileID: 0}
+    followObject: 1
+    followSpeed: 0.65
   - dialogueName: Pizda
-    dialogue: "Ponownie wam m\xF3wie kurwa, jeba\u0107 was\nw pizde!"
+    dialogue: "No i znowu kolejny, a co kurwa =) Tylko tym razem d\u0142u\u017Cszy,
+      aby to fajniej wygl\u0105da\u0142o"
     ownerName: Lamus
     objectName: Player
     speed: 0.597
     audioClip: {fileID: 0}
+    followObject: 1
+    followSpeed: 0.65
   type: 0
+  continueIfFails: 1

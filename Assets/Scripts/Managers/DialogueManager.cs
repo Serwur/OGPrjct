@@ -38,6 +38,12 @@ public class DialogueManager : MonoBehaviour
     {
         GameManager.PauseEntities( true );
         Instance.currentDialogueList = dialogueList;
+        dialogueList._Reset();
+        bool succesInit = dialogueList.Init();
+        if (!dialogueList.continueIfFails && !succesInit) {
+            _Reset();
+            return;
+        }
         dialogueList.NextDialog();
     }
 
@@ -51,6 +57,7 @@ public class DialogueManager : MonoBehaviour
         // CloudFrame.transform.parent = null;
         CinematicFrame.SetActive( false );
         GameManager.PauseEntities( false );
+        CameraManager.FollowPlayer( 0.75f );
     }
 
     public static Text GetCloudFrame(Entity entity)

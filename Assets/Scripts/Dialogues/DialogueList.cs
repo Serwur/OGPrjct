@@ -5,9 +5,23 @@ public class DialogueList : ScriptableObject
 {
     public List<Dialogue> dialogues;
     public DialogueType type = DialogueType.CINEMATIC;
+    public bool continueIfFails = false;
 
     private Dialogue currentDialogue = null;
     private int currentDialogueIndex = -1;
+
+    public bool Init()
+    {
+        int fails = 0;
+        foreach (Dialogue dialogue in dialogues) {
+            if (!dialogue.Init())
+                fails++;
+        }
+        if (fails > 0) {
+            Debug.Log( "DialogueList::Init::(Failed " + fails + " dialogues init)" );
+        }
+        return fails == 0;
+    }
 
     public void NextDialog()
     {
@@ -16,11 +30,8 @@ public class DialogueList : ScriptableObject
             DialogueManager._Reset();
             return;
         }
-        if (currentDialogue != null) {
-            currentDialogue._Reset();
-        }
         currentDialogue = dialogues[currentDialogueIndex];
-        if (!currentDialogue.Init()) {
+        if (currentDialogue.Failed) {
             NextDialog();
         } else {
             currentDialogue.StartDialogue( type );
@@ -50,8 +61,6 @@ public class DialogueList : ScriptableObject
         clone.currentDialogueIndex = currentDialogueIndex;
         return clone;
     }
-
-    // public 
 
     public bool HasEndedList { get => currentDialogueIndex == dialogues.Count; }
     public Dialogue CurrentDialogue { get => currentDialogue; }
