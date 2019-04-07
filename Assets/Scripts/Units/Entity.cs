@@ -30,11 +30,13 @@ public abstract class Entity : MonoBehaviour
     public DialogueList[] dialogueLists;
 
     protected Rigidbody rb;
+    protected bool isBlocking = false;
 
     #region Unity API
     public virtual void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        rb.freezeRotation = true;
     }
 
     public virtual void Start()
@@ -54,17 +56,17 @@ public abstract class Entity : MonoBehaviour
     /// <summary>
     /// Zadaje obrażenia jednostce.
     /// </summary>
-    /// <param name="damage">Ilość zadanych obrażeń</param>
+    /// <param name="attack">Informacje o wykonywanym ataku</param>
     /// <returns>Zwraca TRUE, jeżeli jednostka otrzymała jakiekolwiek obrażenia w przeciwnym wypadku zwraca FALSE</returns>
-    public virtual bool TakeDamage(float damage)
+    public virtual bool TakeDamage(Attack attack)
     {
         if (isInviolability)
             return false;
-        float damageToDeal = 0f;
-        if (damageToDeal > 0f) {
-            if (damageToDeal < 1f)
-                damageToDeal = 1f;
-            hitPoints.current -= damageToDeal;
+        if (isBlocking && ShouldBlockAttack( attack )) {
+            return false;
+        }
+        if (attack.damage > 0f) {
+            hitPoints.current -= attack.damage;
             if (hitPoints.current < 0f)
                 Die();
             return true;
@@ -131,6 +133,12 @@ public abstract class Entity : MonoBehaviour
     /// <br>punktów graczom itp. itd.</br>
     /// </summary>
     public abstract void Die();
+
+    /// <summary>
+    /// Checks if attack should be blocked
+    /// </summary>
+    /// <returns></returns>
+    public abstract bool ShouldBlockAttack(Attack attack);
     #endregion
 
     #region Setter And Getters

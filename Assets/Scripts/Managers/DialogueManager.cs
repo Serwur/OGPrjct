@@ -16,7 +16,7 @@ public class DialogueManager : MonoBehaviour
     {
         if (Instance != null) {
             Debug.LogError( "DialogueManager::Awake::(Trying to create more than one dialogue manager!)" );
-            Destroy( gameObject );
+            return;
         }
         Instance = this;
     }

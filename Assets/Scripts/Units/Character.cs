@@ -9,27 +9,34 @@ public class Character : Entity, IStickListener, IButtonListener,
     #region Public Fields
     [Header( "Others" )]
     public LayerMask groundLayers;
+
+    [Header( "Dev Tools" )]
+    public bool anotherCollider = true;
+    public string colliderChild = "";
     #endregion
 
     #region Static Fields
-    private static readonly float SIMPLE_ATTACK_TIME = 0.10f;
+    private static readonly float SIMPLE_ATTACK_TIME = 0.17f;
     private static readonly float FLY_ATTACK_TIME = 0.3f;
     private static readonly float BACKWARD_ATTACK_TIME = 0.47f;
     private static readonly float COMBO_BREAK_TIME = 0.15f;
+    private static readonly float SIMPLE_ATTACK_MOVE = 5.75f;
+    private static readonly float FLY_ATTACL_MOVE = 11.5f;
     #endregion
 
     #region Private Fields
-    private float simpleAttackSpeed = 5.75f;
-    private float flyAttackSpeed = 11.5f;
     private int direction = 1;
-    private float verticalVelocity = 0f;
-    private bool doubleJumped = false;
-    private MainSkill mainSkill;
-    private bool isBlocking = false;
 
+    private bool doubleJumped = false;
     private bool shouldCheckIfIsInAir = false;
 
+    private MainSkill mainSkill;
     private Animator animator;
+    private List<Combo> combos = new List<Combo>();
+    private LinkedList<ButtonCode> currentCombination = new LinkedList<ButtonCode>();
+    private PInput input;
+    private BoxCollider coll;
+    private Weapon weapon;
 
     #region Countdowns IDs
     private long simpleAttackCountdown;
@@ -37,11 +44,6 @@ public class Character : Entity, IStickListener, IButtonListener,
     private long backwardAttackCountdown;
     private long comboBreakCountdown;
     #endregion
-
-    private List<Combo> combos = new List<Combo>();
-    private LinkedList<ButtonCode> currentCombination = new LinkedList<ButtonCode>();
-    private PInput input;
-    private BoxCollider coll;
 
     #region Dev Fields
     // For dev test, use Start on Joystick or R on keyboard to reset position and velocity
@@ -55,15 +57,21 @@ public class Character : Entity, IStickListener, IButtonListener,
     {
         base.Awake();
         input = GetComponent<PInput>();
-        coll = GetComponent<BoxCollider>();
+        // DEV TOOL TO DELETE IN FUTURE
+        if (!anotherCollider) {
+            coll = GetComponent<BoxCollider>();
+        } else {
+            coll = transform.Find( colliderChild ).GetComponent<BoxCollider>();
+        }
         mainSkill = GetComponent<MainSkill>();
         animator = GetComponent<Animator>();
+        weapon = FindObjectOfType<Weapon>();
     }
 
     public override void Start()
     {
         base.Start();
-        simpleAttackCountdown = TimerManager.StartCountdown( SIMPLE_ATTACK_TIME, false, null );
+        simpleAttackCountdown = TimerManager.StartCountdown( SIMPLE_ATTACK_TIME, false, this );
         flyAttackCountdown = TimerManager.StartCountdown( FLY_ATTACK_TIME, false, null );
         backwardAttackCountdown = TimerManager.StartCountdown( BACKWARD_ATTACK_TIME, false, this );
         comboBreakCountdown = TimerManager.StartCountdown( COMBO_BREAK_TIME, false, this );
@@ -84,7 +92,7 @@ public class Character : Entity, IStickListener, IButtonListener,
 
     public void Update()
     {
-        if (shouldCheckIfIsInAir) {
+        if (animator != null && shouldCheckIfIsInAir) {
             shouldCheckIfIsInAir = false;
             if (Mathf.Clamp( rb.velocity.y, -0.1f, 0.1f ) == rb.velocity.y)
                 animator.SetBool( "isInAir", false );
@@ -96,11 +104,14 @@ public class Character : Entity, IStickListener, IButtonListener,
         if (rb.velocity.y < 0) {
             rb.velocity = new Vector3( rb.velocity.x, rb.velocity.y * 1.01f );
         }
+        if (animator != null) {
+            animator.SetFloat( "speedY", rb.velocity.y );
+        }
     }
 
     public void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.layer != groundLayers)
+        if (IsTouchingGround())
             shouldCheckIfIsInAir = true;
     }
     #endregion
@@ -112,13 +123,11 @@ public class Character : Entity, IStickListener, IButtonListener,
     {
         if (canMove) {
             direction = x > 0 ? 1 : -1;
-            //rb.velocity = new Vector3( x * moveSpeed.max, rb.velocity.y );
             rb.velocity = new Vector3( 0, rb.velocity.y );
-            transform.Translate( new Vector3( x * moveSpeed.max * Time.deltaTime, 0 ) );
-            /* Vector3 moveDirection = Vector3.zero;
-             moveDirection.x = moveSpeed.max * Time.deltaTime * x;
-             moveDirection.y = verticalVelocity;
-             characterController.Move( moveDirection );*/
+            if (animator != null)
+                animator.SetBool( "isRunning", true );
+            transform.Translate( new Vector3( x * moveSpeed.max * Time.deltaTime, 0 ), Space.World );
+            transform.rotation = Quaternion.LookRotation( new Vector3( 0, 0, direction ), transform.up );
         }
     }
 
@@ -128,7 +137,8 @@ public class Character : Entity, IStickListener, IButtonListener,
     public void Jump(float jumpPower)
     {
         rb.velocity = new Vector2( rb.velocity.x, jumpPower );
-        animator.SetBool( "isInAir", true );
+        if (animator != null)
+            animator.SetBool( "isInAir", true );
     }
 
     /// <summary>
@@ -142,12 +152,13 @@ public class Character : Entity, IStickListener, IButtonListener,
             // W innym wypadku jest on wykonany, ale jeżeli jesteśmy w aktualnie w locie
             // to atak jest wykonany w miejscu
             if (IsTouchingGround())
-                rb.velocity = new Vector3( simpleAttackSpeed * direction, rb.velocity.y );
+                rb.velocity = new Vector3( SIMPLE_ATTACK_MOVE * direction, rb.velocity.y );
             // Przypisujemy ostatni klawisz ze zwykłego ataku oraz resetujemy timer
             TimerManager.ResetCountdown( simpleAttackCountdown );
+            weapon.SetNextAttackInfo( Attack.One );
+            animator.Play( "Player_SimpleAttack", 0 );
+            canMove = false;
         }
-
-
     }
 
     /// <summary>
@@ -158,7 +169,7 @@ public class Character : Entity, IStickListener, IButtonListener,
     {
         if (TimerManager.HasEnded( flyAttackCountdown )) {
             TimerManager.ResetCountdown( flyAttackCountdown );
-            rb.velocity = new Vector3( rb.velocity.x, flyAttackSpeed );
+            rb.velocity = new Vector3( rb.velocity.x, FLY_ATTACL_MOVE );
         }
     }
 
@@ -170,18 +181,27 @@ public class Character : Entity, IStickListener, IButtonListener,
         if (TimerManager.HasEnded( backwardAttackCountdown )) {
             TimerManager.ResetCountdown( backwardAttackCountdown );
             direction *= -1;
-            rb.velocity = new Vector3( simpleAttackSpeed * 2 * direction, rb.velocity.y );
-            Debug.Log( "BACKWARD ATTACK" );
+            rb.velocity = new Vector3( SIMPLE_ATTACK_MOVE * 2 * direction, rb.velocity.y );
             canMove = false;
+            if (animator != null) {
+                animator.SetTrigger( "backwardAttack" );
+            }
         }
+    }
+
+    public override bool ShouldBlockAttack(Attack attack)
+    {
+        return false;
     }
 
     #region Buttons
     public void OnButtonHeld(ButtonCode code)
     {
-        if (code == ButtonCode.RightBumper) {
+        if (code == ButtonCode.RightBumper && canMove) {
+            canMove = false;
             isBlocking = true;
-            // BLOCK SCRIPT
+            if (!animator.GetBool( "isBlocking" ))
+                animator.SetBool( "isBlocking", true );
         }
     }
 
@@ -221,9 +241,9 @@ public class Character : Entity, IStickListener, IButtonListener,
                     currentCombination.AddLast( code );
                     break;
                 case ButtonCode.LeftBumper:
-                    Debug.Log("0");
+                    Debug.Log( "0" );
                     if (canMove) {
-                        Debug.Log("1");
+                        Debug.Log( "1" );
                         mainSkill.ChangeWorld();
                     }
                     currentCombination.AddLast( code );
@@ -259,6 +279,8 @@ public class Character : Entity, IStickListener, IButtonListener,
     {
         if (code == ButtonCode.RightBumper) {
             isBlocking = false;
+            canMove = true;
+            animator.SetBool( "isBlocking", false );
         }
     }
     #endregion
@@ -272,14 +294,15 @@ public class Character : Entity, IStickListener, IButtonListener,
     {
         if (!IsPaused && stick.Code == AxisCode.LeftStick) {
             Move( stick.X );
-            animator.SetBool( "isRunning", true );
         }
     }
 
     public void OnStickDeadZone(JoystickDoubleAxis stick)
     {
-        if (stick.Code == AxisCode.LeftStick)
+        if (stick.Code == AxisCode.LeftStick && animator != null) {
             animator.SetBool( "isRunning", false );
+        }
+
     }
     #endregion
 
@@ -336,11 +359,15 @@ public class Character : Entity, IStickListener, IButtonListener,
     {
         if (id == backwardAttackCountdown) {
             canMove = true;
+            transform.rotation = Quaternion.LookRotation( new Vector3( 0, 0, direction ), transform.up );
         } else if (id == comboBreakCountdown) {
             if (currentCombination.Count >= 3) {
                 CheckCombos();
             }
             currentCombination.Clear();
+        } else if (id == simpleAttackCountdown) {
+            canMove = true;
+            weapon.SetNextAttackInfo(null);
         }
     }
     #endregion

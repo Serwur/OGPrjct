@@ -18,6 +18,21 @@ public class Dialogue : TimerManager.IOnCountdownEnd
     private Text dialogueText = null;
 
     #region Public Methods
+    /// <summary>
+    /// Inits the dialogue by setting the proper entity on scene
+    /// </summary>
+    /// <returns>TRUE if entity by given <b>object name</b> exists, otherwise FALSE</returns>
+    public bool Init()
+    {
+        if (ownerName == null)
+            return false;
+        Entity entity = GameManager.GetEntityByName( objectName );
+        return entity != null;
+    }
+
+    /// <summary>
+    /// Appears next char from <b>dialogue</b> field on the screen
+    /// </summary>
     public void NextChar()
     {
         dialogueText.text += dialogue[currentChar++];
@@ -30,14 +45,10 @@ public class Dialogue : TimerManager.IOnCountdownEnd
         }
     }
 
-    public bool Init()
-    {
-        if (ownerName == null)
-            return false;
-        Entity entity = GameManager.GetEntityByName( objectName );
-        return entity != null;
-    }
-
+    /// <summary>
+    /// Starts the dialogue
+    /// </summary>
+    /// <param name="type">Type of dialogue, where should appear on screen</param>
     public void StartDialogue(DialogueType type)
     {
         // Creates frames
@@ -55,12 +66,16 @@ public class Dialogue : TimerManager.IOnCountdownEnd
         }
     }
 
+    /// <summary>
+    /// Ends the dialogue appearing by putting whole dialogue string on screen
+    /// </summary>
     public void PushToEnd()
     {
         hasEnded = true;
         dialogueText.text = ownerName + ": " + dialogue;
         TimerManager.RemoveCountdown( countdownID );
     }
+
 
     public void OnCountdownEnd(long id)
     {
@@ -69,6 +84,9 @@ public class Dialogue : TimerManager.IOnCountdownEnd
         }
     }
 
+    /// <summary>
+    /// Resets dialogue fields
+    /// </summary>
     public void _Reset()
     {
         TimerManager.RemoveCountdown( countdownID );
@@ -78,6 +96,10 @@ public class Dialogue : TimerManager.IOnCountdownEnd
         entity = null;
     }
 
+    /// <summary>
+    /// Clones the dialogue
+    /// </summary>
+    /// <returns>New Dialogue object with copied fields</returns>
     public Dialogue Clone()
     {
         Dialogue clone = new Dialogue {

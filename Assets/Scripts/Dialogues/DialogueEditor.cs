@@ -22,7 +22,7 @@ public class DialogueEditor : EditorWindow
 
 
     // DO SPRAWDZENIA, JESZCZE NEI WIEM CO TO DOKŁADNIE ROBI
-    void OnEnable()
+    public void OnEnable()
     {
         if (EditorPrefs.HasKey( "ObjectPath" )) {
             string objectPath = EditorPrefs.GetString( "ObjectPath" );
@@ -30,7 +30,7 @@ public class DialogueEditor : EditorWindow
         }
     }
 
-    void OnGUI()
+    public void OnGUI()
     {
         // ROZPOCZYNAMY USTAWIANIE POZIOMO
         GUILayout.Space( 10 );
@@ -131,6 +131,9 @@ public class DialogueEditor : EditorWindow
         }
     }
 
+    /// <summary>
+    /// Creates new dialogue list
+    /// </summary>
     public void NewDialogueList()
     {
         viewIndex = 1;
@@ -141,6 +144,10 @@ public class DialogueEditor : EditorWindow
         FocusList( dialogueList );
     }
 
+    /// <summary>
+    /// Copies dialogue list by given parameter
+    /// </summary>
+    /// <param name="listToCopy">Dialogue list that you want to copy</param>
     public void CopyDialogueList(DialogueList listToCopy)
     {
         viewIndex = 1;
@@ -149,7 +156,10 @@ public class DialogueEditor : EditorWindow
         EditorPrefs.SetString( "ObjectPath", relPath );
         FocusList( dialogueList );
     }
-
+    
+    /// <summary>
+    /// Opens existing dialogue list. It opens selected object in Project window or creates file manager window to select the object.
+    /// </summary>
     public void OpenDialogueList()
     {
         if (Selection.activeObject != null &&

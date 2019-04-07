@@ -26,9 +26,15 @@ public class Enemy : Entity
 
     public override void ResetUnit()
     {
+
     }
 
     public override void UpdateAttributes()
     {
+    }
+
+    public override bool ShouldBlockAttack(Attack attack)
+    {
+        return false;
     }
 }

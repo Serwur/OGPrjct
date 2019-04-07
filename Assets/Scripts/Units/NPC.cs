@@ -19,4 +19,9 @@ public class NPC : Entity
     public override void ResetUnit()
     {
     }
+
+    public override bool ShouldBlockAttack(Attack attack)
+    {
+        return false;
+    }
 }
