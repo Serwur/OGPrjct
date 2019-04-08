@@ -7,12 +7,13 @@ using UnityEditor.VFX; */
 public class MainSkill : MonoBehaviour
 {
 
-    private float size = 0;
-    public float changeSpeed = 3f;
-    private bool changingCircleAtTheMoment = false;   
-    private bool isInRealLife = false;
-    private float timeStartedLerping;
-    public float timeOfLerp;
+    //Class for trasisting from one world to another
+
+    private float size = 0; //Size of the circle
+    private bool changingCircleAtTheMoment = false; //Checks if a circle is changing its size
+    private bool isInRealLife = false; //checks in what world are we now
+    private float timeStartedLerping;   //time that starts when we start lerping the circle
+    public float timeOfLerp;    //time of lerping
 
 
     /*private bool changingVFXAtTheMoment = false;                                      /////////////VFX\\\\\\\\\\\\\\
@@ -23,7 +24,7 @@ public class MainSkill : MonoBehaviour
 
     void Awake()
     {
-        transform.localScale = new Vector3(0,0,0);
+        transform.localScale = new Vector3(0,0,0);  // circle is 0 size at the start
         /* vfx.SetActive(false);                                                        /////////////VFX\\\\\\\\\\\\\\
         visualEffect.SetFloat("minor radius", 1f); */
     }
@@ -110,7 +111,6 @@ public class MainSkill : MonoBehaviour
         
         
     }
-
 
 
     private void StartLerping() //Function for taking the starting time of lerping
