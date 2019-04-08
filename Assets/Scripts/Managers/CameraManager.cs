@@ -59,7 +59,7 @@ public class CameraManager : MonoBehaviour
     public static void FollowTarget(Transform transform, float speedTargetChange)
     {
         Instance.targetToFollow = transform;
-        Instance.speedTargetChange = Mathf.Clamp( speedTargetChange, 0.01f, 1f ) * 2f;
+        Instance.speedTargetChange = Mathf.Clamp( speedTargetChange, 0.01f, 1f ) * 3f;
         IsFollowingTarget = false;
         Instance.slowTargetChange = true;
     }

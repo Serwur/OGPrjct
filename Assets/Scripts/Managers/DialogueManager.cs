@@ -57,7 +57,7 @@ public class DialogueManager : MonoBehaviour
         // CloudFrame.transform.parent = null;
         CinematicFrame.SetActive( false );
         GameManager.PauseEntities( false );
-        CameraManager.FollowPlayer( 0.75f );
+        CameraManager.FollowPlayer( 0.9f );
     }
 
     public static Text GetCloudFrame(Entity entity)

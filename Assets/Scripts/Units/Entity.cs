@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 [RequireComponent( typeof( Rigidbody ) )]
-public abstract class Entity : MonoBehaviour
+public abstract class Entity : MonoBehaviour, TimerManager.IOnCountdownEnd
 {
     [Header( "Attributes" )]
     public PAttribute hitPoints;
@@ -25,7 +25,8 @@ public abstract class Entity : MonoBehaviour
     [SerializeField] protected bool canMove = true;
     [SerializeField] protected bool isInviolability = false;
     [SerializeField] protected bool isPaused = false;
-    [SerializeField] public bool isBlocking = false;
+    [SerializeField] protected bool isBlocking = false;
+    [SerializeField] protected bool isPushImmune = false;
 
     [Header( "Dialogs" )]
     public DialogueList[] dialogueLists;
@@ -33,6 +34,7 @@ public abstract class Entity : MonoBehaviour
     protected Rigidbody rb;
     // -1 = left, 1 = right
     protected int lookDirection = 1;
+    protected long moveCountdownId;
 
     #region Unity API
     public virtual void Awake()
@@ -54,6 +56,8 @@ public abstract class Entity : MonoBehaviour
         armor.current = armor.max;
         moveSpeed.current = moveSpeed.max;
         jumpPower.current = jumpPower.max;
+
+        moveCountdownId = TimerManager.StartCountdown( 0, false, this );
     }
     #endregion
 
@@ -65,17 +69,40 @@ public abstract class Entity : MonoBehaviour
     /// <returns>Zwraca TRUE, jeżeli jednostka otrzymała jakiekolwiek obrażenia w przeciwnym wypadku zwraca FALSE</returns>
     public virtual bool TakeDamage(Attack attack)
     {
-        Debug.Log( ShouldBlockAttack( attack ) );
         if (isInviolability || ShouldBlockAttack( attack ))
             return false;
         if (attack.damage > 0f) {
             hitPoints.current -= attack.damage;
             if (hitPoints.current < 0f)
                 Die();
+            if (!isPushImmune && attack.pushPower > 0f) {
+                Throw( attack );
+            }
             return true;
-        } else {
-            return false;
         }
+        return false;
+    }
+
+    /// <summary>
+    /// Odrzuca jednostkę nadając jej pewną prędkość. Można przy tym wyłączyć możliwość ruchu
+    /// na pewną ilość sekund.
+    /// </summary>
+    /// <param name="pushPower">Siła odrzutu</param>
+    /// <param name="direction">Kierunek odrzutu</param>
+    /// <param name="pushDisableTime">Czas wstrzymania możliwości ruchu, jeżeli 0 lub mniej to ruch
+    /// nie zostaje wyłączony</param>
+    public virtual void Throw(float pushPower, Vector3 direction, float pushDisableTime)
+    {
+        rb.velocity = direction * pushPower;
+        if ( pushDisableTime > 0) {
+            canMove = false;
+            TimerManager.ResetCountdown( moveCountdownId, pushDisableTime );
+        }
+    }
+
+    public virtual void Throw(Attack attack)
+    {
+        Throw( attack.pushPower, attack.direction, attack.pushDisableTime );
     }
 
     /// <summary>
@@ -132,7 +159,7 @@ public abstract class Entity : MonoBehaviour
     public virtual bool ShouldBlockAttack(Attack attack)
     {
         if (isBlocking) {
-            float dot = Vector3.Dot( attack.direction, LookRotation );
+            float dot = Vector3.Angle( attack.direction, LookRotation );
             Debug.Log( dot );
             return dot == 0;
         }
@@ -150,6 +177,13 @@ public abstract class Entity : MonoBehaviour
     /// <br>punktów graczom itp. itd.</br>
     /// </summary>
     public abstract void Die();
+
+    public void OnCountdownEnd(long id)
+    {
+        if ( id ==  moveCountdownId ) {
+            canMove = true;
+        }
+    }
     #endregion
 
     public Vector3 LookRotation { get => new Vector3( 0, 0, lookDirection ); }

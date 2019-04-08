@@ -154,7 +154,7 @@ public class Character : Entity, IStickListener, IButtonListener,
                 rb.velocity = attackDirection;
             // Przypisujemy ostatni klawisz ze zwykłego ataku oraz resetujemy timer
             TimerManager.ResetCountdown( simpleAttackCountdown );
-            weapon.SetNextAttackInfo( new Attack( 1, new Vector3( lookDirection, 0 ) ) );
+            weapon.SetNextAttackInfo( new Attack( 1, new Vector3( lookDirection, 0 ), SIMPLE_ATTACK_MOVE, 0.17f ) );
             animator.Play( "Player_SimpleAttack", 0 );
             canMove = false;
         }
