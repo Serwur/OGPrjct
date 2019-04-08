@@ -25,7 +25,7 @@ public class Character : Entity, IStickListener, IButtonListener,
     private bool doubleJumped = false;
     private bool shouldCheckIfIsInAir = false;
 
-    private MainSkill mainSkill;
+    private GameObject mainSkill;
     private Animator animator;
     private List<Combo> combos = new List<Combo>();
     private LinkedList<ButtonCode> currentCombination = new LinkedList<ButtonCode>();
@@ -60,7 +60,7 @@ public class Character : Entity, IStickListener, IButtonListener,
         } else {
             coll = transform.Find( colliderChild ).GetComponent<BoxCollider>();
         }
-        mainSkill = GetComponent<MainSkill>();
+        mainSkill = GameObject.Find("Mask");
         animator = GetComponent<Animator>();
         weapon = FindObjectOfType<Weapon>();
     }
@@ -279,7 +279,7 @@ public class Character : Entity, IStickListener, IButtonListener,
                     Debug.Log( "0" );
                     if (canMove) {
                         Debug.Log( "1" );
-                        mainSkill.ChangeWorld();
+                        mainSkill.GetComponent<MainSkill>().ChangeWorld();
                     }
                     currentCombination.AddLast( code );
                     break;

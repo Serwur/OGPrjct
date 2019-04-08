@@ -20,7 +20,7 @@ MonoBehaviour:
   rightStick: 120
   back: 99
   start: 114
-  leftBumper: 0
+  leftBumper: 101
   rightBumper: 274
   leftTrigger: 323
   rightTrigger: 324
