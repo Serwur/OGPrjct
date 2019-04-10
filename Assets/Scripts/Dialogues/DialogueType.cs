@@ -1,5 +1,8 @@
 ﻿
-public enum DialogueType
+namespace DoubleMMPrjc
 {
-    CINEMATIC, CLOUD
+    public enum DialogueType
+    {
+        CINEMATIC, CLOUD
+    }
 }

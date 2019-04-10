@@ -1,27 +1,28 @@
-﻿using UnityEngine;
-
-public class NPC : Entity
+﻿namespace DoubleMMPrjc
 {
-    public override void Start()
+    public class NPC : Entity
     {
+        public override void Start()
+        {
 
-    }
+        }
 
-    public virtual void Update()
-    {
+        public virtual void Update()
+        {
 
-    }
+        }
 
-    public override void Die()
-    {
-    }
+        public override void Die()
+        {
+        }
 
-    public override void ResetUnit()
-    {
-    }
+        public override void ResetUnit()
+        {
+        }
 
-    public override bool ShouldBlockAttack(Attack attack)
-    {
-        return false;
+        public override bool ShouldBlockAttack(Attack attack)
+        {
+            return false;
+        }
     }
 }
