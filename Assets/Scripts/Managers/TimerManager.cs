@@ -32,6 +32,7 @@ public class TimerManager : MonoBehaviour
 
     #region Private Fields
     private float time = 0f;
+    private long nextId = 0;
     private Dictionary<long, Countdown> endedCountdowns = new Dictionary<long, Countdown>();
     private Dictionary<long, Countdown> notEndedCountdowns = new Dictionary<long, Countdown>();
     #endregion
@@ -77,9 +78,22 @@ public class TimerManager : MonoBehaviour
     /// <returns></returns>
     public static long CreateCountdown(IOnCountdownEnd listener = null, bool removeWhenEnds = false)
     {
-        long id = GenerateId();
-        Countdown _countdown = new Countdown( 0, listener, removeWhenEnds );
-        Instance.endedCountdowns.Add( id, _countdown );
+        return CreateCountdown( 0, listener, removeWhenEnds );
+    }
+
+    /// <summary>
+    /// Should be used when just want to gets ID and doesn't want to start countdown at this moment
+    /// </summary>
+    /// <param name="countdown">Countdown time in seconds</param>
+    /// <param name="listener">Listener to listen call back when countdown ends</param>
+    /// <param name="removeWhenEnds">If <code>TRUE</code> countdown will be removed when ends</param>
+    /// <returns></returns>
+    public static long CreateCountdown(float countdown, IOnCountdownEnd listener = null, bool removeWhenEnds = false)
+    {
+        if (countdown < 0)
+            throw new SystemException( "Time for countdown cannot be less than 0!" );
+        long id = NextId();
+        Instance.endedCountdowns.Add( id, new Countdown( countdown, listener, removeWhenEnds ) );
         return id;
     }
 
@@ -92,18 +106,12 @@ public class TimerManager : MonoBehaviour
     /// <param name="listener">Listener to listen call back when countdown ends</param>
     /// <param name="removeWhenEnds">If <code>TRUE</code> countdown will be removed when ends</param>
     /// <returns>id of new countdown</returns>
-    public static long StartCountdown(float countdown, bool start = true,
-        IOnCountdownEnd listener = null, bool removeWhenEnds = false)
+    public static long StartCountdown(float countdown, IOnCountdownEnd listener = null, bool removeWhenEnds = false)
     {
         if (countdown < 0)
             throw new Exception( "Time for countdown cannot be less than 0!" );
-        long id = GenerateId();
-        Countdown _countdown = new Countdown( countdown, listener, removeWhenEnds );
-        if (start) {
-            Instance.notEndedCountdowns.Add( id, _countdown );
-        } else {
-            Instance.endedCountdowns.Add( id, _countdown );
-        }
+        long id = NextId();
+        Instance.notEndedCountdowns.Add( id, new Countdown( countdown, listener, removeWhenEnds ) );
         return id;
     }
 
@@ -120,6 +128,22 @@ public class TimerManager : MonoBehaviour
             return true;
         }
         seconds = null;
+        return false;
+    }
+
+    /// <summary>
+    /// Returns remaing time of countdown in seconds as <b>float</b> value
+    /// </summary>
+    /// <param name="countdown">Id of countdown</param>
+    /// <param name="seconds">Out parameter to get remaing time</param>
+    /// <returns><code>TRUE</code> if given countdown exists, otherwise <code>FALSE</code></returns>
+    public static bool GetRemaingCountdown(long id, out float seconds)
+    {
+        if (GetCountdown( id, out Countdown countdown )) {
+            seconds = countdown.Seconds;
+            return true;
+        }
+        seconds = float.MinValue;
         return false;
     }
 
@@ -281,9 +305,9 @@ public class TimerManager : MonoBehaviour
     /// Generates new id
     /// </summary>
     /// <returns>Unique ID</returns>
-    private static long GenerateId()
+    private static long NextId()
     {
-        return (long) ( Time.time * 10000 ) + Instance.notEndedCountdowns.Count + Instance.endedCountdowns.Count;
+        return Instance.nextId++;
     }
     #endregion
 
@@ -390,7 +414,8 @@ public class TimerManager : MonoBehaviour
         {
             get {
                 int seconds = (int) ( Seconds % MINUTE_UNIT );
-                return ( ( seconds < 10 ) ? "0" : "" ) + seconds.ToString();
+                bool lessThanZero = seconds < 0;
+                return ( lessThanZero ? "-" : "" ) + ( ( seconds < 10 ) ? "0" : "" ) + ( lessThanZero ? -seconds : seconds ).ToString();
             }
         }
         public IOnCountdownEnd Listener { get { return listener; } set { listener = value; } }

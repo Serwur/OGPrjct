@@ -33,7 +33,7 @@ namespace DoubleMMPrjc
                 transform.position = targetToFollow.position + OFFSET_Z;
             } else if (slowTargetChange) {
                 transform.position = Vector3.LerpUnclamped( transform.position, targetToFollow.position + OFFSET_Z, speedTargetChange * Time.deltaTime );
-                if (Vector2.Distance( transform.position, targetToFollow.position ) < 0.1f) {
+                if (Vector2.Distance( transform.position, targetToFollow.position ) < 0.35f) {
                     slowTargetChange = false;
                     isFollowingTarget = true;
                 }
@@ -60,7 +60,7 @@ namespace DoubleMMPrjc
         public static void FollowTarget(Transform transform, float speedTargetChange)
         {
             Instance.targetToFollow = transform;
-            Instance.speedTargetChange = Mathf.Clamp( speedTargetChange, 0.01f, 1f ) * 3f;
+            Instance.speedTargetChange = Mathf.Clamp( speedTargetChange, 0.01f, 1f ) * 7f;
             IsFollowingTarget = false;
             Instance.slowTargetChange = true;
         }

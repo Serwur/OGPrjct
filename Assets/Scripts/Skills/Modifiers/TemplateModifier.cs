@@ -37,13 +37,7 @@ namespace DoubleMMPrjc
             if (time <= 0)
                 throw new System.Exception( "TemplateModifier::Constructor::Name::" + modifierName + "::" + "(Modifier time cannot be less than 0!)" );
             this.time = time;
-            countdown = TimerManager.StartCountdown( 0, false, this );
-            TimerManager.RemoveWhenEnds( countdown, true );
-        }
-
-        public void StartTimer()
-        {
-            Debug.Log( TimerManager.ResetCountdown( countdown, time ) );
+            countdown = TimerManager.StartCountdown( time, this, true );
         }
 
         public void OnCountdownEnd(long id)

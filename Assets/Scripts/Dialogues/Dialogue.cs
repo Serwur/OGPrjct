@@ -70,7 +70,7 @@ namespace DoubleMMPrjc
             if (speed == 1f) {
                 PushToEnd();
             } else {
-                countdownID = TimerManager.StartCountdown( 1 / ( 0.9f + speed / 10f ) - 1, true, this );
+                countdownID = TimerManager.StartCountdown( 1 / ( 0.9f + speed / 10f ) - 1, this );
             }
             if (followObject) {
                 CameraManager.FollowTarget( entity.transform, followSpeed );
