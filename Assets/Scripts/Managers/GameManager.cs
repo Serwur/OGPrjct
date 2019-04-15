@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using DoubleMMPrjc.AI;
 using UnityEngine;
 
 /// <summary>
@@ -13,6 +15,7 @@ namespace DoubleMMPrjc
         private static GameManager Instance;
 
         private LinkedList<Entity> entities = new LinkedList<Entity>();
+
         private Character character;
 
         private void Awake()

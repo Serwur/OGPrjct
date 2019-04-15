@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+﻿using DoubleMMPrjc.AI;
+using UnityEngine;
 
 namespace DoubleMMPrjc
 {
-    public class Enemy : Entity
+    public class Enemy : NPC
     {
         public enum AIState
         {
@@ -17,9 +18,10 @@ namespace DoubleMMPrjc
         public static readonly int WATCH_POSITION_CHANGE_PERIOD = 240;
         public static readonly int CHASE_POSITION_UPDATE_PERIOD = 12;
 
-        public static readonly float SLEEP_RANGE = 4.5f;
-        public static readonly float WATCH_RANGE = 2.5f;
-        public static readonly float CHASE_RANGE = 1.6f;
+        public static readonly float SLEEP_RANGE = 25f;
+        public static readonly float WATCH_RANGE = 25f;
+        public static readonly float CHASE_RANGE = 4f;
+
         public static readonly float ATTACK_RANGE = 1.5f;
 
         public static readonly float WATCH_TIME = 6.5f;
@@ -30,10 +32,6 @@ namespace DoubleMMPrjc
         private int checkPeriod = 0;
         private int watchRandomPositionChange = 0;
         private int chaseFollowPositionUpdate = 0;
-
-        private Vector2 currentTarget;
-        private Vector2 moveDirection;
-        private Transform followTarget;
 
         private long watchCountdownId;
         private long chaseCountdownId;
@@ -75,10 +73,11 @@ namespace DoubleMMPrjc
                         watchRandomPositionChange++;
                         if (watchRandomPositionChange >= WATCH_POSITION_CHANGE_PERIOD) {
                             watchRandomPositionChange = 0;
-                            UpdateMovePosition( new Vector2( Random.Range( -12f, 24.7f ), transform.position.y ) );
+                            UpdateMovePosition( new Vector2( UnityEngine.Random.Range( -12f, 24.7f ), transform.position.y ) );
                         }
-                        if (canMove)
-                            transform.Translate( moveDirection * moveSpeed.current / 2f * Time.fixedDeltaTime, Space.World );
+                        if (canMove) {
+                            Move( moveSpeed.current / 2f );
+                        }
                         break;
 
                     case AIState.CHASE:
@@ -88,13 +87,22 @@ namespace DoubleMMPrjc
                                 State = AIState.ATTACK;
                             }
                         }
-                        chaseFollowPositionUpdate++;
+                        /*chaseFollowPositionUpdate++;
                         if (canMove) {
                             if (chaseFollowPositionUpdate >= CHASE_POSITION_UPDATE_PERIOD) {
                                 chaseFollowPositionUpdate = 0;
                                 UpdateMovePosition( followTarget.position );
                             }
                             transform.Translate( moveDirection * moveSpeed.current * Time.fixedDeltaTime, Space.World );
+                        }*/
+                        if (canMove) {
+                            chaseFollowPositionUpdate++;
+                            if (currentNode == null && chaseFollowPositionUpdate >= CHASE_POSITION_UPDATE_PERIOD) {
+                                chaseFollowPositionUpdate = 0;
+                                followTarget = GameManager.Character.transform;
+                                UpdateMovePosition( followTarget.position );
+                            }
+                            Move( moveSpeed.current / 5f );
                         }
                         break;
 
@@ -112,14 +120,7 @@ namespace DoubleMMPrjc
             }
         }
 
-        /// <summary>
-        /// Metoda w której AI powinno decydować o zachowaniu i sposobie ruchu
-        /// </summary>
-        public virtual void UpdateMovePosition(Vector2 position)
-        {
-            currentTarget = position;
-            moveDirection = new Vector2( currentTarget.x - transform.position.x, 0 ).normalized;
-        }
+
 
         public override void OnCountdownEnd(long id)
         {
@@ -185,11 +186,13 @@ namespace DoubleMMPrjc
             return checkPeriod >= period;
         }
 
-
         public void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere( transform.position, currentRange );
+            if (currentNode != null) {
+                Gizmos.DrawLine( transform.position, currentNode.transform.position );
+            }
         }
 
         public AIState State
@@ -205,25 +208,31 @@ namespace DoubleMMPrjc
                         currentRange = SLEEP_RANGE;
                         break;
                     case AIState.WATCH:
-                        UpdateMovePosition( new Vector2( Random.Range( -12f, 24.7f ), transform.position.y ) );
+                        UpdateMovePosition( new Vector2( UnityEngine.Random.Range( -12f, 24.7f ), transform.position.y ) );
                         TimerManager.ResetCountdown( watchCountdownId );
                         watchRandomPositionChange = 0;
                         currentRange = WATCH_RANGE;
+                        currentPath = null;
+                        currentNode = null;
                         break;
                     case AIState.CHASE:
                         TimerManager.ResetCountdown( chaseCountdownId );
                         chaseFollowPositionUpdate = 0;
-                        followTarget = GameManager.Character.transform;
-                        UpdateMovePosition( followTarget.position );
+                        // followTarget = GameManager.Character.transform;
+                        currentPath = AIManager.FindPath( this, GameManager.Character );
+                        if (currentPath != null) {
+                            NextNodeInPath();
+                        }
                         currentRange = CHASE_RANGE;
                         break;
                     case AIState.ATTACK:
                         currentRange = ATTACK_RANGE;
+                        currentPath = null;
+                        currentNode = null;
                         break;
                 }
             }
         }
-
         public Transform FollowTarget { get => followTarget; set => followTarget = value; }
     }
 }

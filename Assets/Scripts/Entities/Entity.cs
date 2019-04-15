@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using DoubleMMPrjc.AI;
+using UnityEngine;
 
 namespace DoubleMMPrjc
 {
@@ -50,6 +51,7 @@ namespace DoubleMMPrjc
         #region Protected Fields
         protected Rigidbody rb;
         protected BoxCollider coll;
+        protected ContactArea contactArea;
         // -1 = left, 1 = right
         protected int lookDirection = 1;
         protected float lastMinFallSpeed = float.MaxValue;
@@ -273,7 +275,6 @@ namespace DoubleMMPrjc
         {
             if (id == moveCountdownId) {
                 canMove = true;
-                Debug.Log( "timer with id : " + id + " has ended" );
             }
         }
         #endregion
@@ -282,6 +283,7 @@ namespace DoubleMMPrjc
         public bool IsPaused { get => isPaused; set => isPaused = value; }
         protected int LookDirection { get => lookDirection; }
         public Vector3 LookRotation { get => new Vector3( lookDirection, 0 ); }
+        public ContactArea ContactArea { get => contactArea; set => contactArea = value; }
         #endregion
     }
 }
