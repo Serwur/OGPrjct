@@ -10,7 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a443120fbe8584d4a820790337d5a7d4, type: 3}
-  m_Name: Neighborhood_34
+  m_Name: Neighborhood_6
   m_EditorClassIdentifier: 
-  nodeId: 0
-  edges: []
+  nodeId: 6
+  edges:
+  - start: {fileID: 0}
+    end: {fileID: 0}
+    startId: 6
+    endId: 7
+    directionType: 0

@@ -91,10 +91,10 @@ namespace DoubleMMPrjc
             /// <param name="array">Array to convert</param>
             /// <param name="action">Action that must return string object</param>
             /// <returns>List of strings</returns>
-            public static List<string> ToStringList(object[] array, Func<object, string> action)
+            public static List<string> ToStringList<T>(T[] array, Func<T, string> action)
             {
                 List<string> stringList = new List<string>();
-                foreach (object o in array) {
+                foreach (T o in array) {
                     stringList.Add( action( o ) );
                 }
                 return stringList;
