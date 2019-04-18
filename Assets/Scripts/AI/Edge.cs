@@ -54,6 +54,13 @@ namespace DoubleMMPrjc
                 throw new System.Exception( "Node with id" + id + " doesn't belong to this edge" );
             }
 
+            public long GetAnotherId(long id)
+            {
+                if (StartId == id)
+                    return endId;
+                return StartId;
+            }
+
             public void Refresh()
             {
                 visited = false;
@@ -62,7 +69,7 @@ namespace DoubleMMPrjc
             public override bool Equals(object obj)
             {
                 var edge = obj as Edge;
-                return startId == edge.startId && endId == edge.endId;
+                return ( startId == edge.startId && endId == edge.endId ) || ( startId == edge.EndId && EndId == edge.StartId );
             }
 
             public override string ToString()
@@ -97,8 +104,8 @@ namespace DoubleMMPrjc
             public float Distance { get => distance; }
             public Node Start { get => start; set => start = value; }
             public Node End { get => end; set => end = value; }
-            public Direction Direction{ get => directionType; set => directionType = value; }
-            public long StartId { get => startId;  }
+            public Direction Direction { get => directionType; set => directionType = value; }
+            public long StartId { get => startId; }
             public long EndId { get => endId; }
         }
 

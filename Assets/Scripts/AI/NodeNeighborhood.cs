@@ -31,6 +31,15 @@ namespace DoubleMMPrjc
                 return edges.Contains( edge );
             }
 
+            // TODO Zrobić to kurwa!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            public bool Contains(long id1, long id2)
+            {
+                foreach (Edge edge in edges) {
+
+                }
+                return false;
+            }
+
             public override string ToString()
             {
                 string basic = base.ToString();
@@ -44,6 +53,8 @@ namespace DoubleMMPrjc
 
             public long NodeId { get => nodeId; set => nodeId = value; }
             public List<Edge> Edges { get => edges; set => edges = value; }
+
+
         }
     }
 }
