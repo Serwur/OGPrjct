@@ -10,6 +10,12 @@ namespace DoubleMMPrjc
             private Utility()
             { }
 
+            /// <summary>
+            /// Rounds the value to number of digits given by <b>precision</b>
+            /// </summary>
+            /// <param name="value">Value to round</param>
+            /// <param name="precision">Number of digits after comma</param>
+            /// <returns>Rounded value</returns>
             public static float Round(float value, int precision = 0)
             {
                 int multiplay = 1;
@@ -19,32 +25,72 @@ namespace DoubleMMPrjc
                 return (float) rounded / multiplay;
             }
 
-            public static LinkedList<T> ToLinkedList<T>(ICollection<T> collection)
+            /// <summary>
+            /// Adds all element from given <paramref name="collection"/> to <see cref="LinkedList"/>
+            /// </summary>
+            /// <param name="collection">Collection to convert</param>
+            /// <returns>LinkedList with elements from given collection</returns>
+            public static LinkedList<object> ToLinkedList(ICollection<object> collection)
             {
-                LinkedList<T> list = new LinkedList<T>();
-                foreach (T t in collection) {
-                    list.AddLast( t );
+                LinkedList<object> list = new LinkedList<object>();
+                foreach (object o in collection) {
+                    list.AddLast( o );
                 }
                 return list;
             }
 
-            public static void Sort<T>(T[] array, IComparer<T> comparer)
+            /// <summary>
+            /// Sorts the array using user comparer to compare objects
+            /// </summary>
+            /// <param name="array">Array to sort</param>
+            /// <param name="comparer">Defined comparer to compare objects in array</param>
+            public static void Sort(object[] array, IComparer<object> comparer)
             {
                 MergeSort( array, 0, array.Length - 1, comparer );
             }
 
+            /// <summary>
+            /// Sorts given linked list using custom comparer
+            /// </summary>
+            /// <param name="linkedList">LinkedList to sort</param>
+            /// <param name="comparer">Custom comparer to compare objects in linked list</param>
+            public static void Sort(LinkedList<object> linkedList, IComparer<object> comparer) {
+                object[] array = new object[linkedList.Count];
+                MergeSort(array, 0, array.Length -1, comparer);
+                linkedList.Clear();
+                foreach ( object o in array ) {
+                    linkedList.AddLast(o);
+                }
+            }
+
+            /// <summary>
+            /// Creates <see cref="List"/> of strings using <see cref="ToString"/> method on objects in array
+            /// </summary>
+            /// <param name="array">Array to convert</param>
+            /// <returns>List of strings</returns>
             public static List<string> ToStringList(object[] array)
             {
                 string func(object o) => o.ToString();
                 return ToStringList( array, func );
             }
 
-            public static List<string> ToStringList(object[] array, IExtendedString extendedString)
+            /// <summary>
+            /// Creates <see cref="List"/> of strings using ToExtendedString method
+            /// </summary>
+            /// <param name="array">Array of objects implementing IExtendedString interface</param>
+            /// <returns>List of strings</returns>
+            public static List<string> ToExtendedStringList(IExtendedString[] array)
             {
-                string func(object o) => extendedString.ToExtendedString();
+                string func(IExtendedString o) => o.ToExtendedString();
                 return ToStringList( array, func );
             }
 
+            /// <summary>
+            /// Creates <see cref="List"/> of strings using custom function
+            /// </summary>
+            /// <param name="array">Array to convert</param>
+            /// <param name="action">Action that must return string object</param>
+            /// <returns>List of strings</returns>
             public static List<string> ToStringList(object[] array, Func<object, string> action)
             {
                 List<string> stringList = new List<string>();
@@ -54,6 +100,11 @@ namespace DoubleMMPrjc
                 return stringList;
             }
 
+            /// <summary>
+            /// Creates an array of strings
+            /// </summary>
+            /// <param name="array">Array to convert</param>
+            /// <returns>Array of strings</returns>
             public static string[] ToStringArray(object[] array)
             {
                 string[] stringArr = new string[array.Length];
@@ -63,6 +114,11 @@ namespace DoubleMMPrjc
                 return stringArr;
             }
 
+            /// <summary>
+            /// Creates an array of strings using interface IExtendedString
+            /// </summary>
+            /// <param name="array">Array of objects implementing interface IExtendedString</param>
+            /// <returns>Array of strings</returns>
             public static string[] ToExtendedStringArray(IExtendedString[] array)
             {
                 string[] stringArr = new string[array.Length];
@@ -81,7 +137,7 @@ namespace DoubleMMPrjc
                 return stringArr;
             }
 
-            private static void MergeSort<T>(T[] array, int start, int end, IComparer<T> comparer)
+            private static void MergeSort(object[] array, int start, int end, IComparer<object> comparer)
             {
                 if (start < end) {
                     int half = start + ( end - start ) / 2;
@@ -92,12 +148,12 @@ namespace DoubleMMPrjc
                     int leftSize = half - start + 1;
                     int rightSize = end - half;
 
-                    T[] leftTemplate = new T[leftSize];
+                    object[] leftTemplate = new object[leftSize];
                     for (int i = 0; i < leftSize; i++) {
                         leftTemplate[i] = array[start + i];
                     }
 
-                    T[] rightTemplate = new T[rightSize];
+                    object[] rightTemplate = new object[rightSize];
                     for (int i = 0; i < rightSize; i++) {
                         rightTemplate[i] = array[half + i + 1];
                     }
