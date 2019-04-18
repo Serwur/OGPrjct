@@ -48,6 +48,11 @@ namespace DoubleMMPrjc
             return currentPath.Contains( node );
         }
 
+        public bool HasPath()
+        {
+            return currentPath != null;
+        }
+
         public Node CurrentNode { get => currentNode;}
     }
 }
