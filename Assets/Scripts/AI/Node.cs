@@ -1,27 +1,24 @@
-﻿using System.Collections.Generic;
+﻿using DoubleMMPrjc.Utilities;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace DoubleMMPrjc
 {
     namespace AI
     {
-        public class Node : MonoBehaviour
+        public class Node : MonoBehaviour, IExtendedString
         {
-            public Neighboors[] staticNeighboors;
-
             private float heurestic = 0f;
             private float pathCost = float.MaxValue;
             private float combinedCost = float.MaxValue;
             private bool visited = false;
             private Node parent;
+            [SerializeField] private long id;
+            [SerializeField] private List<Edge> edges;
 
-            private HashSet<Edge> edges = new HashSet<Edge>();
-
+            #region Unity API
             public void Start()
             {
-                foreach (Neighboors neighboor in staticNeighboors) {
-                    AddEdge( neighboor.node, neighboor.twoDirectioned );
-                }
                 AIManager.AddNode( this );
             }
 
@@ -32,10 +29,11 @@ namespace DoubleMMPrjc
                     if (npc.CurrentNode == this) {
                         npc.NextNodeInPath();
                     }
-                        
                 }
             }
+            #endregion
 
+            #region Public Methods
             public void VisitNeighboors(List<Node> currentStack)
             {
                 foreach (Edge edge in edges) {
@@ -67,25 +65,45 @@ namespace DoubleMMPrjc
                 return heurestic;
             }
 
-            public void AddEdge(Node other, bool twoDirections)
+            public void CalcEdgeDistances()
             {
-                /*foreach (Edge _edge in edges) {
-                    if (( _edge.Start == this && _edge.End == other ) ||
-                            ( _edge.Start == other && _edge.End == this )) {
-                        throw new Exception( ToString() + " has already connection with " + other.ToString() );
-                    }
-                }*/
-                Edge edge = new Edge( this, other, twoDirections );
+                foreach (Edge edge in edges) {
+                    edge.CalcDistance();
+                }
+            }
+
+            public void AddTemplateEdge(Node other)
+            {
+                Edge edge = new Edge( this, other, Direction.BOTH );
+                edge.CalcDistance();
                 edges.Add( edge );
+                other.edges.Add( edge );
             }
 
             public void AddEdge(Edge edge)
-            {/*
-                if (!( edge.Start == this || edge.End == this ))
-                    throw new Exception( "Edge already contains " + ToString() );
-                if (edges.Contains( edge ))
-                    throw new Exception( ToString() + " already contains similar edge" );*/
-                edges.Add( edge );
+            {
+                switch (edge.Direction) {
+                    case Direction.BOTH:
+                        edges.Add( edge );
+                        break;
+                    case Direction.TO_START:
+                        if (edge.EndId == id) {
+                            edges.Add( edge );
+                        }
+                        break;
+                    case Direction.TO_END:
+                        if (edge.StartId == id) {
+                            edges.Add( edge );
+                        }
+                        break;
+                }
+            }
+
+            public void AddEdges(List<Edge> edges)
+            {
+                foreach (Edge edge in edges) {
+                    AddEdge( edge );
+                }
             }
 
             public bool RemoveEdge(Edge edge)
@@ -113,6 +131,19 @@ namespace DoubleMMPrjc
                 }
             }
 
+            public string ToExtendedString()
+            {
+                float x = Utility.Round( transform.position.x, 2 );
+                float y = Utility.Round( transform.position.y, 2 );
+                return gameObject.name + " Pos(" + x + " , " + y + ")";
+            }
+
+            public override string ToString()
+            {
+                string basic = base.ToString();
+                return basic.Substring( 0, basic.LastIndexOf( '(' ) - 1 );
+            }
+
             public override bool Equals(object obj)
             {
                 var node = obj as Node;
@@ -124,6 +155,7 @@ namespace DoubleMMPrjc
             {
                 return 624022166 + base.GetHashCode();
             }
+            #endregion
 
             #region Getters And Setters
             public float Heuristic { get => heurestic; set => heurestic = value; }
@@ -131,7 +163,8 @@ namespace DoubleMMPrjc
             public float CombinedCost { get => combinedCost; set => combinedCost = value; }
             public bool Visited { get => visited; set => visited = value; }
             public Node Parent { get => parent; set => parent = value; }
-            public IEnumerable<Edge> Edges { get => edges; }
+            public List<Edge> Edges { get => edges; set => edges = value; }
+            public long Id { get => id; set => id = value; }
             #endregion
         }
     }

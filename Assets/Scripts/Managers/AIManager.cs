@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace DoubleMMPrjc
 {
@@ -12,7 +13,7 @@ namespace DoubleMMPrjc
             private static AIManager Instance;
 
             private LinkedList<Enemy> chasingEnemies = new LinkedList<Enemy>();
-            private LinkedList<Node> staticNodes = new LinkedList<Node>();
+            private Dictionary<long, Node> staticNodes = new Dictionary<long, Node>();
             private LinkedList<ContactArea> contactAreas = new LinkedList<ContactArea>();
 
             public void Awake()
@@ -21,6 +22,24 @@ namespace DoubleMMPrjc
                     throw new System.Exception( "Cannot create more than one AIManager object!" );
                 }
                 Instance = this;
+            }
+
+            public void Start()
+            {
+                NodeNeighborhood[] nodeNeighborhoods = NodeEditor.LoadNodeConnnections( SceneManager.GetActiveScene().name );
+                foreach (NodeNeighborhood nodeNeighborhood in nodeNeighborhoods) {
+
+                    foreach (Edge edge in nodeNeighborhood.Edges) {
+                        edge.Start = GameObject.Find( NodeEditor.NODE_DEFAULT_NAME + edge.StartId ).GetComponent<Node>();
+                        edge.End = GameObject.Find( NodeEditor.NODE_DEFAULT_NAME + edge.EndId ).GetComponent<Node>();
+                        edge.CalcDistance();
+                    }
+
+                    if (staticNodes.TryGetValue( nodeNeighborhood.NodeId, out Node node )) {
+                        node.AddEdges( nodeNeighborhood.Edges );
+                    }
+                    Debug.Log( nodeNeighborhood.NodeId );
+                }
             }
 
             public static Stack<Node> FindPath(Entity ai, Entity target)
@@ -44,10 +63,10 @@ namespace DoubleMMPrjc
                 start.CalcHeurestic( end );
                 // DODAJEMY KRAWĘDZIE MIĘDZY NOWYM NODE'EM A NAJBLIŻSZYMI
                 foreach (Node node in aiNodes) {
-                    node.AddEdge( start, true );
+                    node.AddTemplateEdge( start );
                 }
                 // LICZYMY HEURESTYKE DLA WSZYSTKICH STATYCZNYCH NODE'ÓW
-                foreach (Node node in Instance.staticNodes) {
+                foreach (Node node in Instance.staticNodes.Values) {
                     node.CalcHeurestic( end );
                 }
                 // ROZPOCZYNAMY ALGORYTM, JEŻELI ISTNIEJE ŚCIEŻKA DO GRACZA
@@ -80,12 +99,12 @@ namespace DoubleMMPrjc
                 // DLA POCZĄTKOWEGO NODE'A
                 start.RemoveAllConnections();
                 // RESETUJEMY WARTOŚCI STATYCZNYCH NODE'ÓW
-                foreach (Node node in Instance.staticNodes) {
+                foreach (Node node in Instance.staticNodes.Values) {
                     node.Refresh();
                 }
                 // WYMARZONY WYNIK
-                foreach ( Node node in path) {
-                    Debug.Log(node);
+                foreach (Node node in path) {
+                    Debug.Log( node + " --->> " );
                 }
                 Destroy( start.gameObject );
                 return path;
@@ -118,7 +137,7 @@ namespace DoubleMMPrjc
 
             public static void AddNode(Node node)
             {
-                Instance.staticNodes.AddLast( node );
+                Instance.staticNodes.Add( node.Id, node );
             }
 
             public static void AddContactArea(ContactArea contactArea)

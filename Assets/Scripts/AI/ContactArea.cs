@@ -14,6 +14,7 @@ namespace DoubleMMPrjc
             private LinkedList<Entity> entitiesIn = new LinkedList<Entity>();
             private List<Node> nodesIn = new List<Node>();
 
+            #region Unity API
             public void Awake()
             {
                 coll = GetComponent<BoxCollider>();
@@ -43,7 +44,9 @@ namespace DoubleMMPrjc
                     RemoveEntity( entity );
                 }
             }
+            #endregion
 
+            #region Public Methods
             public void AddEntity(Entity entity)
             {
                 entity.ContactArea = this;
@@ -62,9 +65,11 @@ namespace DoubleMMPrjc
             {
                 return entitiesIn.Contains( entity );
             }
+            #endregion
 
+            #region Getters And Setters
             public List<Node> Nodes { get => nodesIn; }
-
+            #endregion
         }
     }
 }

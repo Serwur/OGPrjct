@@ -73,7 +73,7 @@ namespace DoubleMMPrjc
                         watchRandomPositionChange++;
                         if (watchRandomPositionChange >= WATCH_POSITION_CHANGE_PERIOD) {
                             watchRandomPositionChange = 0;
-                            UpdateMovePosition( new Vector2( UnityEngine.Random.Range( -12f, 24.7f ), transform.position.y ) );
+                            UpdateMovePosition( new Vector2( Random.Range( -12f, 24.7f ), transform.position.y ) );
                         }
                         if (canMove) {
                             Move( moveSpeed.current / 2f );
@@ -97,7 +97,7 @@ namespace DoubleMMPrjc
                         }*/
                         if (canMove) {
                             chaseFollowPositionUpdate++;
-                            if (currentNode == null && chaseFollowPositionUpdate >= CHASE_POSITION_UPDATE_PERIOD) {
+                            if (HasPath() && chaseFollowPositionUpdate >= CHASE_POSITION_UPDATE_PERIOD) {
                                 chaseFollowPositionUpdate = 0;
                                 followTarget = GameManager.Character.transform;
                                 UpdateMovePosition( followTarget.position );
@@ -208,7 +208,7 @@ namespace DoubleMMPrjc
                         currentRange = SLEEP_RANGE;
                         break;
                     case AIState.WATCH:
-                        UpdateMovePosition( new Vector2( UnityEngine.Random.Range( -12f, 24.7f ), transform.position.y ) );
+                        UpdateMovePosition( new Vector2( Random.Range( -12f, 24.7f ), transform.position.y ) );
                         TimerManager.ResetCountdown( watchCountdownId );
                         watchRandomPositionChange = 0;
                         currentRange = WATCH_RANGE;
@@ -220,7 +220,7 @@ namespace DoubleMMPrjc
                         chaseFollowPositionUpdate = 0;
                         // followTarget = GameManager.Character.transform;
                         currentPath = AIManager.FindPath( this, GameManager.Character );
-                        if (currentPath != null) {
+                        if (HasPath()) {
                             NextNodeInPath();
                         }
                         currentRange = CHASE_RANGE;
