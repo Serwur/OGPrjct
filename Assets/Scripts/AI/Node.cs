@@ -8,12 +8,19 @@ namespace DoubleMMPrjc
     {
         public class Node : MonoBehaviour, IExtendedString
         {
+
             private float heurestic = 0f;
             private float pathCost = float.MaxValue;
             private float combinedCost = float.MaxValue;
             private bool visited = false;
             private Node parent;
+            /// <summary>
+            /// Represents id of node, it mustn't be changed!
+            /// </summary>
             [SerializeField] private long id;
+            /// <summary>
+            /// List of edges connecting other nodes
+            /// </summary>
             [SerializeField] private List<Edge> edges;
 
             #region Unity API
@@ -34,6 +41,11 @@ namespace DoubleMMPrjc
             #endregion
 
             #region Public Methods
+            /// <summary>
+            /// Visits all nodes connected via <see cref="edges"/> and counting the current path costs for all of them. <br>
+            /// It's used for A* algorithm.
+            /// </summary>
+            /// <param name="currentStack">Current stack of nodes to visit in A* algorithm</param>
             public void VisitNeighboors(List<Node> currentStack)
             {
                 foreach (Edge edge in edges) {
@@ -54,17 +66,27 @@ namespace DoubleMMPrjc
                 }
             }
 
-            public float CalcHeurestic(Node node)
-            {
-                return CalcHeurestic( node.transform.position );
-            }
+            /// <summary>
+            /// Calculate heurestic based of given <paramref name="node"/> position
+            /// </summary>
+            /// <param name="node">Other node to calculate heurestic</param>
+            /// <returns>Heurestic value</returns>
+            public float CalcHeurestic(Node node) => CalcHeurestic(node.transform.position);
 
+            /// <summary>
+            /// Calculate heurestic based of given <paramref name="position"/>
+            /// </summary>
+            /// <param name="position">Position to calculate heurestic</param>
+            /// <returns>Heurestic value</returns>
             public float CalcHeurestic(Vector2 position)
             {
                 heurestic = Vector2.Distance( transform.position, position );
                 return heurestic;
             }
 
+            /// <summary>
+            /// Calculate distance for all edges contained in this node
+            /// </summary>
             public void CalcEdgeDistances()
             {
                 foreach (Edge edge in edges) {
@@ -72,6 +94,10 @@ namespace DoubleMMPrjc
                 }
             }
 
+            /// <summary>
+            /// Creates template edge that should be deleted after all action that must be done
+            /// </summary>
+            /// <param name="other">Node to create connection with</param>
             public void AddTemplateEdge(Node other)
             {
                 Edge edge = new Edge( this, other, Direction.BOTH );
@@ -80,6 +106,10 @@ namespace DoubleMMPrjc
                 other.edges.Add( edge );
             }
 
+            /// <summary>
+            /// Adds an edge to node that connects another. It should be used for permament connections
+            /// </summary>
+            /// <param name="edge">Edge to add</param>
             public void AddEdge(Edge edge)
             {
                 switch (edge.Direction) {

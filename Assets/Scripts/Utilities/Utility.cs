@@ -86,7 +86,7 @@ namespace DoubleMMPrjc
             }
 
             /// <summary>
-            /// Creates <see cref="List"/> of strings using custom function
+            /// Creates <see cref="List"/> of <see cref="string"/> using custom function
             /// </summary>
             /// <param name="array">Array to convert</param>
             /// <param name="action">Action that must return string object</param>
@@ -101,7 +101,7 @@ namespace DoubleMMPrjc
             }
 
             /// <summary>
-            /// Creates an array of strings
+            /// Creates an array of <see cref="string"/>
             /// </summary>
             /// <param name="array">Array to convert</param>
             /// <returns>Array of strings</returns>
@@ -115,7 +115,7 @@ namespace DoubleMMPrjc
             }
 
             /// <summary>
-            /// Creates an array of strings using interface IExtendedString
+            /// Creates an array of <see cref="string"/> using interface <see cref="IExtendedString"/>
             /// </summary>
             /// <param name="array">Array of objects implementing interface IExtendedString</param>
             /// <returns>Array of strings</returns>
@@ -128,6 +128,12 @@ namespace DoubleMMPrjc
                 return stringArr;
             }
 
+            /// <summary>
+            /// Creates an array of <see cref="string"/> using custom function
+            /// </summary>
+            /// <param name="array">Array to convert</param>
+            /// <param name="action">Custom function that must return string object</param>
+            /// <returns></returns>
             public static string[] ToStringArray(object[] array, Func<object, string> action)
             {
                 string[] stringArr = new string[array.Length];
@@ -137,6 +143,13 @@ namespace DoubleMMPrjc
                 return stringArr;
             }
 
+            /// <summary>
+            /// Sorts an array using merge sort algorithm
+            /// </summary>
+            /// <param name="array">An array to sort</param>
+            /// <param name="start">Start index</param>
+            /// <param name="end">End index</param>
+            /// <param name="comparer">Comparer to compare objects</param>
             private static void MergeSort(object[] array, int start, int end, IComparer<object> comparer)
             {
                 if (start < end) {
