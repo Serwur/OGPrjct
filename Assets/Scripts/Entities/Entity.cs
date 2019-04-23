@@ -21,11 +21,6 @@ namespace DoubleMMPrjc
         public float regenSourcePoints = 0f;
 
         [Header( "Utility" )]
-        /// <summary>
-        /// <br>Ważne pole, które informuje nas o tym czy jednostke jest martwa, jeżeli tak to wiele akcji nie jest wykonywane.</br>
-        /// <br>Pole jest po to, aby kolejno zdecydować co zrobić z jednostką, nie koniecznie musimy ją usuwać z gry, tylko</br>
-        /// <br>wykorzystać w innym potrzebnym etapie.</br>
-        /// </summary>
         [SerializeField] protected bool isDead = false;
         [SerializeField] protected bool canMove = true;
         [SerializeField] protected bool isInviolability = false;
@@ -51,7 +46,7 @@ namespace DoubleMMPrjc
         #region Protected Fields
         protected Rigidbody rb;
         protected BoxCollider coll;
-        protected ContactArea contactArea;
+        [SerializeField] protected ContactArea contactArea;
         // -1 = left, 1 = right
         protected int lookDirection = 1;
         protected float lastMinFallSpeed = float.MaxValue;

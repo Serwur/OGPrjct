@@ -18,16 +18,16 @@ namespace DoubleMMPrjc
         public static readonly int WATCH_POSITION_CHANGE_PERIOD = 240;
         public static readonly int CHASE_POSITION_UPDATE_PERIOD = 12;
 
-        public static readonly float SLEEP_RANGE = 25f;
-        public static readonly float WATCH_RANGE = 25f;
+        public static readonly float SLEEP_RANGE = 12f;
+        public static readonly float WATCH_RANGE = 7f;
         public static readonly float CHASE_RANGE = 4f;
 
         public static readonly float ATTACK_RANGE = 1.5f;
 
         public static readonly float WATCH_TIME = 6.5f;
-        public static readonly float CHASE_TIME = 5.0f;
+        public static readonly float CHASE_TIME = 13f;
 
-        private AIState state = AIState.SLEEP;
+        [SerializeField] private AIState state = AIState.SLEEP;
 
         private int checkPeriod = 0;
         private int watchRandomPositionChange = 0;
@@ -120,8 +120,6 @@ namespace DoubleMMPrjc
             }
         }
 
-
-
         public override void OnCountdownEnd(long id)
         {
             base.OnCountdownEnd( id );
@@ -208,8 +206,8 @@ namespace DoubleMMPrjc
                         currentRange = SLEEP_RANGE;
                         break;
                     case AIState.WATCH:
-                        UpdateMovePosition( new Vector2( Random.Range( -12f, 24.7f ), transform.position.y ) );
                         TimerManager.ResetCountdown( watchCountdownId );
+                        UpdateMovePosition( new Vector2( Random.Range( -12f, 24.7f ), transform.position.y ) );
                         watchRandomPositionChange = 0;
                         currentRange = WATCH_RANGE;
                         currentPath = null;
@@ -218,10 +216,11 @@ namespace DoubleMMPrjc
                     case AIState.CHASE:
                         TimerManager.ResetCountdown( chaseCountdownId );
                         chaseFollowPositionUpdate = 0;
-                        // followTarget = GameManager.Character.transform;
                         currentPath = AIManager.FindPath( this, GameManager.Character );
                         if (HasPath()) {
                             NextNodeInPath();
+                        } else {
+                            State = AIState.WATCH;
                         }
                         currentRange = CHASE_RANGE;
                         break;

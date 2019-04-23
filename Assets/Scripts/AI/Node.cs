@@ -1,4 +1,5 @@
 ﻿using DoubleMMPrjc.Utilities;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,6 +15,7 @@ namespace DoubleMMPrjc
             private float combinedCost = float.MaxValue;
             private bool visited = false;
             private Node parent;
+            private Action onNodeVisted;
             /// <summary>
             /// Represents id of node, it mustn't be changed!
             /// </summary>
@@ -49,7 +51,7 @@ namespace DoubleMMPrjc
             public void VisitNeighboors(List<Node> currentStack)
             {
                 foreach (Edge edge in edges) {
-                    if (edge.Visited)
+                    if (!edge.Active || edge.Visited)
                         continue;
                     edge.Visited = true;
                     Node visitedNode = edge.GetAnother( this );
@@ -71,7 +73,7 @@ namespace DoubleMMPrjc
             /// </summary>
             /// <param name="node">Other node to calculate heurestic</param>
             /// <returns>Heurestic value</returns>
-            public float CalcHeurestic(Node node) => CalcHeurestic(node.transform.position);
+            public float CalcHeurestic(Node node) => CalcHeurestic( node.transform.position );
 
             /// <summary>
             /// Calculate heurestic based of given <paramref name="position"/>

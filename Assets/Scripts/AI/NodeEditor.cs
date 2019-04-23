@@ -10,26 +10,26 @@ namespace DoubleMMPrjc
     {
         public class NodeEditor : EditorWindow
         {
-            public static readonly string NEIGHBOORS_FOLDER = "NodeNeighborhood";
-            public static readonly string NEIGHBORHOOD_DEFAULT_NAME = "Neighborhood_";
+            public static readonly string CONNECTIONS_FOLDER = "NodeConnections";
+            public static readonly string CONNECTION_DEFAULT_NAME = "Connection_";
             public static readonly string NODE_DEFAULT_NAME = "Node_";
             public static readonly string NODE_PREFAB_PATH = "Assets/Prefabs/AI/Node.prefab";
 
-            private List<NodeNeighborhood> nodeNeighborhoods = new List<NodeNeighborhood>();
+            private List<NodeConnection> connections = new List<NodeConnection>();
             private int selectedIndex = 0;
             private Vector2 nodeListScroll;
-            private Vector2 neihgborsListScroll;
+            private Vector2 connectionsListScroll;
 
-            private NodeNeighborhood selectedNodeNeighborhood;
-            private NodeNeighborhood editedNodeNeighborhood;
+            private NodeConnection selectedNodeConnection;
+            private NodeConnection editedNodeConnection;
 
             private SceneNodeData data;
 
-            [MenuItem( "Window/Neighborhood Editor" )]
+            [MenuItem( "Window/Node Connections Editor" )]
             public static void Init()
             {
                 EditorWindow editor = GetWindow( typeof( NodeEditor ) );
-                editor.titleContent = new GUIContent( "Neighborhood Editor" );
+                editor.titleContent = new GUIContent( "Node Connections Editor" );
                 EditorStyles.textField.wordWrap = true;
 
                 NodeEditor nodeEditor = editor as NodeEditor;
@@ -49,26 +49,26 @@ namespace DoubleMMPrjc
                 GUILayout.BeginHorizontal();    // 3 - START (H)
 
                 if (GUILayout.Button( "New", GUILayout.Width( 50 ) )) {
-                    nodeNeighborhoods.Add( Create( SceneManager.GetActiveScene().name, data ) );
+                    connections.Add( Create( SceneManager.GetActiveScene().name, data ) );
                 }
                 if (GUILayout.Button( "Edit", GUILayout.Width( 50 ) )) {
-                    EditNeighborhood( selectedNodeNeighborhood );
+                    EditConnection( selectedNodeConnection );
                 }
                 if (GUILayout.Button( "Focus", GUILayout.Width( 50 ) )) {
-                    FocusNodeOnScene( selectedNodeNeighborhood );
+                    FocusNodeOnScene( selectedNodeConnection );
                 }
                 if (GUILayout.Button( "Del", GUILayout.Width( 50 ) )) {
-                    DeleteNeighboor( SceneManager.GetActiveScene().name, selectedNodeNeighborhood );
+                    DeleteConnection( SceneManager.GetActiveScene().name, selectedNodeConnection );
                 }
                 GUILayout.EndHorizontal();  // 3 - END (H)
 
-                ShowNeighborhoodList();
+                ShowConnectionList();
 
                 GUILayout.EndVertical();    // 2 - END (V)
 
                 GUILayout.Space( 25 );
 
-                if (editedNodeNeighborhood != null) {
+                if (editedNodeConnection != null) {
                     ShowEditLayout();
                 } else {
                     EditorGUILayout.HelpBox( "Select node and click edit button to start editing node", MessageType.Info );
@@ -82,12 +82,12 @@ namespace DoubleMMPrjc
                 GUILayout.EndHorizontal();  // 1 - END (H)
             }
 
-            private void ShowNeighborhoodList()
+            private void ShowConnectionList()
             {
-                if (nodeNeighborhoods.Count > 0) {
+                if (connections.Count > 0) {
                     nodeListScroll = GUILayout.BeginScrollView( nodeListScroll, false, false, GUILayout.ExpandWidth( true ) );  // 1 - START (SV)
-                    selectedIndex = GUILayout.SelectionGrid( selectedIndex, Utility.ToExtendedStringArray( nodeNeighborhoods.ToArray() ), 1, GUILayout.Width( 200 ), GUILayout.ExpandWidth( true ) );
-                    SelectNeighborhood( selectedIndex );
+                    selectedIndex = GUILayout.SelectionGrid( selectedIndex, Utility.ToExtendedStringArray( connections.ToArray() ), 1, GUILayout.Width( 200 ), GUILayout.ExpandWidth( true ) );
+                    SelectConnection( selectedIndex );
                     GUILayout.EndScrollView();  // 1 - END (SV)
                 } else {
                     EditorGUILayout.HelpBox( "Create node and connection clicling on New button", MessageType.Warning );
@@ -98,35 +98,44 @@ namespace DoubleMMPrjc
             {
                 GUILayout.BeginVertical();  // 1 - START
 
-                GUILayout.Label( "Edited node: " + editedNodeNeighborhood.ToExtendedString(), EditorStyles.boldLabel, GUILayout.ExpandWidth( false ) );
+                GUILayout.Label( "Edited node: " + editedNodeConnection.ToExtendedString(), EditorStyles.boldLabel, GUILayout.ExpandWidth( false ) );
 
                 GUILayout.BeginHorizontal(); // 2 - START
 
                 if (GUILayout.Button( "Focus", GUILayout.ExpandWidth( false ) )) {
-                    FocusNodeOnScene( editedNodeNeighborhood );
+                    FocusNodeOnScene( editedNodeConnection );
                 }
 
                 if (GUILayout.Button( "Delete", GUILayout.ExpandWidth( false ) )) {
-                    DeleteNeighboor( SceneManager.GetActiveScene().name, editedNodeNeighborhood, true );
+                    DeleteConnection( SceneManager.GetActiveScene().name, editedNodeConnection, true );
+                }
+
+                if (GUILayout.Button( "Clear connections", GUILayout.ExpandWidth( false ) )) {
+                    if (EditorUtility.DisplayDialog( "Are you sure to delete all connections?", "Ok", "Cancel" )) {
+                        RemoveConnections( editedNodeConnection );
+                    }
                 }
 
                 GUILayout.EndHorizontal(); // 2 - END
 
-                if (editedNodeNeighborhood != null) {
-                    neihgborsListScroll = GUILayout.BeginScrollView( neihgborsListScroll, false, false,
+                if (editedNodeConnection != null) {
+                    connectionsListScroll = GUILayout.BeginScrollView( connectionsListScroll, false, false,
                                                                     GUILayout.ExpandWidth( false ) ); // 2 - START
                     Edge toRemove = null;
 
                     // CREATING LIST OF EDGES CONNECTING WITH THIS NODE
-                    foreach (Edge edge in editedNodeNeighborhood.Edges) {
+                    foreach (Edge edge in editedNodeConnection.Edges) {
                         GUILayout.BeginHorizontal(); // 3 - START
 
                         GUILayout.Label( edge.ToString(), GUILayout.ExpandWidth( true ), GUILayout.Width( 140 ) );
 
                         GUILayout.Space( 5 );
                         edge.Direction = (Direction) EditorGUILayout.EnumPopup( edge.Direction, GUILayout.Width( 100 ) );
-                        GUILayout.Space( 5 );
 
+                        GUILayout.Space( 5 );
+                        edge.Active = GUILayout.Toggle( edge.Active, "Active" );
+
+                        GUILayout.Space( 5 );
                         if (GUILayout.Button( "Del", GUILayout.ExpandWidth( false ) )) {
                             toRemove = edge;
                         }
@@ -137,12 +146,10 @@ namespace DoubleMMPrjc
 
                     GUILayout.EndScrollView();  // 2 - END
 
-
-
-                    bool disableButton = ( selectedNodeNeighborhood == null ) || ( selectedNodeNeighborhood == editedNodeNeighborhood );
+                    bool disableButton = ( selectedNodeConnection == null ) || ( selectedNodeConnection == editedNodeConnection );
                     if (disableButton) {
                         EditorGUILayout.HelpBox( "Select another node to add", MessageType.Info );
-                    } else if (editedNodeNeighborhood.Contains( selectedNodeNeighborhood.NodeId )) {
+                    } else if (editedNodeConnection.Contains( selectedNodeConnection.NodeId, editedNodeConnection.NodeId )) {
                         EditorGUILayout.HelpBox( "Edited node has already selected node, select another to add", MessageType.Info );
                         disableButton = true;
                     }
@@ -150,26 +157,26 @@ namespace DoubleMMPrjc
                     EditorGUI.BeginDisabledGroup( disableButton );
 
                     if (GUILayout.Button( "Add selected node" )) {
-                        if (selectedNodeNeighborhood != editedNodeNeighborhood) {
+                        if (selectedNodeConnection != editedNodeConnection) {
                             try {
-                                Edge _edge = new Edge( editedNodeNeighborhood.NodeId, selectedNodeNeighborhood.NodeId, Direction.BOTH );
-                                editedNodeNeighborhood.AddEdge( _edge );
-                                selectedNodeNeighborhood.AddEdge( _edge );
+                                Edge _edge = new Edge( editedNodeConnection.NodeId, selectedNodeConnection.NodeId, Direction.BOTH );
+                                editedNodeConnection.AddEdge( _edge );
+                                selectedNodeConnection.AddEdge( _edge );
                                 if (GUI.changed) {
-                                    EditorUtility.SetDirty( selectedNodeNeighborhood );
+                                    EditorUtility.SetDirty( selectedNodeConnection );
                                 }
                             } catch (System.Exception e) {
                                 Debug.LogError( e.Message );
                             }
                         }
-                        editedNodeNeighborhood.RemoveEdge( toRemove );
+                        editedNodeConnection.RemoveEdge( toRemove );
                     }
 
                     EditorGUI.EndDisabledGroup();
 
                     GUILayout.Space( 15 );
                     if (GUI.changed) {
-                        EditorUtility.SetDirty( editedNodeNeighborhood );
+                        EditorUtility.SetDirty( editedNodeConnection );
                     }
                 }
                 GUILayout.EndVertical();    // 1 - END
@@ -179,29 +186,29 @@ namespace DoubleMMPrjc
             /// Selects asset from list
             /// </summary>
             /// <param name="index"></param>
-            private void SelectNeighborhood(int index)
+            private void SelectConnection(int index)
             {
-                if (index >= nodeNeighborhoods.Count)
-                    selectedNodeNeighborhood = null;
+                if (index >= connections.Count)
+                    selectedNodeConnection = null;
                 else
-                    selectedNodeNeighborhood = nodeNeighborhoods[index];
+                    selectedNodeConnection = connections[index];
             }
 
             public void ReloadNodeConnections(string sceneName)
             {
-                this.nodeNeighborhoods.Clear();
-                NodeNeighborhood[] nodeNeighborhoods = LoadNodeConnnections( sceneName );
-                if (nodeNeighborhoods != null) {
-                    this.nodeNeighborhoods.AddRange( nodeNeighborhoods );
+                this.connections.Clear();
+                NodeConnection[] nodeConnections = LoadNodeConnnections( sceneName );
+                if (nodeConnections != null) {
+                    this.connections.AddRange( nodeConnections );
                 }
             }
 
-            public void EditNeighborhood(NodeNeighborhood neighborhoodToEdit)
+            public void EditConnection(NodeConnection connectionToEdit)
             {
-                if (neighborhoodToEdit != null) {
-                    editedNodeNeighborhood = neighborhoodToEdit;
-                    if (editedNodeNeighborhood.Edges == null) {
-                        editedNodeNeighborhood.Edges = new List<Edge>();
+                if (connectionToEdit != null) {
+                    editedNodeConnection = connectionToEdit;
+                    if (editedNodeConnection.Edges == null) {
+                        editedNodeConnection.Edges = new List<Edge>();
                     }
                 }
             }
@@ -209,66 +216,66 @@ namespace DoubleMMPrjc
             /// <summary>
             /// Focuses node on scene that belongs to asset object from list
             /// </summary>
-            /// <param name="selectedNeighborhood"></param>
-            public void FocusNodeOnScene(NodeNeighborhood selectedNeighborhood)
+            /// <param name="selectedConnection"></param>
+            public void FocusNodeOnScene(NodeConnection selectedConnection)
             {
-                if (selectedNodeNeighborhood != null) {
-                    Node node = GetNodeFromScene( selectedNodeNeighborhood.NodeId );
+                if (selectedNodeConnection != null) {
+                    Node node = GetNodeFromScene( selectedNodeConnection.NodeId );
                     if (node != null) {
                         Selection.activeGameObject = node.gameObject;
                     } else {
-                        Debug.LogError( "Node with id: " + selectedNeighborhood.NodeId + " dosn't exists on scene" );
+                        Debug.LogError( "Node with id: " + selectedConnection.NodeId + " dosn't exists on scene" );
                     }
                 }
             }
 
-            public void DeleteNeighboor(string sceneName, NodeNeighborhood neighborhood, bool confirmation = false)
+            public void DeleteConnection(string sceneName, NodeConnection connection, bool confirmation = false)
             {
                 bool delete = true;
                 if (confirmation) {
                     delete = EditorUtility.DisplayDialog( "Node delete", "Are u sure to delete " +
-                                                        neighborhood.ToExtendedString() + "? It will remove also node " +
-                                                        GetNodeFromScene( neighborhood.NodeId ).ToExtendedString() + "?",
+                                                        connection.ToString() + "? It will remove also node " +
+                                                        GetNodeFromScene( connection.NodeId ).ToExtendedString() + "?",
                                                         "Ok", "Cancel" );
                 }
                 if (delete) {
-                    Node node = GetNodeFromScene( neighborhood.NodeId );
+                    Node node = GetNodeFromScene( connection.NodeId );
                     if (node != null) {
                         DestroyImmediate( node.gameObject );
                     } else {
-                        Debug.LogError( "Node with id: " + neighborhood.NodeId + " dosn't exists on scene" );
+                        Debug.LogError( "Node with id: " + connection.NodeId + " dosn't exists on scene" );
                     }
-                    nodeNeighborhoods.Remove( neighborhood );
-                    RemoveConnections( neighborhood );
-                    AssetDatabase.DeleteAsset( "Assets/Resources/" + NEIGHBOORS_FOLDER + "/" + sceneName + "/" + neighborhood.ToString() + ".asset" );
-                    editedNodeNeighborhood = null;
+                    connections.Remove( connection );
+                    RemoveConnections( connection );
+                    AssetDatabase.DeleteAsset( "Assets/Resources/" + CONNECTIONS_FOLDER + "/" + sceneName + "/" + connection.ToString() + ".asset" );
+                    editedNodeConnection = null;
                 }
             }
 
-            public void RemoveConnections(NodeNeighborhood neighborhood)
+            public void RemoveConnections(NodeConnection connection)
             {
-                foreach (Edge edge in neighborhood.Edges) {
-                    NodeNeighborhood other = GetNeighborhood( edge.GetAnotherId( neighborhood.NodeId ) );
+                foreach (Edge edge in connection.Edges) {
+                    NodeConnection other = GetConnection( edge.GetAnotherId( connection.NodeId ) );
                     if (other != null) {
                         other.RemoveEdge( edge );
                     }
                 }
-                neighborhood.Edges.Clear();
+                connection.Edges.Clear();
             }
 
-            public NodeNeighborhood GetNeighborhood(long id)
+            public NodeConnection GetConnection(long id)
             {
-                foreach (NodeNeighborhood neighborhood in nodeNeighborhoods) {
-                    if (neighborhood.NodeId == id)
-                        return neighborhood;
+                foreach (NodeConnection connection in connections) {
+                    if (connection.NodeId == id)
+                        return connection;
                 }
                 return null;
             }
 
-            public static NodeNeighborhood[] LoadNodeConnnections(string sceneName)
+            public static NodeConnection[] LoadNodeConnnections(string sceneName)
             {
-                string path = NEIGHBOORS_FOLDER + "/" + sceneName;
-                return Resources.LoadAll<NodeNeighborhood>( path );
+                string path = CONNECTIONS_FOLDER + "/" + sceneName;
+                return Resources.LoadAll<NodeConnection>( path );
             }
 
             public static string GenerateName(string startName, long id)
@@ -276,9 +283,9 @@ namespace DoubleMMPrjc
                 return startName + id;
             }
 
-            public static NodeNeighborhood Create(string sceneName, SceneNodeData data)
+            public static NodeConnection Create(string sceneName, SceneNodeData data)
             {
-                NodeNeighborhood asset = CreateInstance<NodeNeighborhood>();
+                NodeConnection asset = CreateInstance<NodeConnection>();
 
                 // CREATE DATA AND FOLDER IF DOESN'T EXISTS
                 if (data == null) {
@@ -288,9 +295,9 @@ namespace DoubleMMPrjc
                 // GENERATES NEXT ID
                 long id = data.GetNextId();
 
-                // SETS NAME FOR NODE NEIGHBORHOOD ASSET
-                string assetName = GenerateName( NEIGHBORHOOD_DEFAULT_NAME, id );
-                AssetDatabase.CreateAsset( asset, "Assets/Resources/" + NEIGHBOORS_FOLDER + "/" + sceneName + "/" + assetName + ".asset" );
+                // SETS NAME FOR NODE CONNECTION ASSET
+                string assetName = GenerateName( CONNECTION_DEFAULT_NAME, id );
+                AssetDatabase.CreateAsset( asset, "Assets/Resources/" + CONNECTIONS_FOLDER + "/" + sceneName + "/" + assetName + ".asset" );
                 AssetDatabase.SaveAssets();
                 asset.NodeId = id;
                 asset.Edges = new List<Edge>();
@@ -314,8 +321,8 @@ namespace DoubleMMPrjc
 
             public static SceneNodeData CreateData(string sceneName)
             {
-                if (!AssetDatabase.IsValidFolder( "Assets/Resources/" + NEIGHBOORS_FOLDER + "/" + sceneName )) {
-                    AssetDatabase.CreateFolder( "Assets/Resources/" + NEIGHBOORS_FOLDER, sceneName );
+                if (!AssetDatabase.IsValidFolder( "Assets/Resources/" + CONNECTIONS_FOLDER + "/" + sceneName )) {
+                    AssetDatabase.CreateFolder( "Assets/Resources/" + CONNECTIONS_FOLDER, sceneName );
                 }
                 SceneNodeData data = CreateInstance<SceneNodeData>();
                 AssetDatabase.CreateAsset( data, GetDataPath( sceneName ) );
@@ -325,7 +332,7 @@ namespace DoubleMMPrjc
 
             public static string GetDataPath(string sceneName)
             {
-                return "Assets/Resources/" + NEIGHBOORS_FOLDER + "/" + sceneName + "/" + sceneName + "Data.asset";
+                return "Assets/Resources/" + CONNECTIONS_FOLDER + "/" + sceneName + "/" + sceneName + "Data.asset";
             }
 
             public static Node GetNodeFromScene(long id)
@@ -337,7 +344,6 @@ namespace DoubleMMPrjc
                 }
                 return null;
             }
-
         }
     }
 }

@@ -53,6 +53,18 @@ namespace DoubleMMPrjc
             return currentPath != null;
         }
 
+        protected void Jump(Node node)
+        {
+            float jumpDirection = node.transform.position.x - transform.position.x;
+
+        }
+
+        protected void Jump(float jumpPower, float direction)
+        {
+            rb.velocity = new Vector2( rb.velocity.x, jumpPower );
+            lastMinFallSpeed = 0;
+        }
+
         public Node CurrentNode { get => currentNode;}
     }
 }

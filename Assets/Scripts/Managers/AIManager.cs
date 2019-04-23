@@ -26,8 +26,8 @@ namespace DoubleMMPrjc
 
             public void Start()
             {
-                NodeNeighborhood[] nodeNeighborhoods = NodeEditor.LoadNodeConnnections( SceneManager.GetActiveScene().name );
-                foreach (NodeNeighborhood nodeNeighborhood in nodeNeighborhoods) {
+                NodeConnection[] nodeNeighborhoods = NodeEditor.LoadNodeConnnections( SceneManager.GetActiveScene().name );
+                foreach (NodeConnection nodeNeighborhood in nodeNeighborhoods) {
 
                     foreach (Edge edge in nodeNeighborhood.Edges) {
                         edge.Start = GameObject.Find( NodeEditor.NODE_DEFAULT_NAME + edge.StartId ).GetComponent<Node>();
