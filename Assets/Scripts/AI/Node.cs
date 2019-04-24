@@ -15,7 +15,6 @@ namespace DoubleMMPrjc
             private float combinedCost = float.MaxValue;
             private bool visited = false;
             private Node parent;
-            private Action onNodeVisted;
             /// <summary>
             /// Represents id of node, it mustn't be changed!
             /// </summary>

@@ -36,6 +36,8 @@ namespace DoubleMMPrjc
         private long watchCountdownId;
         private long chaseCountdownId;
 
+        private bool foundPathEalier = false;
+
         #region Dev Section
         private float currentRange = SLEEP_RANGE;
         #endregion
@@ -73,7 +75,7 @@ namespace DoubleMMPrjc
                         watchRandomPositionChange++;
                         if (watchRandomPositionChange >= WATCH_POSITION_CHANGE_PERIOD) {
                             watchRandomPositionChange = 0;
-                            UpdateMovePosition( new Vector2( Random.Range( -12f, 24.7f ), transform.position.y ) );
+                            UpdateMoveDirection( new Vector2( Random.Range( -12f, 24.7f ), transform.position.y ) );
                         }
                         if (canMove) {
                             Move( moveSpeed.current / 2f );
@@ -97,10 +99,10 @@ namespace DoubleMMPrjc
                         }*/
                         if (canMove) {
                             chaseFollowPositionUpdate++;
-                            if (HasPath() && chaseFollowPositionUpdate >= CHASE_POSITION_UPDATE_PERIOD) {
+                            if (!HasPath() && chaseFollowPositionUpdate >= CHASE_POSITION_UPDATE_PERIOD) {
                                 chaseFollowPositionUpdate = 0;
-                                followTarget = GameManager.Character.transform;
-                                UpdateMovePosition( followTarget.position );
+                                followingTarget = GameManager.Character.transform;
+                                UpdateMoveDirection( followingTarget.position );
                             }
                             Move( moveSpeed.current / 5f );
                         }
@@ -156,6 +158,17 @@ namespace DoubleMMPrjc
             chaseFollowPositionUpdate = 0;
         }
 
+        public override void FindPath(Entity target)
+        {
+            base.FindPath( target );
+            if (HasPath()) {
+                NextNodeInPath();
+                foundPathEalier = true;
+            } else {
+                State = AIState.WATCH;
+            }
+        }
+
         /// <summary>
         /// Metoda w której AI powinno decydować o sposobie ataku
         /// </summary>
@@ -193,6 +206,9 @@ namespace DoubleMMPrjc
             }
         }
 
+        /// <summary>
+        /// State of enemy's AI
+        /// </summary>
         public AIState State
         {
             get => state;
@@ -206,32 +222,28 @@ namespace DoubleMMPrjc
                         currentRange = SLEEP_RANGE;
                         break;
                     case AIState.WATCH:
-                        TimerManager.ResetCountdown( watchCountdownId );
-                        UpdateMovePosition( new Vector2( Random.Range( -12f, 24.7f ), transform.position.y ) );
-                        watchRandomPositionChange = 0;
                         currentRange = WATCH_RANGE;
-                        currentPath = null;
-                        currentNode = null;
+                        if (foundPathEalier) {
+                            TimerManager.ResetCountdown( watchCountdownId );
+                        }
+                        foundPathEalier = false;
+                        UpdateMoveDirection( new Vector2( Random.Range( -12f, 24.7f ), transform.position.y ) );
+                        watchRandomPositionChange = 0;
+                        ResetPath();
                         break;
                     case AIState.CHASE:
                         TimerManager.ResetCountdown( chaseCountdownId );
                         chaseFollowPositionUpdate = 0;
-                        currentPath = AIManager.FindPath( this, GameManager.Character );
-                        if (HasPath()) {
-                            NextNodeInPath();
-                        } else {
-                            State = AIState.WATCH;
-                        }
                         currentRange = CHASE_RANGE;
+                        FindPath(GameManager.Character);
                         break;
                     case AIState.ATTACK:
                         currentRange = ATTACK_RANGE;
-                        currentPath = null;
-                        currentNode = null;
+                        ResetPath();
                         break;
                 }
             }
         }
-        public Transform FollowTarget { get => followTarget; set => followTarget = value; }
+        public Transform FollowingTarget { get => followingTarget; set => followingTarget = value; }
     }
 }

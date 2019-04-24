@@ -34,6 +34,26 @@ namespace DoubleMMPrjc
                 Entity entity = other.GetComponent<Entity>();
                 if (entity != null) {
                     AddEntity( entity );
+                    if (entity.GetType() == typeof( Enemy )) {
+                        Enemy enemy = (Enemy) entity;
+                        if (enemy.HasPath()) {
+                            if (Contains( enemy.CurrentNode )) {
+                                if (Contains( GameManager.Character )) {
+                                    enemy.FollowTarget( GameManager.Character );
+                                }
+                            } else {
+                                enemy.FindPath( GameManager.Character );
+                            }
+                        }
+                    } else if (entity.GetType() == typeof( Character )) {
+                        foreach (Enemy enemy in AIManager.ChasingEnemies) {
+                            if (enemy.ContactArea.Equals( GameManager.Character.ContactArea )) {
+                                enemy.FollowTarget( GameManager.Character );
+                            } else {
+                                AIManager.FindPath( enemy, GameManager.Character );
+                            }
+                        }
+                    }
                 }
             }
 
@@ -80,6 +100,11 @@ namespace DoubleMMPrjc
             public bool Contains(Entity entity)
             {
                 return entitiesIn.Contains( entity );
+            }
+
+            public bool Contains(Node node)
+            {
+                return nodesIn.Contains( node );
             }
             #endregion
 

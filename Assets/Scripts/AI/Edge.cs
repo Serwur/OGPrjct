@@ -141,6 +141,8 @@ namespace DoubleMMPrjc
             public long StartId { get => startId; }
             public long EndId { get => endId; }
             public bool Active { get => active; set => active = value; }
+            public AIAction OnStartAction { get => onStartAction; set => onStartAction = value; }
+            public AIAction OnEndAction { get => onEndAction; set => onEndAction = value; }
             #endregion
         }
 
