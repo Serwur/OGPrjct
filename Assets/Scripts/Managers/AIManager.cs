@@ -184,6 +184,8 @@ namespace DoubleMMPrjc
                 return minNode;
             }
 
+            public static Enemy[] ChasingEnemies { get => Utilities.Utility.ToArray( Instance.chasingEnemies ); }
+
         }
     }
 }

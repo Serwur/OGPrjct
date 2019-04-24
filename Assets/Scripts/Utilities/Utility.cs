@@ -54,12 +54,13 @@ namespace DoubleMMPrjc
             /// </summary>
             /// <param name="linkedList">LinkedList to sort</param>
             /// <param name="comparer">Custom comparer to compare objects in linked list</param>
-            public static void Sort(LinkedList<object> linkedList, IComparer<object> comparer) {
+            public static void Sort(LinkedList<object> linkedList, IComparer<object> comparer)
+            {
                 object[] array = new object[linkedList.Count];
-                MergeSort(array, 0, array.Length -1, comparer);
+                MergeSort( array, 0, array.Length - 1, comparer );
                 linkedList.Clear();
-                foreach ( object o in array ) {
-                    linkedList.AddLast(o);
+                foreach (object o in array) {
+                    linkedList.AddLast( o );
                 }
             }
 
@@ -141,6 +142,17 @@ namespace DoubleMMPrjc
                     stringArr[i] = action( array[i] );
                 }
                 return stringArr;
+            }
+
+            public static T[] ToArray<T>(LinkedList<T> list)
+            {
+                T[] array = new T[list.Count];
+                int i = 0;
+                foreach (T t in list) {
+                    array[i] = t;
+                    i++;
+                }
+                return array;
             }
 
             /// <summary>
