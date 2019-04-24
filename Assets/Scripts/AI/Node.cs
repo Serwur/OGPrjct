@@ -131,6 +131,10 @@ namespace DoubleMMPrjc
                 }
             }
 
+            /// <summary>
+            /// Adds all edges to node from given list
+            /// </summary>
+            /// <param name="edges">List of edges</param>
             public void AddEdges(List<Edge> edges)
             {
                 foreach (Edge edge in edges) {
@@ -138,11 +142,19 @@ namespace DoubleMMPrjc
                 }
             }
 
+            /// <summary>
+            /// Removes given edge from node
+            /// </summary>
+            /// <param name="edge">Edge to remove</param>
+            /// <returns><code>TRUE</code> if edge was removed, otherwise <code>FALSE</code></returns>
             public bool RemoveEdge(Edge edge)
             {
                 return edges.Remove( edge );
             }
 
+            /// <summary>
+            /// Removes all connection with other nodes
+            /// </summary>
             public void RemoveAllConnections()
             {
                 foreach (Edge edge in edges) {
@@ -151,6 +163,9 @@ namespace DoubleMMPrjc
                 edges.Clear();
             }
 
+            /// <summary>
+            /// Resets node to init form
+            /// </summary>
             public void Refresh()
             {
                 heurestic = 0f;

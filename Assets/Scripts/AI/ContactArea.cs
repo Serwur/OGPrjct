@@ -47,20 +47,36 @@ namespace DoubleMMPrjc
             #endregion
 
             #region Public Methods
+            /// <summary>
+            /// Adds entity to contact entities list and adds reference to
+            /// this contact area in entity
+            /// </summary>
+            /// <param name="entity">Entity to add</param>
             public void AddEntity(Entity entity)
             {
                 entity.ContactArea = this;
                 entitiesIn.AddLast( entity );
             }
 
-            public void RemoveEntity(Entity entity)
+            /// <summary>
+            /// Removes given entity from contant entities list and removes
+            /// reference of contact area from entity
+            /// </summary>
+            /// <param name="entity">Entity to remove</param>
+            /// <returns><code>TRUE</code> if entity was removed, otherwise <code>FALSE</code></returns>
+            public bool RemoveEntity(Entity entity)
             {
                 if (entity.ContactArea == this) {
                     entity.ContactArea = null;
                 }
-                entitiesIn.Remove( entity );
+                return entitiesIn.Remove( entity );
             }
 
+            /// <summary>
+            /// Checks if given entity is in contact area
+            /// </summary>
+            /// <param name="entity">Entity to check</param>
+            /// <returns><code>TRUE</code> if entity is in contact area, otherwise <code>FALSE</code></returns>
             public bool Contains(Entity entity)
             {
                 return entitiesIn.Contains( entity );

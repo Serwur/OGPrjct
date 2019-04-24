@@ -4,8 +4,6 @@ namespace DoubleMMPrjc
 {
     public class Weapon : MonoBehaviour, TimerManager.IOnCountdownEnd
     {
-        [Range( 0.1f, 5f )] public float damage = 1.0f;
-
         private Character character;
         private Attack attack;
         private Collider coll;
@@ -29,6 +27,11 @@ namespace DoubleMMPrjc
             }
         }
 
+        /// <summary>
+        /// Sets what weapon will do on collision with game objects
+        /// </summary>
+        /// <param name="attack">Attack with information about collide behaviour</param>
+        /// <param name="disableDelay">Amount of time to disable weapon collider</param>
         public void SetNextAttackInfo(Attack attack, float disableDelay = 0.3f)
         {
             this.attack = attack;

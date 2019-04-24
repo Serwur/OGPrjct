@@ -28,8 +28,12 @@ namespace DoubleMMPrjc
             moveDirection = new Vector2( currentTarget.x - transform.position.x, 0 ).normalized;
         }
 
+        /// <summary>
+        /// Gives next node to follow in AI path
+        /// </summary>
         public virtual void NextNodeInPath()
         {
+            if (currentPath == null) return;
             if ( currentPath.Count > 0) {
                 currentNode = currentPath.Pop();
                 UpdateMovePosition( currentNode.transform.position );
@@ -41,6 +45,11 @@ namespace DoubleMMPrjc
             }
         }
 
+        /// <summary>
+        /// Checks if given node is in AI path
+        /// </summary>
+        /// <param name="node">Node to check</param>
+        /// <returns><code>TRUE</code> if node is in path, otherwise <code>FALSE</code></returns>
         public bool IsNodeInPath(Node node)
         {
             if (currentPath == null)
@@ -48,11 +57,16 @@ namespace DoubleMMPrjc
             return currentPath.Contains( node );
         }
 
+        /// <summary>
+        /// Checks if AI has a path to follow
+        /// </summary>
+        /// <returns><code>TRUE</code> if AI has path, otherwise <code>FALSE</code></returns>
         public bool HasPath()
         {
             return currentPath != null;
         }
 
+        
         protected void Jump(Node node)
         {
             float jumpDirection = node.transform.position.x - transform.position.x;
