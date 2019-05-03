@@ -30,7 +30,6 @@ namespace DoubleMMPrjc
 
         void Awake()
         {
-            isInRealLife = false;
             transform.localScale = new Vector3( 0, 0, 0 );  // circle is 0 size at the start
                                                             /* vfx.SetActive(false);                                                        /////////////VFX\\\\\\\\\\\\\\
                                                             visualEffect.SetFloat("minor radius", 1f); */
@@ -39,6 +38,10 @@ namespace DoubleMMPrjc
             camera = Camera.main.transform;
         }
 
+        private void Start()
+        {
+            isInRealLife = false;
+        }
 
 
         public void ChangeWorld()
@@ -48,10 +51,10 @@ namespace DoubleMMPrjc
             StartLerping();
 
 
-           /* if (isInRealLife == true)
+            if (isInRealLife == true)
             {
                 isInRealLife = false;
-            }*/
+            }
             if (isInRealLife == false)
             {
                 isInRealLife = true;
