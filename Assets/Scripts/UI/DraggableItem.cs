@@ -31,7 +31,7 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
 
     public void OnEndDrag(PointerEventData eventData)
     {
-
+        Transform slotYouWantToOccupy = null;
 
         foreach (Transform slot in inventory.getAllSlots())
         {
@@ -44,14 +44,17 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
                 this.transform.position = slot.position; //snaps to a slot
                 this.transform.SetParent(slot);
 
+
+                
             }
-            else
+            else if (smallestDistance <= snapToSlotConstant)
             {
+                slotYouWantToOccupy = slot;
                 Debug.Log("Wtf");
             }
 
         }
-        if(smallestDistance > snapToSlotConstant)
+        if(smallestDistance > snapToSlotConstant || slotYouWantToOccupy.childCount != 0) //lub zajęte
         {
             Debug.Log("Go back to previous slot");
             this.transform.position = this.transform.parent.position; //snaps to a slot
