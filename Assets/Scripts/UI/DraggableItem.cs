@@ -13,13 +13,14 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
     Transform slotsOfInventory, slotsOfAttachedInvenotry; //slots in inventory
     List<Transform> allSlots = new List<Transform>(); //List of all slots
     float smallestDistance = 1000f;
-
     
 
     public void Start()
     {
         slotsOfInventory = GameObject.Find(nameOfInventoryContainer).transform;
         slotsOfAttachedInvenotry = GameObject.Find(nameOfAttachedInventoryContainer).transform;
+
+        // ------ Connection of two inventories ------
 
         foreach(Transform slot in slotsOfInventory)
         {
@@ -30,13 +31,13 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
             allSlots.Add(slot);
         }
 
-
+       
     }
-
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-
+        this.transform.parent.SetAsLastSibling();           //Makes the item visible sets on bottom of the ui
+        this.transform.parent.parent.SetAsLastSibling();
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -50,16 +51,19 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
 
         foreach (Transform slot in allSlots)
         {
+            
             smallestDistance = Vector2.Distance(this.transform.position, slot.position);
-            if (smallestDistance <= snapToSlotConstant) //looks for a slot that is the nearest
+            if (smallestDistance <= snapToSlotConstant && slot.childCount ==0) //looks for a slot that is the nearest
             {
                 this.transform.position = slot.position; //snaps to a slot
-            }
-            else //comes back to slot that was from
-            {
+                this.transform.SetParent(slot);
 
             }
 
+        }
+        if(smallestDistance > snapToSlotConstant)
+        {
+            this.transform.position = this.transform.parent.position; //snaps to a slot
         }
 
     }
