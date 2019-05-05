@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 170076734}
-  m_IndirectSpecularColor: {r: 0.44657642, g: 0.49641156, b: 0.5748181, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657695, g: 0.49641138, b: 0.5748176, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1356,8 +1356,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   snapToSlotConstant: 120
-  nameOfInventoryContainer: Inventory
-  nameOfAttachedInventoryContainer: Sword Inventory
 --- !u!114 &403014919
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1371,7 +1369,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.57254905}
+  m_Color: {r: 0, g: 0.98039216, b: 0.7269614, a: 0.57254905}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -2727,8 +2725,9 @@ GameObject:
   - component: {fileID: 696113161}
   - component: {fileID: 696113163}
   - component: {fileID: 696113162}
+  - component: {fileID: 696113164}
   m_Layer: 5
-  m_Name: background inventory
+  m_Name: Background Inventory
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2792,6 +2791,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 696113160}
   m_CullTransparentMesh: 0
+--- !u!114 &696113164
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 696113160}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c00161b975321594ba5874829e90f37d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nameOfInventoryContainer: Inventory
+  nameOfAttachedInventoryContainer: Sword Inventory
 --- !u!1 &757109464
 GameObject:
   m_ObjectHideFlags: 0
@@ -4247,7 +4260,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 194, y: -22}
+  m_AnchoredPosition: {x: 370.8, y: -3}
   m_SizeDelta: {x: 130, y: 130}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &997077860
@@ -4263,8 +4276,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   snapToSlotConstant: 120
-  nameOfInventoryContainer: Inventory
-  nameOfAttachedInventoryContainer: Sword Inventory
 --- !u!114 &997077861
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4278,7 +4289,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.57254905}
+  m_Color: {r: 0.9622642, g: 0.049928807, b: 0.049928807, a: 0.57254905}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:

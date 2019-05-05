@@ -7,32 +7,16 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
 {
 
     public float snapToSlotConstant = 120f; //distance 
-    public string nameOfInventoryContainer = "Inventory";
-    public string nameOfAttachedInventoryContainer = "Sword Inventory";
-
-    Transform slotsOfInventory, slotsOfAttachedInvenotry; //slots in inventory
-    List<Transform> allSlots = new List<Transform>(); //List of all slots
-    float smallestDistance = 1000f;
     
+    float smallestDistance = 1000f;
 
-    public void Start()
+    Inventory inventory;
+
+    void Start()
     {
-        slotsOfInventory = GameObject.Find(nameOfInventoryContainer).transform;
-        slotsOfAttachedInvenotry = GameObject.Find(nameOfAttachedInventoryContainer).transform;
-
-        // ------ Connection of two inventories ------
-
-        foreach(Transform slot in slotsOfInventory)
-        {
-            allSlots.Add(slot);
-        }
-        foreach(Transform slot in slotsOfAttachedInvenotry)
-        {
-            allSlots.Add(slot);
-        }
-
-       
+        inventory = GameObject.Find("Background Inventory").GetComponent<Inventory>();
     }
+
 
     public void OnBeginDrag(PointerEventData eventData)
     {
@@ -49,21 +33,32 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
     {
 
 
-        foreach (Transform slot in allSlots)
+        foreach (Transform slot in inventory.getAllSlots())
         {
             
             smallestDistance = Vector2.Distance(this.transform.position, slot.position);
             if (smallestDistance <= snapToSlotConstant && slot.childCount ==0) //looks for a slot that is the nearest
             {
+                Debug.Log("Attach to slot");
+
                 this.transform.position = slot.position; //snaps to a slot
                 this.transform.SetParent(slot);
 
+            }
+            else
+            {
+                Debug.Log("Wtf");
             }
 
         }
         if(smallestDistance > snapToSlotConstant)
         {
+            Debug.Log("Go back to previous slot");
             this.transform.position = this.transform.parent.position; //snaps to a slot
+        }
+        else
+        {
+            Debug.Log("Wtf2");
         }
 
     }
