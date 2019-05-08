@@ -25,12 +25,14 @@ public class Inventory : MonoBehaviour
         foreach (Transform slot in slotsOfAttachedInvenotry)
         {
             allSlots.Add(slot);
+            
         }
     }
 
     public List<Transform> getAllSlots()
     {
         return allSlots;
+        
     }
 
 }

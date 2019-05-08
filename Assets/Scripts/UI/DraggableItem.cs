@@ -12,16 +12,35 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
 
     Inventory inventory;
 
+    float timeStartedLerping;
+    Vector3 positionOfItem;
+    bool isMoving = false;
+
     void Start()
     {
         inventory = GameObject.Find("Background Inventory").GetComponent<Inventory>();
     }
 
+    void Update()
+    {
+
+        if(isMoving == true)
+        {
+            transform.position = LinearInterpolation.LerpV3(this.transform.position, this.transform.parent.position, timeStartedLerping, 0.7f);
+            
+            if(this.transform.position == this.transform.parent.position)
+            {
+                isMoving = false;
+            }
+        }
+
+    }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
         this.transform.parent.SetAsLastSibling();           //Makes the item visible sets on bottom of the ui
         this.transform.parent.parent.SetAsLastSibling();
+
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -56,8 +75,12 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
         }
         if(smallestDistance > snapToSlotConstant || slotYouWantToOccupy.childCount != 0) //lub zajęte
         {
+            timeStartedLerping = Time.time;
             Debug.Log("Go back to previous slot");
-            this.transform.position = this.transform.parent.position; //snaps to a slot
+            isMoving = true;
+            
+
+            //this.transform.position = this.transform.parent.position; //snaps to a slot
         }
         else
         {
