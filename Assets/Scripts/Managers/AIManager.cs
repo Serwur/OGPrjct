@@ -9,12 +9,14 @@ namespace DoubleMMPrjc
         public class AIManager : MonoBehaviour
         {
             public Node prefabNode;
+            public Dummy dummyAsset;
 
             private static AIManager Instance;
 
             private LinkedList<Enemy> chasingEnemies = new LinkedList<Enemy>();
             private Dictionary<long, Node> staticNodes = new Dictionary<long, Node>();
             private LinkedList<ContactArea> contactAreas = new LinkedList<ContactArea>();
+            private LinkedList<Dummy> dummies = new LinkedList<Dummy>();
 
             public void Awake()
             {
@@ -38,11 +40,24 @@ namespace DoubleMMPrjc
                     if (staticNodes.TryGetValue( nodeNeighborhood.NodeId, out Node node )) {
                         node.AddEdges( nodeNeighborhood.Edges );
                     }
-                    Debug.Log( nodeNeighborhood.NodeId );
                 }
             }
 
-            public static Stack<Node> FindPath(Entity ai, Entity target)
+            /// <summary>
+            /// Looking for the shortest path for given <paramref name="ai"/> to given <paramref name="position"/>
+            /// </summary>
+            /// <param name="ai">AI as <see cref="Entity"/></param>
+            /// <param name="position">Position on map as <see cref="Vector2"/></param>
+            /// <returns>The shortest path to given <paramref name="position"/></returns>
+            public static AIPathList FindPath(Entity ai, Vector2 position)
+            {
+                Dummy dummy = SpawnDummy( position );
+                AIPathList aIPathList = FindPath( ai, dummy );
+                Destroy( dummy.gameObject );
+                return aIPathList;
+            }
+
+            public static AIPathList FindPath(Entity ai, Entity target)
             {
                 // SPRAWDZAMY CZY ZNALEZLISMY JAKIEKOLWIEK NODE'Y
                 List<Node> aiNodes = GetContactNodes( ai );
@@ -70,7 +85,7 @@ namespace DoubleMMPrjc
                     node.CalcHeurestic( end );
                 }
                 // ROZPOCZYNAMY ALGORYTM, JEŻELI ISTNIEJE ŚCIEŻKA DO GRACZA
-                Stack<Node> path = null;
+                AIPathList path = null;
                 if (HasPath( start, end )) {
                     // TWORZYMY LISTĘ NODÓW DO SPRAWDZENIA
                     List<Node> nodesToCheck = new List<Node>();
@@ -89,9 +104,9 @@ namespace DoubleMMPrjc
                         next = GetMinNode( nodesToCheck );
                     }
                     // TWORZYMY ZNALEZIONĄ ŚCIEŻKĘ
-                    path = new Stack<Node>();
+                    path = new AIPathList();
                     while (next != start) {
-                        path.Push( next );
+                        path.Push( next, next.ActionToParent );
                         next = next.Parent;
                     }
                 }
@@ -103,8 +118,8 @@ namespace DoubleMMPrjc
                     node.Refresh();
                 }
                 // WYMARZONY WYNIK
-                foreach (Node node in path) {
-                    Debug.Log( node + " --->> " );
+                if (path != null) {
+                    Debug.Log( path );
                 }
                 Destroy( start.gameObject );
                 return path;
@@ -157,6 +172,23 @@ namespace DoubleMMPrjc
                     }
                 }
                 return nearestNode;
+            }
+
+            /// <summary>
+            /// Spawns dummy object
+            /// </summary>
+            /// <param name="position">Position to spawn dummy</param>
+            /// <returns>New dummy object</returns>
+            public static Dummy SpawnDummy(Vector2 position)
+            {
+                return Instantiate( Instance.dummyAsset, position, Quaternion.identity );
+            }
+
+            public static void ClearDummies()
+            {
+                foreach ( Dummy dummy in Instance.dummies ) {
+                    Destroy( dummy.gameObject );
+                }
             }
 
             public override string ToString()

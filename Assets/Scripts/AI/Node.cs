@@ -1,5 +1,4 @@
 ﻿using DoubleMMPrjc.Utilities;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,6 +14,7 @@ namespace DoubleMMPrjc
             private float combinedCost = float.MaxValue;
             private bool visited = false;
             private Node parent;
+            private AIAction actionToParent;
             /// <summary>
             /// Represents id of node, it mustn't be changed!
             /// </summary>
@@ -33,10 +33,9 @@ namespace DoubleMMPrjc
             public void OnTriggerEnter(Collider other)
             {
                 NPC npc = other.GetComponent<NPC>();
-                if (npc != null) {
-                    if (npc.CurrentNode == this) {
-                        npc.NextNodeInPath();
-                    }
+                if (npc != null && npc.CurrentComplexNode != null && npc.CurrentComplexNode.Node == this) {
+                    Debug.Log("Next node coz of reaching this named: " + name);
+                    npc.NextNode();
                 }
             }
             #endregion
@@ -46,8 +45,8 @@ namespace DoubleMMPrjc
             /// Visits all nodes connected via <see cref="edges"/> and counting the current path costs for all of them. <br>
             /// It's used for A* algorithm.
             /// </summary>
-            /// <param name="currentStack">Current stack of nodes to visit in A* algorithm</param>
-            public void VisitNeighboors(List<Node> currentStack)
+            /// <param name="nodesList">Current stack of nodes to visit in A* algorithm</param>
+            public void VisitNeighboors(List<Node> nodesList)
             {
                 foreach (Edge edge in edges) {
                     if (!edge.Active || edge.Visited)
@@ -60,9 +59,14 @@ namespace DoubleMMPrjc
                         visitedNode.combinedCost = combinedCost;
                         visitedNode.pathCost = pathCost;
                         visitedNode.parent = this;
+                        if (visitedNode == edge.Start) {
+                            visitedNode.actionToParent = edge.OnStartAction;
+                        } else {
+                            visitedNode.actionToParent = edge.OnEndAction;
+                        }
                     }
-                    if (!currentStack.Contains( visitedNode )) {
-                        currentStack.Add( visitedNode );
+                    if (!nodesList.Contains( visitedNode )) {
+                        nodesList.Add( visitedNode );
                     }
                 }
             }
@@ -172,11 +176,16 @@ namespace DoubleMMPrjc
                 combinedCost = float.MaxValue;
                 visited = false;
                 parent = null;
+                //actionToParent = null;
                 foreach (Edge edge in edges) {
                     edge.Refresh();
                 }
             }
 
+            /// <summary>
+            /// Node in extended format
+            /// </summary>
+            /// <returns>name Pos( x position of node, y position of node)</returns>
             public string ToExtendedString()
             {
                 float x = Utility.Round( transform.position.x, 2 );
@@ -201,6 +210,17 @@ namespace DoubleMMPrjc
             {
                 return 624022166 + base.GetHashCode();
             }
+
+            public void OnDrawGizmos()
+            {
+                if (GameManager.DrawNodeConnections) {
+                    foreach (Edge edge in edges) {
+                        Gizmos.color = Color.green;
+                        Gizmos.DrawLine( transform.position, edge.GetAnother( this ).transform.position );
+                    }
+                }
+            }
+
             #endregion
 
             #region Getters And Setters
@@ -211,6 +231,7 @@ namespace DoubleMMPrjc
             public Node Parent { get => parent; set => parent = value; }
             public List<Edge> Edges { get => edges; set => edges = value; }
             public long Id { get => id; set => id = value; }
+            public AIAction ActionToParent { get => actionToParent; set => actionToParent = value; }
             #endregion
         }
     }

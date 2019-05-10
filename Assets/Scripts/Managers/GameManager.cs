@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using DoubleMMPrjc.AI;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -15,8 +13,11 @@ namespace DoubleMMPrjc
         private static GameManager Instance;
 
         private LinkedList<Entity> entities = new LinkedList<Entity>();
-
         private Character character;
+
+        [SerializeField] private bool drawEnemyRange = true;
+        [SerializeField] private bool drawAIDestination = true;
+        [SerializeField] private bool drawNodeConnections = true;
 
         private void Awake()
         {
@@ -95,5 +96,8 @@ namespace DoubleMMPrjc
         }
 
         public static Character Character { get => Instance.character; }
+        public static bool DrawEnemyRange { get => Instance != null && Instance.drawEnemyRange; }
+        public static bool DrawAIDestination { get => Instance != null && Instance.drawAIDestination; }
+        public static bool DrawNodeConnections { get => Instance != null && Instance.drawNodeConnections; }
     }
 }

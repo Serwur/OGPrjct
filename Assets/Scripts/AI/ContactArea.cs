@@ -36,8 +36,8 @@ namespace DoubleMMPrjc
                     AddEntity( entity );
                     if (entity.GetType() == typeof( Enemy )) {
                         Enemy enemy = (Enemy) entity;
-                        if (enemy.HasPath()) {
-                            if (Contains( enemy.CurrentNode )) {
+                        if (enemy.HasPath) {
+                            if (Contains( enemy.CurrentComplexNode.Node )) {
                                 if (Contains( GameManager.Character )) {
                                     enemy.FollowTarget( GameManager.Character );
                                 }
@@ -83,7 +83,7 @@ namespace DoubleMMPrjc
             /// reference of contact area from entity
             /// </summary>
             /// <param name="entity">Entity to remove</param>
-            /// <returns><code>TRUE</code> if entity was removed, otherwise <code>FALSE</code></returns>
+            /// <returns>True if entity was removed, false otherwise</code></returns>
             public bool RemoveEntity(Entity entity)
             {
                 if (entity.ContactArea == this) {
@@ -96,15 +96,51 @@ namespace DoubleMMPrjc
             /// Checks if given entity is in contact area
             /// </summary>
             /// <param name="entity">Entity to check</param>
-            /// <returns><code>TRUE</code> if entity is in contact area, otherwise <code>FALSE</code></returns>
+            /// <returns>True if entity is in contact area, false otherwise</code></returns>
             public bool Contains(Entity entity)
             {
                 return entitiesIn.Contains( entity );
             }
 
+            /// <summary>
+            /// Checks if <see cref="ContactArea"/> contains given <see cref="Node"/>
+            /// </summary>
+            /// <param name="node"><see cref="Node"/> to check</param>
+            /// <returns>True if contains, false otherwise</returns>
             public bool Contains(Node node)
             {
                 return nodesIn.Contains( node );
+            }
+
+            /// <summary>
+            /// Gets random <b>x</b> position from bounds of area
+            /// </summary>
+            /// <returns>Random <b>x</b> from area</returns>
+            public float GetRandXInArea()
+            {
+                float maxX = transform.position.x + coll.bounds.extents.x;
+                float minX = transform.position.x - maxX;
+                return Random.Range( minX, maxX );
+            }
+
+            /// <summary>
+            /// Gets random <b>y</b> position from bounds of area
+            /// </summary>
+            /// <returns>Random <b>y</b> from area</returns>
+            public float GetRandYInArea()
+            {
+                float maxY = transform.position.y + coll.bounds.extents.y;
+                float minY = transform.position.y - maxY;
+                return Random.Range( minY, maxY );
+            }
+
+            /// <summary>
+            /// Gets random <see cref="Vector2"/> from bounds of area
+            /// </summary>
+            /// <returns><see cref="Vector2"/> from area</returns>
+            public Vector2 GetRandPosInArea()
+            {
+                return new Vector2( GetRandXInArea(), GetRandYInArea() );
             }
             #endregion
 

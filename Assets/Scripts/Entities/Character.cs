@@ -111,11 +111,10 @@ namespace DoubleMMPrjc
         /// <summary>
         /// Just a simple jump method
         /// </summary>
-        public void Jump(float jumpPower)
+        public override void Jump(float jumpPower)
         {
-            rb.velocity = new Vector2( rb.velocity.x, jumpPower );
+            base.Jump( jumpPower );
             animator.SetBool( "isInAir", true );
-            lastMinFallSpeed = 0;
         }
 
         /// <summary>

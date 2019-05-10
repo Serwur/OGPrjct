@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6718039252219412099}
   - component: {fileID: 6718039252219412100}
   - component: {fileID: 1922706917619757268}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Node
   m_TagString: Untagged
   m_Icon: {fileID: 8418204508859773708, guid: 0000000000000000d000000000000000, type: 0}
@@ -44,7 +44,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7bb44d0301ac31b43a28984db486ca53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  staticNeighboors: []
+  id: 0
+  edges: []
 --- !u!65 &1922706917619757268
 BoxCollider:
   m_ObjectHideFlags: 0

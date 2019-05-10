@@ -266,6 +266,12 @@ namespace DoubleMMPrjc
             isDead = true;
         }
 
+        public virtual void Jump(float jumpPower)
+        {
+            rb.velocity = new Vector2( rb.velocity.x, jumpPower );
+            lastMinFallSpeed = 0;
+        }
+
         public virtual void OnCountdownEnd(long id)
         {
             if (id == moveCountdownId) {

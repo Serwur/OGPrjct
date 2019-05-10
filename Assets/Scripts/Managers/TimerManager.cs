@@ -158,9 +158,9 @@ public class TimerManager : MonoBehaviour
         if (newCountdown < 0)
             throw new SystemException( "Countdown time cannot be less than 0!" );
         if (GetCountdown( id, out Countdown countdown )) {
-            if (countdown.HasEnded) {
+            Instance.endedCountdowns.Remove( id );
+            if (!Instance.notEndedCountdowns.ContainsKey( id )) {
                 Instance.notEndedCountdowns.Add( id, countdown );
-                Instance.endedCountdowns.Remove( id );
             }
             if (newCountdown == float.MaxValue) {
                 countdown.Reset( countdown.CountdownTime );
@@ -418,10 +418,10 @@ public class TimerManager : MonoBehaviour
                 return ( lessThanZero ? "-" : "" ) + ( ( seconds < 10 ) ? "0" : "" ) + ( lessThanZero ? -seconds : seconds ).ToString();
             }
         }
-        public IOnCountdownEnd Listener { get { return listener; } set { listener = value; } }
-        public bool RemoveWhenEnds { get { return removeWhenEnds; } set { removeWhenEnds = value; } }
-        public float CountdownTime { get { return countdownTime; } }
-        public float CountdownStartTime { get { return countdownStartTime; } }
+        public IOnCountdownEnd Listener { get => listener; set => listener = value; }
+        public bool RemoveWhenEnds { get => removeWhenEnds; set => removeWhenEnds = value; }
+        public float CountdownTime { get => countdownTime; }
+        public float CountdownStartTime { get => countdownStartTime; }
         public float TimeSpeed
         {
             get { return timeSpeed; }

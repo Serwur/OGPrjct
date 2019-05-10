@@ -5,10 +5,8 @@ namespace DoubleMMPrjc
 {
     namespace Utilities
     {
-        public sealed class Utility
+        public static class Utility
         {
-            private Utility()
-            { }
 
             /// <summary>
             /// Rounds the value to number of digits given by <b>precision</b>
@@ -142,6 +140,13 @@ namespace DoubleMMPrjc
                     stringArr[i] = action( array[i] );
                 }
                 return stringArr;
+            }
+
+            public static T RemoveFirst<T>(LinkedList<T> linkedList)
+            {
+                T result = linkedList.First.Value;
+                linkedList.RemoveFirst();
+                return result;
             }
 
             public static T[] ToArray<T>(LinkedList<T> list)
