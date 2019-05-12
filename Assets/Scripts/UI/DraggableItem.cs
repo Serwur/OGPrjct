@@ -16,6 +16,9 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
     Vector3 positionOfItem;
     bool isMoving = false;
 
+    public bool IsMoving { get => isMoving; set => isMoving = value; }
+    public float TimeStartedLerping { get => timeStartedLerping; set => timeStartedLerping = value; }
+
     void Start()
     {
         inventory = GameObject.Find("Background Inventory").GetComponent<Inventory>();
@@ -24,13 +27,14 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
     void Update()
     {
 
-        if(isMoving == true)
+        if(IsMoving == true)
         {
-            transform.position = LinearInterpolation.LerpV3(this.transform.position, this.transform.parent.position, timeStartedLerping, 0.7f);
+            
+            transform.position = LinearInterpolation.LerpV3(this.transform.position, this.transform.parent.position, TimeStartedLerping, 0.7f);
             
             if(this.transform.position == this.transform.parent.position)
             {
-                isMoving = false;
+                IsMoving = false;
             }
         }
 
@@ -56,15 +60,24 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
         {
             
             smallestDistance = Vector2.Distance(this.transform.position, slot.position);
-            if (smallestDistance <= snapToSlotConstant && slot.childCount ==0) //looks for a slot that is the nearest
+            if (smallestDistance <= snapToSlotConstant) //looks for a slot that is the nearest
             {
-                Debug.Log("Attach to slot");
-
+                bool switchParents = false;
                 this.transform.position = slot.position; //snaps to a slot
-                this.transform.SetParent(slot);
 
 
-                
+                if (slot.childCount != 0)
+                {
+
+                    slot.GetChild(0).GetComponent<DraggableItem>().TimeStartedLerping = Time.time;
+                    slot.GetChild(0).GetComponent<DraggableItem>().IsMoving = true; //for child sets movement
+
+                    slot.GetChild(0).transform.SetParent(this.transform.parent);
+                    this.transform.SetParent(slot.transform);
+
+                }
+
+                this.transform.SetParent(slot.transform); //this goes to new parent
             }
             else if (smallestDistance <= snapToSlotConstant)
             {
@@ -75,9 +88,9 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
         }
         if(smallestDistance > snapToSlotConstant || slotYouWantToOccupy.childCount != 0) //lub zajęte
         {
-            timeStartedLerping = Time.time;
+            TimeStartedLerping = Time.time;
             Debug.Log("Go back to previous slot");
-            isMoving = true;
+            IsMoving = true;
             
 
             //this.transform.position = this.transform.parent.position; //snaps to a slot

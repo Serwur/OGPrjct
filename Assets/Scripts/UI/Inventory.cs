@@ -11,6 +11,8 @@ public class Inventory : MonoBehaviour
     Transform slotsOfInventory, slotsOfAttachedInvenotry; //slots in inventory
     List<Transform> allSlots = new List<Transform>(); //List of all slots
 
+    public List<Transform> AllSlots { get => allSlots; set => allSlots = value; }
+
     public void Start()
     {
         slotsOfInventory = GameObject.Find(nameOfInventoryContainer).transform;
@@ -20,18 +22,18 @@ public class Inventory : MonoBehaviour
 
         foreach (Transform slot in slotsOfInventory)
         {
-            allSlots.Add(slot);
+            AllSlots.Add(slot);
         }
         foreach (Transform slot in slotsOfAttachedInvenotry)
         {
-            allSlots.Add(slot);
+            AllSlots.Add(slot);
             
         }
     }
 
     public List<Transform> getAllSlots()
     {
-        return allSlots;
+        return AllSlots;
         
     }
 
