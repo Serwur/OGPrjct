@@ -7,14 +7,14 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
 {
 
     public float snapToSlotConstant = 120f; //distance 
-    
-    float smallestDistance = 1000f;
+    public itemInInventory item; //scritable object
 
-    Inventory inventory;
 
-    float timeStartedLerping;
-    Vector3 positionOfItem;
-    bool isMoving = false;
+    private float smallestDistance = 1000f;
+    private Inventory inventory;
+    private float timeStartedLerping;
+    private Vector3 positionOfItem;
+    private bool isMoving = false;
 
     public bool IsMoving { get => isMoving; set => isMoving = value; }
     public float TimeStartedLerping { get => timeStartedLerping; set => timeStartedLerping = value; }
@@ -22,6 +22,12 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
     void Start()
     {
         inventory = GameObject.Find("Background Inventory").GetComponent<Inventory>();
+
+        for (int i = inventory.getAllSlots().Count - 1; i > inventory.NumberOfInventoryContainer; i++)
+        {
+
+        }
+
     }
 
     void Update()
@@ -54,17 +60,38 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
 
     public void OnEndDrag(PointerEventData eventData)
     {
+
+
+        //THIS HAPPENS WHEN YOU DRAG AN ITEM ABOVE SLOT
+
+        
+            if (item.isEquipable == true)
+            {
+            AttachOrDetachItem(inventory.AllSlots);
+            }
+            else if(item.isEquipable == false)
+            {
+            AttachOrDetachItem(inventory.InventorySlots);
+            }
+
+
+
+
+    }
+
+    void AttachOrDetachItem(List<Transform> slotsOfItems)
+    {
         Transform slotYouWantToOccupy = null;
 
-        foreach (Transform slot in inventory.getAllSlots())
+        foreach (Transform slot in slotsOfItems)
         {
-            
+
+
+
             smallestDistance = Vector2.Distance(this.transform.position, slot.position);
             if (smallestDistance <= snapToSlotConstant) //looks for a slot that is the nearest
             {
-                bool switchParents = false;
                 this.transform.position = slot.position; //snaps to a slot
-
 
                 if (slot.childCount != 0)
                 {
@@ -82,23 +109,19 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
             else if (smallestDistance <= snapToSlotConstant)
             {
                 slotYouWantToOccupy = slot;
-                Debug.Log("Wtf");
             }
 
         }
-        if(smallestDistance > snapToSlotConstant || slotYouWantToOccupy.childCount != 0) //lub zajęte
+
+
+        //IT HAPPENS WHEN YOU DRAG AN ITEM ON AIR
+
+        if (smallestDistance > snapToSlotConstant) //lub zajęte
         {
             TimeStartedLerping = Time.time;
             Debug.Log("Go back to previous slot");
             IsMoving = true;
-            
 
-            //this.transform.position = this.transform.parent.position; //snaps to a slot
         }
-        else
-        {
-            Debug.Log("Wtf2");
-        }
-
     }
 }
