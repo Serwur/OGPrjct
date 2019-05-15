@@ -1,4 +1,4 @@
-﻿using DoubleMMPrjc.Utilities;
+﻿using DoubleMMPrjc.Utility;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -32,6 +32,7 @@ namespace DoubleMMPrjc
 
             public void OnTriggerEnter(Collider other)
             {
+                Debug.Log(other.name);
                 NPC npc = other.GetComponent<NPC>();
                 if (npc != null && npc.CurrentComplexNode != null && npc.CurrentComplexNode.Node == this) {
                     Debug.Log("Next node coz of reaching this named: " + name);
@@ -188,8 +189,8 @@ namespace DoubleMMPrjc
             /// <returns>name Pos( x position of node, y position of node)</returns>
             public string ToExtendedString()
             {
-                float x = Utility.Round( transform.position.x, 2 );
-                float y = Utility.Round( transform.position.y, 2 );
+                float x = Math.Round( transform.position.x, 2 );
+                float y = Math.Round( transform.position.y, 2 );
                 return gameObject.name + " Pos(" + x + " , " + y + ")";
             }
 

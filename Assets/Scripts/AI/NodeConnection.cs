@@ -1,4 +1,4 @@
-﻿using DoubleMMPrjc.Utilities;
+﻿using DoubleMMPrjc.Utility;
 using System;
 using System.Collections.Generic;
 using UnityEngine;

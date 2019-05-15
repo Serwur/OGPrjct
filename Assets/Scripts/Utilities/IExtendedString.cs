@@ -1,6 +1,6 @@
 ﻿namespace DoubleMMPrjc
 {
-    namespace Utilities
+    namespace Utility
     {
         public interface IExtendedString
         {

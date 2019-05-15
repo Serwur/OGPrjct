@@ -1,4 +1,4 @@
-﻿using DoubleMMPrjc.Utilities;
+﻿using DoubleMMPrjc.Utility;
 using System.Collections.Generic;
 
 namespace DoubleMMPrjc
@@ -42,7 +42,7 @@ namespace DoubleMMPrjc
             {
                 ComplexNode cn = null;
                 if (cnHistoryList.Count > 0) {
-                    cn = Utility.RemoveFirst( cnHistoryList );
+                    cn = Collections.RemoveFirst( cnHistoryList );
                     cnList.AddFirst( cn );
                 }
                 currentCn = cn;
@@ -57,7 +57,7 @@ namespace DoubleMMPrjc
             {
                 ComplexNode cn = null;
                 if (cnList.Count > 0) {
-                    cn = Utility.RemoveFirst( cnList );
+                    cn = Collections.RemoveFirst( cnList );
                     cnHistoryList.AddFirst( cn );
                 }
                 currentCn = cn;

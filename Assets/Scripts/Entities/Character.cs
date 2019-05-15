@@ -1,12 +1,16 @@
-﻿using Inputs;
+﻿using DoubleMMPrjc.AI;
+using Inputs;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace DoubleMMPrjc
 {
     [RequireComponent( typeof( PInput ) )]
-    public class Character : Entity, IStickListener, IButtonListener,
-    ITriggerListener, IArrowsListener
+    public class Character : Entity,
+        IStickListener,
+        IButtonListener,
+        ITriggerListener,
+        IArrowsListener
     {
         #region Static Fields
         public static readonly float SIMPLE_ATTACK_TIME = 0.17f;
@@ -229,6 +233,23 @@ namespace DoubleMMPrjc
             base.OnFallen( speedWhenFalling );
             animator.SetBool( "isInAir", false );
         }
+
+
+        public override void OnContactAreaEnter(ContactArea contactArea)
+        {
+            foreach (NPC npc in FollowersList) {
+                if (!npc.ChaseTarget( this )) {
+                    if ( !npc.FollowTarget( this ) ) {
+                        npc.SetWatchState( "players eneters new area and there is no path to him" );
+                    }
+                }
+            }
+        }
+
+        public override void OnContactAreaExit(ContactArea contactArea)
+        {
+
+        }
         #endregion
 
         #region Buttons
@@ -402,5 +423,6 @@ namespace DoubleMMPrjc
                 }
             }
         }
+
     }
 }

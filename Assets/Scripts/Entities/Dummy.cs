@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using DoubleMMPrjc.AI;
+using UnityEngine;
 
 namespace DoubleMMPrjc
 {
@@ -20,19 +21,28 @@ namespace DoubleMMPrjc
 
         public override void Start()
         {
-            // ZERO ACTIONS
+            // IT'S JUST DUMMY
         }
 
         public override void FixedUpdate()
         {
-            // ZERO ACTIONS
+            // IT'S JUST DUMMY
         }
 
         public override void OnAnyStateUpdate()
         {
-            // ZERO ACTIONS
+            // IT'S JUST DUMMY
         }
 
+        public override void OnContactAreaEnter(ContactArea contactArea)
+        {
+            // IT'S JUST DUMMY
+        }
+
+        public override void OnContactAreaExit(ContactArea contactArea)
+        {
+            // IT'S JUST DUMMY
+        }
     }
 
 }

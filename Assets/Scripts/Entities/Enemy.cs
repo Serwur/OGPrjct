@@ -5,36 +5,35 @@ namespace DoubleMMPrjc
 {
     public class Enemy : NPC
     {
+        protected static readonly float SLEEP_RANGE = 8f;
+        protected static readonly float WATCH_RANGE = 6f;
+        protected static readonly float REACH_RANGE = 1.5f;
 
-        public static readonly int SLEEP_CHECK_PERIOD = 50;
-        public static readonly int WATCH_CHECK_PERIOD = 25;
-        public static readonly int REACH_CHECK_PERIOD = 2;
-        public static readonly int ATTACK_CHECK_PERIOD = 3;
+        protected static readonly float WATCH_TIME = 12f;
+        protected static readonly float REACH_TIME = 6f;
 
-        public static readonly int WATCH_POSITION_CHANGE_PERIOD = 240;
-        public static readonly int WATCH_POSITION_UPDATE_PERIOD = 100;
-        public static readonly int REACH_POSITION_UPDATE_PERIOD = 12;
+        protected static readonly int SLEEP_CHECK_PERIOD = 50;
+        protected static readonly int WATCH_CHECK_PERIOD = 25;
+        protected static readonly int REACH_CHECK_PERIOD = 2;
+        protected int checkPeriod = 0;
 
-        public static readonly float SLEEP_RANGE = 8f;
-        public static readonly float WATCH_RANGE = 6f;
-        public static readonly float REACH_RANGE = 1.5f;
+        protected static readonly int ATTACK_CHECK_PERIOD = 3;
+        protected int attackCheckPeriod = 0;
 
-        public static readonly float WATCH_TIME = 12f;
-        public static readonly float REACH_TIME = 6f;
+        protected static readonly int WATCH_POSITION_CHANGE_PERIOD = 240;
+        protected int watchRandomPositionChange = 0;
 
-        private int checkPeriod = 0;
-        private int watchRandomPositionChange = 0;
-        private int watchFollowPositionUpdate = 0;
-        private int reachFollowPositionUpdate = 0;
+        protected static readonly int WATCH_POSITION_UPDATE_PERIOD = 100;
+        protected int watchFollowPositionUpdate = 0;
 
-        private long watchCountdownId;
-        private long reachCountdownId;
+        protected long watchCountdownId;
+        protected long reachCountdownId;
 
-        private bool foundPathEalier = false;
+        protected bool foundPathEalier = false;
 
         #region Dev Section
-        private float rangeToKeepThisState = 0;
-        private float rangeToNextState = SLEEP_RANGE;
+        protected float rangeToKeepThisState = 0;
+        protected float rangeToNextState = SLEEP_RANGE;
         #endregion
 
         public override void Start()
@@ -67,6 +66,7 @@ namespace DoubleMMPrjc
                     SetReachState( "player is in watch range" );
                 }
             }
+
             watchRandomPositionChange++;
             if (watchRandomPositionChange >= WATCH_POSITION_CHANGE_PERIOD) {
                 watchRandomPositionChange = 0;
@@ -75,22 +75,34 @@ namespace DoubleMMPrjc
                     watchFollowPositionUpdate = 0;
                 }
             }
-            if (canMove) {
-                watchFollowPositionUpdate++;
-                if (watchFollowPositionUpdate >= WATCH_POSITION_UPDATE_PERIOD) {
-                    if (currentTarget != null)
-                        SetMoveDirection( currentTarget.position.x );
-                    watchFollowPositionUpdate = 0;
-                }
-                Move( moveSpeed.current / 3f );
+
+            watchFollowPositionUpdate++;
+            if (watchFollowPositionUpdate >= WATCH_POSITION_UPDATE_PERIOD) {
+                if (currentTarget != null)
+                    SetMoveDirection( currentTarget.position.x );
+                watchFollowPositionUpdate = 0;
             }
-            //TimerManager.GetRemaingCountdown( reachCountdownId, out float seconds );
-            //Debug.Log( "Remain WATCH:" + seconds );
+
+            Move( moveSpeed.current / 3f );
         }
 
         public override void ReachUpdate()
         {
             base.ReachUpdate();
+
+            if (canMove) {
+                reachDirectionUpdate++;
+                if (reachDirectionUpdate >= REACH_DIRECTION_UPDATE_PERIOD) {
+                    reachDirectionUpdate = 0;
+                    SetMoveDirection( currentTarget.position.x );
+                }
+                Move( moveSpeed.current );
+            }
+        }
+
+        public override void FollowUpdate()
+        {
+            base.FollowUpdate();
 
             if (CheckPeriod( REACH_CHECK_PERIOD )) {
                 checkPeriod = 0;
@@ -98,14 +110,7 @@ namespace DoubleMMPrjc
                     SetAttackState( "player in reach range" );
                 }
             }
-            if (canMove) {
-                reachFollowPositionUpdate++;
-                if (reachFollowPositionUpdate >= REACH_POSITION_UPDATE_PERIOD) {
-                    reachFollowPositionUpdate = 0;
-                    SetMoveDirection( currentTarget.position.x );
-                }
-                Move( moveSpeed.current );
-            }
+
         }
 
         public override void AttackUpdate()
@@ -125,33 +130,49 @@ namespace DoubleMMPrjc
         public override void OnAnyStateUpdate()
         {
             checkPeriod++;
+            /* if (CheckPeriod( REACH_CHECK_PERIOD )) {
+                 checkPeriod = 0;
+                 if (IsPlayerInRange( REACH_RANGE )) {
+                     SetAttackState( "player in reach range" );
+                 }
+             }*/
         }
 
         public override void SetSleepState(string reason)
         {
             base.SetSleepState( reason );
 
+            if (followedEntity) {
+                followedEntity.RemoveFollower( this );
+            }
+
             rangeToNextState = SLEEP_RANGE;
             rangeToKeepThisState = 0;
 
-            if (dummyPositionToFollow != null) {
-                Destroy( dummyPositionToFollow.gameObject );
-            }          
+            if (dummyPositionToMove != null) {
+                dummyPositionToMove.gameObject.SetActive( false );
+                dummyPositionToMove = null;
+            }
         }
 
         public override void SetWatchState(string reason)
         {
             base.SetWatchState( reason );
 
+            if (followedEntity) {
+                followedEntity.RemoveFollower( this );
+            }
+
             rangeToKeepThisState = SLEEP_RANGE;
             rangeToNextState = WATCH_RANGE;
 
             if (foundPathEalier) {
                 TimerManager.ResetCountdown( watchCountdownId );
+                watchRandomPositionChange = 0;
             }
+
             // FLAG RESET
             foundPathEalier = false;
-            watchRandomPositionChange = 0;
             currentTarget = null;
             if (ContactArea != null) {
                 SetPosToFollow( contactArea.GetRandPosInArea() );
@@ -162,28 +183,40 @@ namespace DoubleMMPrjc
         {
             base.SetReachState( reason );
 
+            if (followedEntity) {
+                followedEntity.RemoveFollower( this );
+            }
+
+            // Sets ranges for gizmos
             rangeToKeepThisState = WATCH_RANGE;
             rangeToNextState = REACH_RANGE;
 
-            if (dummyPositionToFollow != null) {
-                Destroy( dummyPositionToFollow.gameObject );
-            }
+            // Resets timer to count time for reach state to end
             TimerManager.ResetCountdown( reachCountdownId );
-            reachFollowPositionUpdate = 0;
-            
-            if (!FindPath( GameManager.Character )) {
-                SetWatchState( "path hasn't been found" );
+
+            // If cannot find path to given entity then backs to watch state
+            if (!FollowTarget( GameManager.Character )) {
+                SetWatchState( "cannot find path to target" );
             }
+        }
+
+        public override void SetFollowState(string reason)
+        {
+            base.SetFollowState( reason );
+
+            TimerManager.ResetCountdown( reachCountdownId );
         }
 
         public override void SetAttackState(string reason)
         {
             base.SetAttackState( reason );
 
+            if (followedEntity) {
+                followedEntity.RemoveFollower( this );
+            }
+
             rangeToKeepThisState = REACH_RANGE;
             rangeToNextState = 0;
-
-            currentPath.Clear();
         }
 
         protected override void OnAnyStateChange(string reason)
@@ -209,12 +242,12 @@ namespace DoubleMMPrjc
             SetSleepState( "unit has been reseted" );
             checkPeriod = 0;
             watchRandomPositionChange = 0;
-            reachFollowPositionUpdate = 0;
+            reachDirectionUpdate = 0;
         }
 
-        public override bool FindPath(Entity target)
+        public override bool FollowTarget(Entity target)
         {
-            if (base.FindPath( target )) {
+            if (base.FollowTarget( target )) {
                 foundPathEalier = true;
                 return true;
             }
@@ -248,7 +281,7 @@ namespace DoubleMMPrjc
                 } else {
                     SetSleepState( "player wasn't in sleep range while enemy had WATCH state when timer has ended" );
                 }
-            } else if (id == reachCountdownId && State == AIState.REACH) {
+            } else if (id == reachCountdownId && ( State == AIState.REACH || State == AIState.FOLLOW )) {
                 if (IsPlayerInRange( WATCH_RANGE )) {
                     TimerManager.ResetCountdown( reachCountdownId );
                 } else {
@@ -281,6 +314,16 @@ namespace DoubleMMPrjc
                     Gizmos.DrawLine( transform.position, currentTarget.position );
                 }
             }
+        }
+
+        public override void OnContactAreaEnter(ContactArea contactArea)
+        {
+
+        }
+
+        public override void OnContactAreaExit(ContactArea contactArea)
+        {
+
         }
 
         public Transform FollowingTarget { get => currentTarget; set => currentTarget = value; }

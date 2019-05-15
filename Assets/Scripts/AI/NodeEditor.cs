@@ -1,4 +1,4 @@
-﻿using DoubleMMPrjc.Utilities;
+﻿using DoubleMMPrjc.Utility;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -86,7 +86,7 @@ namespace DoubleMMPrjc
             {
                 if (connections.Count > 0) {
                     nodeListScroll = GUILayout.BeginScrollView( nodeListScroll, false, false, GUILayout.ExpandWidth( true ) );  // 1 - START (SV)
-                    selectedIndex = GUILayout.SelectionGrid( selectedIndex, Utility.ToExtendedStringArray( connections.ToArray() ), 1, GUILayout.Width( 200 ), GUILayout.ExpandWidth( true ) );
+                    selectedIndex = GUILayout.SelectionGrid( selectedIndex, Collections.ToExtendedStringArray( connections.ToArray() ), 1, GUILayout.Width( 200 ), GUILayout.ExpandWidth( true ) );
                     SelectConnection( selectedIndex );
                     GUILayout.EndScrollView();  // 1 - END (SV)
                 } else {

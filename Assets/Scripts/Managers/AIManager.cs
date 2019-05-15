@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using DoubleMMPrjc.Utility;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -13,10 +14,9 @@ namespace DoubleMMPrjc
 
             private static AIManager Instance;
 
-            private LinkedList<Enemy> chasingEnemies = new LinkedList<Enemy>();
             private Dictionary<long, Node> staticNodes = new Dictionary<long, Node>();
             private LinkedList<ContactArea> contactAreas = new LinkedList<ContactArea>();
-            private LinkedList<Dummy> dummies = new LinkedList<Dummy>();
+            private ObjectPool<Dummy> dummies;
 
             public void Awake()
             {
@@ -41,6 +41,8 @@ namespace DoubleMMPrjc
                         node.AddEdges( nodeNeighborhood.Edges );
                     }
                 }
+
+                dummies = new ObjectPool<Dummy>( dummyAsset, "Dummies" );
             }
 
             /// <summary>
@@ -51,7 +53,7 @@ namespace DoubleMMPrjc
             /// <returns>The shortest path to given <paramref name="position"/></returns>
             public static AIPathList FindPath(Entity ai, Vector2 position)
             {
-                Dummy dummy = SpawnDummy( position );
+                Dummy dummy = GetDummy( position );
                 AIPathList aIPathList = FindPath( ai, dummy );
                 Destroy( dummy.gameObject );
                 return aIPathList;
@@ -179,21 +181,9 @@ namespace DoubleMMPrjc
             /// </summary>
             /// <param name="position">Position to spawn dummy</param>
             /// <returns>New dummy object</returns>
-            public static Dummy SpawnDummy(Vector2 position)
+            public static Dummy GetDummy(Vector2 position)
             {
-                return Instantiate( Instance.dummyAsset, position, Quaternion.identity );
-            }
-
-            public static void ClearDummies()
-            {
-                foreach ( Dummy dummy in Instance.dummies ) {
-                    Destroy( dummy.gameObject );
-                }
-            }
-
-            public override string ToString()
-            {
-                return "Node " + name;
+                return Instance.dummies.GetPooledObject( position );
             }
 
             private static Node GetMinNode(List<Node> nodes)
@@ -215,8 +205,6 @@ namespace DoubleMMPrjc
                 nodes.RemoveAt( minIndex );
                 return minNode;
             }
-
-            public static Enemy[] ChasingEnemies { get => Utilities.Utility.ToArray( Instance.chasingEnemies ); }
 
         }
     }

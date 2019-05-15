@@ -1,4 +1,5 @@
 ﻿using DoubleMMPrjc.AI;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace DoubleMMPrjc
@@ -44,6 +45,8 @@ namespace DoubleMMPrjc
         #endregion
 
         #region Protected Fields
+        [SerializeField] private HashSet<Entity> followers = new HashSet<Entity>();
+
         protected Rigidbody rb;
         protected BoxCollider coll;
         [SerializeField] protected ContactArea contactArea;
@@ -93,6 +96,14 @@ namespace DoubleMMPrjc
             if (IsTouchingGround()) {
                 OnFallen( lastMinFallSpeed * -1 );
                 lastMinFallSpeed = float.MaxValue;
+            }
+        }
+
+        public void OnDestroy()
+        {
+            // Remove this entity from contact area coz it not exists anymore
+            if (ContactArea != null) {
+                ContactArea.RemoveEntity( this );
             }
         }
         #endregion
@@ -278,6 +289,19 @@ namespace DoubleMMPrjc
                 canMove = true;
             }
         }
+
+        public bool AddFollower(Entity follower)
+        {
+            return followers.Add( follower );
+        }
+
+        public bool RemoveFollower(Entity follower)
+        {
+            return followers.Remove( follower );
+        }
+
+        public abstract void OnContactAreaEnter(ContactArea contactArea);
+        public abstract void OnContactAreaExit(ContactArea contactArea);
         #endregion
 
         #region Setter And Getters
@@ -285,6 +309,7 @@ namespace DoubleMMPrjc
         protected int LookDirection { get => lookDirection; }
         public Vector3 LookRotation { get => new Vector3( lookDirection, 0 ); }
         public ContactArea ContactArea { get => contactArea; set => contactArea = value; }
+        public Entity[] FollowersList { get => Utility.Collections.ToArray( followers ); }
         #endregion
     }
 }
