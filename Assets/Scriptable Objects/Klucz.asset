@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f229805f928340149aceae56fe073e06, type: 3}
   m_Name: Klucz
   m_EditorClassIdentifier: 
-  name: 
-  description: 
+  name: Klucz
+  description: Klucz otwierajacy pewne drzwi
   artwork: {fileID: 0}
   isEquipable: 0

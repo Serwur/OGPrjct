@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -9,24 +10,28 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
     public float snapToSlotConstant = 120f; //distance 
     public itemInInventory item; //scritable object
 
+    
 
     private float smallestDistance = 1000f;
     private Inventory inventory;
     private float timeStartedLerping;
     private Vector3 positionOfItem;
     private bool isMoving = false;
+    
+
 
     public bool IsMoving { get => isMoving; set => isMoving = value; }
     public float TimeStartedLerping { get => timeStartedLerping; set => timeStartedLerping = value; }
 
     void Start()
     {
+        
         inventory = GameObject.Find("Background Inventory").GetComponent<Inventory>();
+        inventory.Description.transform.GetChild(0).GetChild(2).gameObject.SetActive(false);
+        inventory.NameOfItem.transform.GetChild(0).GetChild(2).gameObject.SetActive(false);
 
-        for (int i = inventory.getAllSlots().Count - 1; i > inventory.NumberOfInventoryContainer; i++)
-        {
 
-        }
+
 
     }
 
@@ -124,4 +129,17 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
 
         }
     }
+
+
+
+    public void ShowDescriptionAndName(bool isOn) // Its called when you hover over an item
+    {
+
+        inventory.NameOfItem.transform.GetChild(0).GetChild(2).gameObject.SetActive(isOn);
+        inventory.Description.transform.GetChild(0).GetChild(2).gameObject.SetActive(isOn);
+        inventory.Description.transform.GetChild(0).GetChild(2).GetComponent<TextMeshProUGUI>().text = item.description;
+        inventory.NameOfItem.transform.GetChild(0).GetChild(2).GetComponent<TextMeshProUGUI>().text = item.name;
+
+    }
+
 }
