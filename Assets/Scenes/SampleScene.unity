@@ -244,6 +244,109 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &117393957
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 117393958}
+  - component: {fileID: 117393960}
+  - component: {fileID: 117393959}
+  m_Layer: 12
+  m_Name: Node_10
+  m_TagString: Untagged
+  m_Icon: {fileID: 8418204508859773708, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &117393958
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 117393957}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 7.51, y: 10.58, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1287196349}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &117393959
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 117393957}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &117393960
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 117393957}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7bb44d0301ac31b43a28984db486ca53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: 10
+  edges: []
+--- !u!1 &144770558
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 144770559}
+  m_Layer: 0
+  m_Name: NPC_Enemies
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &144770559
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 144770558}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 1091532690}
+  - {fileID: 237256842}
+  - {fileID: 980447535}
+  - {fileID: 1958992137}
+  - {fileID: 1886493618}
+  - {fileID: 1568389161}
+  - {fileID: 1226763768}
+  - {fileID: 1915000146}
+  - {fileID: 389829472}
+  - {fileID: 1849537557}
+  - {fileID: 1582667451}
+  - {fileID: 1590233192}
+  - {fileID: 766342575}
+  - {fileID: 1368282721}
+  m_Father: {fileID: 0}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &170076733
 GameObject:
   m_ObjectHideFlags: 0
@@ -597,12 +700,12 @@ GameObject:
   - component: {fileID: 237256844}
   - component: {fileID: 237256843}
   m_Layer: 10
-  m_Name: Body_Model
+  m_Name: NPC_ENEMY
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &237256842
 Transform:
   m_ObjectHideFlags: 0
@@ -610,12 +713,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 237256841}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -5.18, y: 0.04, z: 0}
   m_LocalScale: {x: 0.3565531, y: 1.0398, z: 1}
   m_Children: []
-  m_Father: {fileID: 1751613179}
-  m_RootOrder: 0
+  m_Father: {fileID: 144770559}
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &237256843
 Rigidbody:
@@ -658,11 +761,11 @@ MonoBehaviour:
     current: 0
     max: 0
   moveSpeed:
-    basic: 10
+    basic: 9
     current: 0
     max: 0
   jumpPower:
-    basic: 5
+    basic: 25
     current: 0
     max: 0
   damage:
@@ -675,7 +778,7 @@ MonoBehaviour:
   canMove: 1
   isInviolability: 0
   isPaused: 0
-  isBlocking: 1
+  isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
   dialogueLists: []
@@ -686,7 +789,14 @@ MonoBehaviour:
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
+  jumpSpeed:
+    basic: 0
+    current: 0
+    max: 0
+  jumpSpeedReducer: 0.45
   state: 0
+  movingState: 0
+  logStatusChange: 0
 --- !u!65 &237256845
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -771,7 +881,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 269189213}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -7.67, y: 4.11, z: 0}
+  m_LocalPosition: {x: -8.03, y: 3.48, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1287196349}
@@ -1042,12 +1152,12 @@ GameObject:
   - component: {fileID: 389829474}
   - component: {fileID: 389829473}
   m_Layer: 10
-  m_Name: Body_Model
+  m_Name: NPC_ENEMY
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &389829472
 Transform:
   m_ObjectHideFlags: 0
@@ -1055,12 +1165,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 389829471}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 23.02, y: 5.74, z: 0}
   m_LocalScale: {x: 0.3565531, y: 1.0398, z: 1}
   m_Children: []
-  m_Father: {fileID: 1893894980}
-  m_RootOrder: 0
+  m_Father: {fileID: 144770559}
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &389829473
 Rigidbody:
@@ -1103,11 +1213,11 @@ MonoBehaviour:
     current: 0
     max: 0
   moveSpeed:
-    basic: 10
+    basic: 9
     current: 0
     max: 0
   jumpPower:
-    basic: 5
+    basic: 25
     current: 0
     max: 0
   damage:
@@ -1131,7 +1241,14 @@ MonoBehaviour:
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
+  jumpSpeed:
+    basic: 0
+    current: 0
+    max: 0
+  jumpSpeedReducer: 0.45
   state: 0
+  movingState: 0
+  logStatusChange: 0
 --- !u!65 &389829475
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1276,69 +1393,7 @@ Transform:
   - {fileID: 895951654}
   - {fileID: 1409215453}
   m_Father: {fileID: 0}
-  m_RootOrder: 21
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &442546663
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 442546664}
-  m_Layer: 10
-  m_Name: Test_NPC_ENEMY_DUMMY (11)
-  m_TagString: Enemy
-  m_Icon: {fileID: 4162164826716764455, guid: 0000000000000000d000000000000000, type: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &442546664
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 442546663}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 17.75, y: 38.36, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 1582667451}
-  m_Father: {fileID: 0}
-  m_RootOrder: 18
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &499675429
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 499675430}
-  m_Layer: 10
-  m_Name: Test_NPC_ENEMY_DUMMY (10)
-  m_TagString: Enemy
-  m_Icon: {fileID: 4162164826716764455, guid: 0000000000000000d000000000000000, type: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &499675430
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 499675429}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.44, y: 44.92, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 1849537557}
-  m_Father: {fileID: 0}
-  m_RootOrder: 17
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &534669902
 GameObject:
@@ -1679,7 +1734,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 580205951}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.63, y: -0.76, z: 0}
+  m_LocalPosition: {x: 2.2, y: -0.76, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1287196349}
@@ -2061,44 +2116,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 637820031}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -5.06, y: 3.14, z: 0}
+  m_LocalPosition: {x: -5.06, y: 2.6, z: 0}
   m_LocalScale: {x: 6.4268756, y: 0.64708, z: 1}
   m_Children:
   - {fileID: 2073840664}
   - {fileID: 230434112}
   m_Father: {fileID: 2048193686}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &642614430
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 642614431}
-  m_Layer: 10
-  m_Name: Test_NPC_ENEMY_DUMMY (4)
-  m_TagString: Enemy
-  m_Icon: {fileID: 4162164826716764455, guid: 0000000000000000d000000000000000, type: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &642614431
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 642614430}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.28, y: 14.15, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 1958992137}
-  m_Father: {fileID: 0}
-  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &654517030
 GameObject:
@@ -2127,7 +2151,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 654517030}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.13, y: 7.59, z: 0}
+  m_LocalPosition: {x: 1.13, y: 6.37, z: 0}
   m_LocalScale: {x: 2.09737, y: 0.64708, z: 1}
   m_Children:
   - {fileID: 1572803238}
@@ -2292,36 +2316,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 690188422}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &706238938
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 706238939}
-  m_Layer: 0
-  m_Name: Dummies
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &706238939
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 706238938}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 23
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &757109464
 GameObject:
   m_ObjectHideFlags: 0
@@ -2430,12 +2424,12 @@ GameObject:
   - component: {fileID: 766342577}
   - component: {fileID: 766342576}
   m_Layer: 10
-  m_Name: Body_Model
+  m_Name: NPC_ENEMY
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &766342575
 Transform:
   m_ObjectHideFlags: 0
@@ -2443,12 +2437,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 766342574}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 13.58, y: 70.89, z: 0}
   m_LocalScale: {x: 0.3565531, y: 1.0398, z: 1}
   m_Children: []
-  m_Father: {fileID: 881965138}
-  m_RootOrder: 0
+  m_Father: {fileID: 144770559}
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &766342576
 Rigidbody:
@@ -2491,11 +2485,11 @@ MonoBehaviour:
     current: 0
     max: 0
   moveSpeed:
-    basic: 10
+    basic: 9
     current: 0
     max: 0
   jumpPower:
-    basic: 5
+    basic: 25
     current: 0
     max: 0
   damage:
@@ -2519,7 +2513,14 @@ MonoBehaviour:
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
+  jumpSpeed:
+    basic: 0
+    current: 0
+    max: 0
+  jumpSpeedReducer: 0.45
   state: 0
+  movingState: 0
+  logStatusChange: 0
 --- !u!65 &766342578
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2578,37 +2579,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 766342574}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &784632722
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 784632723}
-  m_Layer: 10
-  m_Name: Test_NPC_ENEMY_DUMMY (7)
-  m_TagString: Enemy
-  m_Icon: {fileID: 4162164826716764455, guid: 0000000000000000d000000000000000, type: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &784632723
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 784632722}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -9.26, y: 31.79, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 1226763768}
-  m_Father: {fileID: 0}
-  m_RootOrder: 14
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &787294472
 GameObject:
   m_ObjectHideFlags: 0
@@ -2969,37 +2939,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 845873025}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &849101824
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 849101825}
-  m_Layer: 10
-  m_Name: Test_NPC_ENEMY_DUMMY (5)
-  m_TagString: Enemy
-  m_Icon: {fileID: 4162164826716764455, guid: 0000000000000000d000000000000000, type: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &849101825
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 849101824}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.44, y: 9.04, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 1886493618}
-  m_Father: {fileID: 0}
-  m_RootOrder: 12
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &863518542
 GameObject:
   m_ObjectHideFlags: 0
@@ -3240,37 +3179,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 877865680}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &881965137
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 881965138}
-  m_Layer: 10
-  m_Name: Test_NPC_ENEMY_DUMMY (13)
-  m_TagString: Enemy
-  m_Icon: {fileID: 4162164826716764455, guid: 0000000000000000d000000000000000, type: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &881965138
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 881965137}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 13.58, y: 70.89, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 766342575}
-  m_Father: {fileID: 0}
-  m_RootOrder: 20
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &895951653
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3421,7 +3329,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 913360160}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -10.24, y: -0.86, z: 0}
+  m_LocalPosition: {x: -11.84, y: -0.86, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1287196349}
@@ -3606,12 +3514,12 @@ GameObject:
   - component: {fileID: 980447537}
   - component: {fileID: 980447536}
   m_Layer: 10
-  m_Name: Body_Model
+  m_Name: NPC_ENEMY
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &980447535
 Transform:
   m_ObjectHideFlags: 0
@@ -3619,12 +3527,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 980447534}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -4.28, y: 4.26, z: 0}
   m_LocalScale: {x: 0.3565531, y: 1.0398, z: 1}
   m_Children: []
-  m_Father: {fileID: 1126987992}
-  m_RootOrder: 0
+  m_Father: {fileID: 144770559}
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &980447536
 Rigidbody:
@@ -3667,11 +3575,11 @@ MonoBehaviour:
     current: 0
     max: 0
   moveSpeed:
-    basic: 10
+    basic: 9
     current: 0
     max: 0
   jumpPower:
-    basic: 5
+    basic: 25
     current: 0
     max: 0
   damage:
@@ -3695,7 +3603,14 @@ MonoBehaviour:
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
+  jumpSpeed:
+    basic: 0
+    current: 0
+    max: 0
+  jumpSpeedReducer: 0.45
   state: 0
+  movingState: 0
+  logStatusChange: 0
 --- !u!65 &980447538
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4038,37 +3953,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 994566801}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &999486065
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 999486066}
-  m_Layer: 10
-  m_Name: Test_NPC_ENEMY_DUMMY (8)
-  m_TagString: Enemy
-  m_Icon: {fileID: 4162164826716764455, guid: 0000000000000000d000000000000000, type: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &999486066
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 999486065}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 22.31, y: 29.38, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 1915000146}
-  m_Father: {fileID: 0}
-  m_RootOrder: 15
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1009894973
 GameObject:
   m_ObjectHideFlags: 0
@@ -4177,7 +4061,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1091532689
 GameObject:
@@ -4194,7 +4078,7 @@ GameObject:
   - component: {fileID: 1091532692}
   - component: {fileID: 1091532691}
   m_Layer: 10
-  m_Name: Body_Model
+  m_Name: NPC_ENEMY
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4207,11 +4091,11 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1091532689}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 12.71, y: 11.71, z: 0}
   m_LocalScale: {x: 0.3565531, y: 1.0398, z: 1}
   m_Children: []
-  m_Father: {fileID: 2139596149}
+  m_Father: {fileID: 144770559}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &1091532691
@@ -4255,11 +4139,11 @@ MonoBehaviour:
     current: 0
     max: 0
   moveSpeed:
-    basic: 10
+    basic: 9
     current: 0
     max: 0
   jumpPower:
-    basic: 5
+    basic: 25
     current: 0
     max: 0
   damage:
@@ -4283,7 +4167,14 @@ MonoBehaviour:
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
+  jumpSpeed:
+    basic: 0
+    current: 0
+    max: 0
+  jumpSpeedReducer: 0.45
   state: 0
+  movingState: 0
+  logStatusChange: 1
 --- !u!65 &1091532693
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4342,37 +4233,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1091532689}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &1126987991
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1126987992}
-  m_Layer: 10
-  m_Name: Test_NPC_ENEMY_DUMMY (3)
-  m_TagString: Enemy
-  m_Icon: {fileID: 4162164826716764455, guid: 0000000000000000d000000000000000, type: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &1126987992
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1126987991}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.28, y: 4.26, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 980447535}
-  m_Father: {fileID: 0}
-  m_RootOrder: 10
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1128911717
 GameObject:
   m_ObjectHideFlags: 0
@@ -4835,12 +4695,12 @@ GameObject:
   - component: {fileID: 1226763770}
   - component: {fileID: 1226763769}
   m_Layer: 10
-  m_Name: Body_Model
+  m_Name: NPC_ENEMY
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1226763768
 Transform:
   m_ObjectHideFlags: 0
@@ -4848,12 +4708,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1226763767}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -9.26, y: 31.79, z: 0}
   m_LocalScale: {x: 0.3565531, y: 1.0398, z: 1}
   m_Children: []
-  m_Father: {fileID: 784632723}
-  m_RootOrder: 0
+  m_Father: {fileID: 144770559}
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &1226763769
 Rigidbody:
@@ -4896,11 +4756,11 @@ MonoBehaviour:
     current: 0
     max: 0
   moveSpeed:
-    basic: 10
+    basic: 9
     current: 0
     max: 0
   jumpPower:
-    basic: 5
+    basic: 25
     current: 0
     max: 0
   damage:
@@ -4924,7 +4784,14 @@ MonoBehaviour:
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
+  jumpSpeed:
+    basic: 0
+    current: 0
+    max: 0
+  jumpSpeedReducer: 0.45
   state: 0
+  movingState: 0
+  logStatusChange: 0
 --- !u!65 &1226763771
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5282,7 +5149,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1278222057}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.33, y: 4.06, z: 0}
+  m_LocalPosition: {x: -2.1, y: 3.52, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1287196349}
@@ -5369,7 +5236,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1287196349}
   m_Layer: 0
-  m_Name: AIPaths
+  m_Name: Nodes
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5392,8 +5259,10 @@ Transform:
   - {fileID: 1916996268}
   - {fileID: 872647052}
   - {fileID: 269189214}
+  - {fileID: 1388531576}
+  - {fileID: 117393958}
   m_Father: {fileID: 0}
-  m_RootOrder: 22
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1292397456 stripped
 GameObject:
@@ -5690,12 +5559,12 @@ GameObject:
   - component: {fileID: 1368282723}
   - component: {fileID: 1368282722}
   m_Layer: 10
-  m_Name: Body_Model
+  m_Name: NPC_ENEMY
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1368282721
 Transform:
   m_ObjectHideFlags: 0
@@ -5703,12 +5572,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1368282720}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 7.39, y: 0, z: 0}
   m_LocalScale: {x: 0.3565531, y: 1.0398, z: 1}
   m_Children: []
-  m_Father: {fileID: 1793315406}
-  m_RootOrder: 0
+  m_Father: {fileID: 144770559}
+  m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &1368282722
 Rigidbody:
@@ -5751,11 +5620,11 @@ MonoBehaviour:
     current: 0
     max: 0
   moveSpeed:
-    basic: 10
+    basic: 9
     current: 0
     max: 0
   jumpPower:
-    basic: 5
+    basic: 25
     current: 0
     max: 0
   damage:
@@ -5779,7 +5648,14 @@ MonoBehaviour:
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
+  jumpSpeed:
+    basic: 0
+    current: 0
+    max: 0
+  jumpSpeedReducer: 0.45
   state: 0
+  movingState: 0
+  logStatusChange: 0
 --- !u!65 &1368282724
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5838,6 +5714,65 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1368282720}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1388531575
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1388531576}
+  - component: {fileID: 1388531578}
+  - component: {fileID: 1388531577}
+  m_Layer: 12
+  m_Name: Node_9
+  m_TagString: Untagged
+  m_Icon: {fileID: 8418204508859773708, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1388531576
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1388531575}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.9, y: 7.35, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1287196349}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &1388531577
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1388531575}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1388531578
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1388531575}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7bb44d0301ac31b43a28984db486ca53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: 9
+  edges: []
 --- !u!1 &1391565827
 GameObject:
   m_ObjectHideFlags: 0
@@ -5982,7 +5917,7 @@ PrefabInstance:
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3.83
+      value: 3.75
       objectReference: {fileID: 0}
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
@@ -6037,7 +5972,7 @@ PrefabInstance:
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.675
+      value: 1.6200001
       objectReference: {fileID: 0}
     - target: {fileID: 6887396401397049371, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
@@ -6465,37 +6400,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1499694956}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &1534878060
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1534878061}
-  m_Layer: 10
-  m_Name: Test_NPC_ENEMY_DUMMY (12)
-  m_TagString: Enemy
-  m_Icon: {fileID: 4162164826716764455, guid: 0000000000000000d000000000000000, type: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &1534878061
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1534878060}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.8, y: 41.43, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 1590233192}
-  m_Father: {fileID: 0}
-  m_RootOrder: 19
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1568389160
 GameObject:
   m_ObjectHideFlags: 0
@@ -6511,12 +6415,12 @@ GameObject:
   - component: {fileID: 1568389163}
   - component: {fileID: 1568389162}
   m_Layer: 10
-  m_Name: Body_Model
+  m_Name: NPC_ENEMY
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1568389161
 Transform:
   m_ObjectHideFlags: 0
@@ -6524,12 +6428,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1568389160}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 1.44, y: 24.13, z: 0}
   m_LocalScale: {x: 0.3565531, y: 1.0398, z: 1}
   m_Children: []
-  m_Father: {fileID: 1921184824}
-  m_RootOrder: 0
+  m_Father: {fileID: 144770559}
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &1568389162
 Rigidbody:
@@ -6572,11 +6476,11 @@ MonoBehaviour:
     current: 0
     max: 0
   moveSpeed:
-    basic: 10
+    basic: 9
     current: 0
     max: 0
   jumpPower:
-    basic: 5
+    basic: 25
     current: 0
     max: 0
   damage:
@@ -6600,7 +6504,14 @@ MonoBehaviour:
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
+  jumpSpeed:
+    basic: 0
+    current: 0
+    max: 0
+  jumpSpeedReducer: 0.45
   state: 0
+  movingState: 0
+  logStatusChange: 0
 --- !u!65 &1568389164
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6718,12 +6629,12 @@ GameObject:
   - component: {fileID: 1582667453}
   - component: {fileID: 1582667452}
   m_Layer: 10
-  m_Name: Body_Model
+  m_Name: NPC_ENEMY
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1582667451
 Transform:
   m_ObjectHideFlags: 0
@@ -6731,12 +6642,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1582667450}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 17.75, y: 38.36, z: 0}
   m_LocalScale: {x: 0.3565531, y: 1.0398, z: 1}
   m_Children: []
-  m_Father: {fileID: 442546664}
-  m_RootOrder: 0
+  m_Father: {fileID: 144770559}
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &1582667452
 Rigidbody:
@@ -6779,11 +6690,11 @@ MonoBehaviour:
     current: 0
     max: 0
   moveSpeed:
-    basic: 10
+    basic: 9
     current: 0
     max: 0
   jumpPower:
-    basic: 5
+    basic: 25
     current: 0
     max: 0
   damage:
@@ -6807,7 +6718,14 @@ MonoBehaviour:
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
+  jumpSpeed:
+    basic: 0
+    current: 0
+    max: 0
+  jumpSpeedReducer: 0.45
   state: 0
+  movingState: 0
+  logStatusChange: 0
 --- !u!65 &1582667454
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6881,12 +6799,12 @@ GameObject:
   - component: {fileID: 1590233194}
   - component: {fileID: 1590233193}
   m_Layer: 10
-  m_Name: Body_Model
+  m_Name: NPC_ENEMY
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1590233192
 Transform:
   m_ObjectHideFlags: 0
@@ -6894,12 +6812,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1590233191}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -2.7999997, y: 41.43, z: 0}
   m_LocalScale: {x: 0.3565531, y: 1.0398, z: 1}
   m_Children: []
-  m_Father: {fileID: 1534878061}
-  m_RootOrder: 0
+  m_Father: {fileID: 144770559}
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &1590233193
 Rigidbody:
@@ -6942,11 +6860,11 @@ MonoBehaviour:
     current: 0
     max: 0
   moveSpeed:
-    basic: 10
+    basic: 9
     current: 0
     max: 0
   jumpPower:
-    basic: 5
+    basic: 25
     current: 0
     max: 0
   damage:
@@ -6970,7 +6888,14 @@ MonoBehaviour:
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
+  jumpSpeed:
+    basic: 0
+    current: 0
+    max: 0
+  jumpSpeedReducer: 0.45
   state: 0
+  movingState: 0
+  logStatusChange: 0
 --- !u!65 &1590233195
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7318,7 +7243,7 @@ PrefabInstance:
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 8.36
+      value: 7.86
       objectReference: {fileID: 0}
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
@@ -7369,6 +7294,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalScale.x
       value: 1.89625
+      objectReference: {fileID: 0}
+    - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b1a97b8e2c35d864e8590653f8372304, type: 3}
@@ -7441,37 +7371,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!1 &1751613178
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1751613179}
-  m_Layer: 10
-  m_Name: Test_NPC_ENEMY_DUMMY (2)
-  m_TagString: Enemy
-  m_Icon: {fileID: 4162164826716764455, guid: 0000000000000000d000000000000000, type: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &1751613179
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1751613178}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -5.18, y: 0.04, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 237256842}
-  m_Father: {fileID: 0}
-  m_RootOrder: 9
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1778588019
 GameObject:
   m_ObjectHideFlags: 0
@@ -7643,7 +7542,7 @@ RectTransform:
   m_Children:
   - {fileID: 1485718310}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -7694,37 +7593,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!1 &1793315405
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1793315406}
-  m_Layer: 10
-  m_Name: Test_NPC_ENEMY_DUMMY
-  m_TagString: Enemy
-  m_Icon: {fileID: 4162164826716764455, guid: 0000000000000000d000000000000000, type: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1793315406
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1793315405}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 7.39, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 1368282721}
-  m_Father: {fileID: 0}
-  m_RootOrder: 7
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1794885768
 GameObject:
   m_ObjectHideFlags: 0
@@ -7965,12 +7833,12 @@ GameObject:
   - component: {fileID: 1849537559}
   - component: {fileID: 1849537558}
   m_Layer: 10
-  m_Name: Body_Model
+  m_Name: NPC_ENEMY
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1849537557
 Transform:
   m_ObjectHideFlags: 0
@@ -7978,12 +7846,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1849537556}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 4.44, y: 44.92, z: 0}
   m_LocalScale: {x: 0.3565531, y: 1.0398, z: 1}
   m_Children: []
-  m_Father: {fileID: 499675430}
-  m_RootOrder: 0
+  m_Father: {fileID: 144770559}
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &1849537558
 Rigidbody:
@@ -8026,11 +7894,11 @@ MonoBehaviour:
     current: 0
     max: 0
   moveSpeed:
-    basic: 10
+    basic: 9
     current: 0
     max: 0
   jumpPower:
-    basic: 5
+    basic: 25
     current: 0
     max: 0
   damage:
@@ -8054,7 +7922,14 @@ MonoBehaviour:
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
+  jumpSpeed:
+    basic: 0
+    current: 0
+    max: 0
+  jumpSpeedReducer: 0.45
   state: 0
+  movingState: 0
+  logStatusChange: 0
 --- !u!65 &1849537560
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -8128,12 +8003,12 @@ GameObject:
   - component: {fileID: 1886493620}
   - component: {fileID: 1886493619}
   m_Layer: 10
-  m_Name: Body_Model
+  m_Name: NPC_ENEMY
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1886493618
 Transform:
   m_ObjectHideFlags: 0
@@ -8141,12 +8016,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1886493617}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 1.44, y: 9.04, z: 0}
   m_LocalScale: {x: 0.3565531, y: 1.0398, z: 1}
   m_Children: []
-  m_Father: {fileID: 849101825}
-  m_RootOrder: 0
+  m_Father: {fileID: 144770559}
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &1886493619
 Rigidbody:
@@ -8189,11 +8064,11 @@ MonoBehaviour:
     current: 0
     max: 0
   moveSpeed:
-    basic: 10
+    basic: 9
     current: 0
     max: 0
   jumpPower:
-    basic: 5
+    basic: 25
     current: 0
     max: 0
   damage:
@@ -8217,7 +8092,14 @@ MonoBehaviour:
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
+  jumpSpeed:
+    basic: 0
+    current: 0
+    max: 0
+  jumpSpeedReducer: 0.45
   state: 0
+  movingState: 0
+  logStatusChange: 0
 --- !u!65 &1886493621
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -8320,37 +8202,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!1 &1893894979
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1893894980}
-  m_Layer: 10
-  m_Name: Test_NPC_ENEMY_DUMMY (9)
-  m_TagString: Enemy
-  m_Icon: {fileID: 4162164826716764455, guid: 0000000000000000d000000000000000, type: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &1893894980
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1893894979}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 23.02, y: 5.74, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 389829472}
-  m_Father: {fileID: 0}
-  m_RootOrder: 16
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1915000145
 GameObject:
   m_ObjectHideFlags: 0
@@ -8366,12 +8217,12 @@ GameObject:
   - component: {fileID: 1915000148}
   - component: {fileID: 1915000147}
   m_Layer: 10
-  m_Name: Body_Model
+  m_Name: NPC_ENEMY
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1915000146
 Transform:
   m_ObjectHideFlags: 0
@@ -8379,12 +8230,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1915000145}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 22.31, y: 29.38, z: 0}
   m_LocalScale: {x: 0.3565531, y: 1.0398, z: 1}
   m_Children: []
-  m_Father: {fileID: 999486066}
-  m_RootOrder: 0
+  m_Father: {fileID: 144770559}
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &1915000147
 Rigidbody:
@@ -8427,11 +8278,11 @@ MonoBehaviour:
     current: 0
     max: 0
   moveSpeed:
-    basic: 10
+    basic: 9
     current: 0
     max: 0
   jumpPower:
-    basic: 5
+    basic: 25
     current: 0
     max: 0
   damage:
@@ -8455,7 +8306,14 @@ MonoBehaviour:
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
+  jumpSpeed:
+    basic: 0
+    current: 0
+    max: 0
+  jumpSpeedReducer: 0.45
   state: 0
+  movingState: 0
+  logStatusChange: 0
 --- !u!65 &1915000149
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -8573,37 +8431,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 6
   edges: []
---- !u!1 &1921184823
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1921184824}
-  m_Layer: 10
-  m_Name: Test_NPC_ENEMY_DUMMY (6)
-  m_TagString: Enemy
-  m_Icon: {fileID: 4162164826716764455, guid: 0000000000000000d000000000000000, type: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &1921184824
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1921184823}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.44, y: 24.13, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 1568389161}
-  m_Father: {fileID: 0}
-  m_RootOrder: 13
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1933609823
 GameObject:
   m_ObjectHideFlags: 0
@@ -8663,12 +8490,12 @@ GameObject:
   - component: {fileID: 1958992139}
   - component: {fileID: 1958992138}
   m_Layer: 10
-  m_Name: Body_Model
+  m_Name: NPC_ENEMY
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1958992137
 Transform:
   m_ObjectHideFlags: 0
@@ -8676,12 +8503,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1958992136}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -4.28, y: 14.15, z: 0}
   m_LocalScale: {x: 0.3565531, y: 1.0398, z: 1}
   m_Children: []
-  m_Father: {fileID: 642614431}
-  m_RootOrder: 0
+  m_Father: {fileID: 144770559}
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &1958992138
 Rigidbody:
@@ -8724,11 +8551,11 @@ MonoBehaviour:
     current: 0
     max: 0
   moveSpeed:
-    basic: 10
+    basic: 9
     current: 0
     max: 0
   jumpPower:
-    basic: 5
+    basic: 25
     current: 0
     max: 0
   damage:
@@ -8752,7 +8579,14 @@ MonoBehaviour:
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
+  jumpSpeed:
+    basic: 0
+    current: 0
+    max: 0
+  jumpSpeedReducer: 0.45
   state: 0
+  movingState: 0
+  logStatusChange: 0
 --- !u!65 &1958992140
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -8945,7 +8779,7 @@ Transform:
   - {fileID: 558525381}
   - {fileID: 1128911718}
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2051231695
 GameObject:
@@ -9221,37 +9055,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2113688133}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &2139596148
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2139596149}
-  m_Layer: 10
-  m_Name: Test_NPC_ENEMY_DUMMY (1)
-  m_TagString: Enemy
-  m_Icon: {fileID: 4162164826716764455, guid: 0000000000000000d000000000000000, type: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2139596149
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2139596148}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 12.71, y: 11.71, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 1091532690}
-  m_Father: {fileID: 0}
-  m_RootOrder: 8
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4008379001124317221 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
@@ -9284,7 +9087,7 @@ PrefabInstance:
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.95
+      value: -0.06
       objectReference: {fileID: 0}
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
@@ -9335,6 +9138,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalScale.x
       value: 38.135063
+      objectReference: {fileID: 0}
+    - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2.9125
       objectReference: {fileID: 0}
     - target: {fileID: 6887396401397049371, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
@@ -9398,7 +9206,7 @@ PrefabInstance:
     - target: {fileID: 5342029441726724993, guid: 286b266f65aa0b342b6fa3ca1f8c2d4a,
         type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5342029441726724993, guid: 286b266f65aa0b342b6fa3ca1f8c2d4a,
         type: 3}
@@ -9428,7 +9236,7 @@ PrefabInstance:
     - target: {fileID: 5342029441726724994, guid: 286b266f65aa0b342b6fa3ca1f8c2d4a,
         type: 3}
       propertyPath: drawNodeConnections
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1652563428329008102, guid: 286b266f65aa0b342b6fa3ca1f8c2d4a,
         type: 3}
@@ -9436,6 +9244,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 6385979166743037539, guid: 3493584b3a0b90f47b303eac5c35411e,
         type: 3}
+    - target: {fileID: 1652563428329008102, guid: 286b266f65aa0b342b6fa3ca1f8c2d4a,
+        type: 3}
+      propertyPath: logStatCalls
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 286b266f65aa0b342b6fa3ca1f8c2d4a, type: 3}
 --- !u!1001 &5464372047085463094
@@ -9488,7 +9301,7 @@ PrefabInstance:
     - target: {fileID: 5464372047447310920, guid: ff65f7d603e277d4cbf835f790dccc72,
         type: 3}
       propertyPath: m_RootOrder
-      value: 4
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 5464372047447310920, guid: ff65f7d603e277d4cbf835f790dccc72,
         type: 3}

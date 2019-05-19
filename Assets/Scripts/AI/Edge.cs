@@ -16,8 +16,8 @@ namespace DoubleMMPrjc
             [SerializeField] private long endId;
             [SerializeField] private Direction directionType;
             [SerializeField] private bool active = true;
-            [SerializeField] private AIAction onStartAction;
-            [SerializeField] private AIAction onEndAction;
+            [SerializeField] private AIAction onStartAction = AIAction.WALK;
+            [SerializeField] private AIAction onEndAction = AIAction.WALK;
 
             public Edge(long startId, long endId, Direction directionType)
             {
@@ -153,7 +153,7 @@ namespace DoubleMMPrjc
 
         public enum AIAction
         {
-            MOVE, JUMP
+            WALK, JUMP
         }
     }
 }

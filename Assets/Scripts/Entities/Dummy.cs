@@ -12,7 +12,6 @@ namespace DoubleMMPrjc
             rb = GetComponent<Rigidbody>();
             rb.freezeRotation = true;
             rb.useGravity = false;
-            rb.detectCollisions = false;
             canMove = false;
             isPaused = true;
             isPushImmune = true;

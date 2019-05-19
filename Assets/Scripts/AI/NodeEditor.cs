@@ -14,6 +14,7 @@ namespace DoubleMMPrjc
             public static readonly string CONNECTION_DEFAULT_NAME = "Connection_";
             public static readonly string NODE_DEFAULT_NAME = "Node_";
             public static readonly string NODE_PREFAB_PATH = "Assets/Prefabs/AI/Node.prefab";
+            public static readonly string NODES_PARENT_DEFAULT_NAME = "Nodes";
 
             private List<NodeConnection> connections = new List<NodeConnection>();
             private int selectedIndex = 0;
@@ -45,8 +46,30 @@ namespace DoubleMMPrjc
             public void OnGUI()
             {
                 GUILayout.BeginHorizontal( GUILayout.ExpandWidth( true ) );    // 1 - START (H)
-                GUILayout.BeginVertical( "Box", GUILayout.MaxWidth( 200 ), GUILayout.MaxHeight( 300 ), GUILayout.MinHeight( 300 ), GUILayout.ExpandWidth( false ) );    // 2 - START (V)
-                GUILayout.BeginHorizontal();    // 3 - START (H)
+
+                ShowMainMenuLayout();
+
+                GUILayout.Space( 25 );
+
+                if (editedNodeConnection != null) {
+                    ShowEditLayout();
+                } else {
+                    EditorGUILayout.HelpBox( "Select node and click edit button to start editing node", MessageType.Info );
+                }
+
+                GUILayout.Space( 25 );
+
+                if (GUI.changed && data) {
+                    EditorUtility.SetDirty( data );
+                }
+                GUILayout.EndHorizontal();  // 1 - END (H)
+            }
+
+            private void ShowMainMenuLayout()
+            {
+
+                GUILayout.BeginVertical( "Box", GUILayout.MaxWidth( 200 ), GUILayout.MaxHeight( 300 ), GUILayout.MinHeight( 300 ), GUILayout.ExpandWidth( false ) );    // 1 - START (V)
+                GUILayout.BeginHorizontal();    // 2 - START (H)
 
                 if (GUILayout.Button( "New", GUILayout.Width( 50 ) )) {
                     connections.Add( Create( SceneManager.GetActiveScene().name, data ) );
@@ -60,38 +83,22 @@ namespace DoubleMMPrjc
                 if (GUILayout.Button( "Del", GUILayout.Width( 50 ) )) {
                     DeleteConnection( SceneManager.GetActiveScene().name, selectedNodeConnection );
                 }
-                GUILayout.EndHorizontal();  // 3 - END (H)
-
-                ShowConnectionList();
-
-                GUILayout.EndVertical();    // 2 - END (V)
-
-                GUILayout.Space( 25 );
-
-                if (editedNodeConnection != null) {
-                    ShowEditLayout();
-                } else {
-                    EditorGUILayout.HelpBox( "Select node and click edit button to start editing node", MessageType.Info );
+                if (GUILayout.Button( "Reload", GUILayout.Width( 55 ) )) {
+                    ReloadNodeConnections( SceneManager.GetActiveScene().name );
                 }
+                GUILayout.EndHorizontal();  // 2 - END (H)
 
-                GUILayout.Space( 25 );
 
-                if (GUI.changed) {
-                    EditorUtility.SetDirty( data );
-                }
-                GUILayout.EndHorizontal();  // 1 - END (H)
-            }
-
-            private void ShowConnectionList()
-            {
                 if (connections.Count > 0) {
-                    nodeListScroll = GUILayout.BeginScrollView( nodeListScroll, false, false, GUILayout.ExpandWidth( true ) );  // 1 - START (SV)
+                    nodeListScroll = GUILayout.BeginScrollView( nodeListScroll, false, false, GUILayout.ExpandWidth( true ) );  // 3 - START (SV)
                     selectedIndex = GUILayout.SelectionGrid( selectedIndex, Collections.ToExtendedStringArray( connections.ToArray() ), 1, GUILayout.Width( 200 ), GUILayout.ExpandWidth( true ) );
                     SelectConnection( selectedIndex );
-                    GUILayout.EndScrollView();  // 1 - END (SV)
+                    GUILayout.EndScrollView();  // 3 - END (SV)
                 } else {
                     EditorGUILayout.HelpBox( "Create node and connection clicling on New button", MessageType.Warning );
                 }
+
+                GUILayout.EndVertical();    // 1 - END (V)
             }
 
             private void ShowEditLayout()
@@ -116,7 +123,24 @@ namespace DoubleMMPrjc
                     }
                 }
 
-                GUILayout.EndHorizontal(); // 2 - END
+                GUILayout.EndHorizontal(); // 2 - END   
+
+                // using (var horizontalScope = new GUILayout.HorizontalScope("box"))
+                // {}
+
+                GUILayout.BeginHorizontal();
+
+                GUILayout.Label( "Connection", EditorStyles.boldLabel, GUILayout.ExpandWidth( true ), GUILayout.Width( 140 ) );
+                GUILayout.Space( 5 );
+                GUILayout.Label( "Direction", EditorStyles.boldLabel, GUILayout.ExpandWidth( true ), GUILayout.Width( 80 ) );
+                GUILayout.Space( 5 );
+                GUILayout.Label( "1st to 2nd", EditorStyles.boldLabel, GUILayout.ExpandWidth( true ), GUILayout.Width( 80 ) );
+                GUILayout.Space( 5 );
+                GUILayout.Label( "2nd to 1st", EditorStyles.boldLabel, GUILayout.ExpandWidth( true ), GUILayout.Width( 80 ) );
+                GUILayout.Space( 5 );
+                GUILayout.Label( "Is active", EditorStyles.boldLabel, GUILayout.ExpandWidth( true ), GUILayout.Width( 80 ) );
+
+                GUILayout.EndHorizontal();
 
                 if (editedNodeConnection != null) {
                     connectionsListScroll = GUILayout.BeginScrollView( connectionsListScroll, false, false,
@@ -130,13 +154,32 @@ namespace DoubleMMPrjc
                         GUILayout.Label( edge.ToString(), GUILayout.ExpandWidth( true ), GUILayout.Width( 140 ) );
 
                         GUILayout.Space( 5 );
-                        edge.Direction = (Direction) EditorGUILayout.EnumPopup( edge.Direction, GUILayout.Width( 100 ) );
+                        Direction newDirection = (Direction) EditorGUILayout.EnumPopup( edge.Direction, GUILayout.Width( 80 ) );
 
                         GUILayout.Space( 5 );
-                        edge.Active = GUILayout.Toggle( edge.Active, "Active" );
+                        AIAction newOnStartAction = (AIAction) EditorGUILayout.EnumPopup( edge.OnStartAction, GUILayout.Width( 80 ) );
 
                         GUILayout.Space( 5 );
-                        if (GUILayout.Button( "Del", GUILayout.ExpandWidth( false ) )) {
+                        AIAction newOnEndAction = (AIAction) EditorGUILayout.EnumPopup( edge.OnEndAction, GUILayout.Width( 80 ) );
+
+                        GUILayout.Space( 5 );
+                        bool isActive = GUILayout.Toggle( edge.Active, "Active" );
+
+                        if (SetChangesToConnection( edge.GetAnotherId( editedNodeConnection.NodeId ),
+                                                    editedNodeConnection.NodeId,
+                                                    newDirection,
+                                                    newOnStartAction,
+                                                    newOnEndAction,
+                                                    isActive )
+                                                    ) {
+                            edge.Direction = newDirection;
+                            edge.OnStartAction = newOnStartAction;
+                            edge.OnEndAction = newOnEndAction;
+                            edge.Active = isActive;
+                        }
+
+                        GUILayout.Space( 5 );
+                        if (GUILayout.Button( "Delete", GUILayout.Width( 75 ) )) {
                             toRemove = edge;
                         }
 
@@ -180,6 +223,43 @@ namespace DoubleMMPrjc
                     }
                 }
                 GUILayout.EndVertical();    // 1 - END
+            }
+
+            private bool SetChangesToConnection(long nodeId, long secondNodeId, Direction direction, AIAction onStart, AIAction onEnd, bool isActive)
+            {
+                NodeConnection nodeConnection = null;
+                foreach (NodeConnection connection in connections) {
+                    if (connection.NodeId == nodeId) {
+                        nodeConnection = connection;
+                        break;
+                    }
+                }
+
+                if (nodeConnection == null) {
+                    Debug.LogError( "Missing other connection/node id(" + nodeId + "), it shouldn't happen, check if node" +
+                        " given id exists in Hierarchy/Nodes or NodeConnection asset in Resources/NodeConnections/" +
+                        SceneManager.GetActiveScene().name + "/" + CONNECTION_DEFAULT_NAME + nodeId );
+                    return false;
+                }
+
+                Edge edgeToEdit = null;
+                foreach (Edge edge in nodeConnection.Edges) {
+                    if (edge.GetAnotherId( nodeId ) == secondNodeId) {
+                        edgeToEdit = edge;
+                        break;
+                    }
+                }
+
+                if (edgeToEdit == null) {
+                    Debug.LogError( "FUC YOU" );
+                    return false;
+                }
+
+                edgeToEdit.Direction = direction;
+                edgeToEdit.OnStartAction = onStart;
+                edgeToEdit.OnEndAction = onEnd;
+                edgeToEdit.Active = isActive;
+                return true;
             }
 
             /// <summary>
@@ -309,10 +389,9 @@ namespace DoubleMMPrjc
                 // CREATE EMPTY OBJECT NAMED AI PATHS IF DOESN'T EXISTS
                 // ALL NODES ALL BELONGS TO HIM, BEACUSE OF CLEAR
                 // HIERARCHY WINDOW
-                GameObject aiPaths = GameObject.Find( "AIPaths" );
+                GameObject aiPaths = GameObject.Find( NODES_PARENT_DEFAULT_NAME );
                 if (aiPaths == null) {
-                    aiPaths = Instantiate( new GameObject(), Vector3.zero, Quaternion.identity );
-                    aiPaths.name = "AIPaths";
+                    aiPaths = new GameObject( NODES_PARENT_DEFAULT_NAME );
                 }
 
                 node.transform.parent = aiPaths.transform;

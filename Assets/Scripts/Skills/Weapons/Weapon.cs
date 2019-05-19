@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
+using DoubleMMPrjc.Timer;
 
 namespace DoubleMMPrjc
 {
-    public class Weapon : MonoBehaviour, TimerManager.IOnCountdownEnd
+    public class Weapon : MonoBehaviour, IOnCountdownEnd
     {
         private Character character;
         private Attack attack;
@@ -17,7 +18,7 @@ namespace DoubleMMPrjc
         public void Start()
         {
             character = (Character) GameManager.GetEntityByName( "Player" );
-            collisionOffDelayCountdown = TimerManager.CreateCountdown( this );
+            collisionOffDelayCountdown = TimerManager.Create( this );
         }
 
         public void OnTriggerEnter(Collider other)
@@ -36,7 +37,7 @@ namespace DoubleMMPrjc
         {
             this.attack = attack;
             coll.enabled = true;
-            TimerManager.ResetCountdown( collisionOffDelayCountdown, disableDelay );
+            TimerManager.Reset( collisionOffDelayCountdown, disableDelay );
         }
 
         public void Disable(float delay = 0)
@@ -45,7 +46,7 @@ namespace DoubleMMPrjc
             if (delay == 0) {
                 coll.enabled = false;
             } else {
-                TimerManager.ResetCountdown( collisionOffDelayCountdown, delay );
+                TimerManager.Reset( collisionOffDelayCountdown, delay );
             }
         }
 

@@ -29,4 +29,4 @@ MonoBehaviour:
     directionType: 0
     active: 1
     onStartAction: 0
-    onEndAction: 0
+    onEndAction: 1

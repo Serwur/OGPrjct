@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
+using DoubleMMPrjc.Timer;
 
 namespace DoubleMMPrjc
 {
-    public class TemplateModifier : Modifier, TimerManager.IOnCountdownEnd
+    public class TemplateModifier : Modifier, IOnCountdownEnd
     {
         public long countdown;
         public float time = 0;
@@ -37,7 +38,7 @@ namespace DoubleMMPrjc
             if (time <= 0)
                 throw new System.Exception( "TemplateModifier::Constructor::Name::" + modifierName + "::" + "(Modifier time cannot be less than 0!)" );
             this.time = time;
-            countdown = TimerManager.StartCountdown( time, this, true );
+            countdown = TimerManager.Start( time, this, true );
         }
 
         public void OnCountdownEnd(long id)

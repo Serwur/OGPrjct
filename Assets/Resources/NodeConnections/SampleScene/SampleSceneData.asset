@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f33145231263d684db633e9b52c0bf0e, type: 3}
   m_Name: SampleSceneData
   m_EditorClassIdentifier: 
-  currentId: 9
+  currentId: 11

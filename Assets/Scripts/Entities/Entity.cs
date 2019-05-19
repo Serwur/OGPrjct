@@ -1,11 +1,12 @@
 ﻿using DoubleMMPrjc.AI;
+using DoubleMMPrjc.Timer;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace DoubleMMPrjc
 {
     [RequireComponent( typeof( Rigidbody ) )]
-    public abstract class Entity : MonoBehaviour, TimerManager.IOnCountdownEnd
+    public abstract class Entity : MonoBehaviour, IOnCountdownEnd
     {
         public static readonly float MIN_DAMAGEABLE_FALL_SPEED = 30f;
 
@@ -81,7 +82,7 @@ namespace DoubleMMPrjc
             jumpPower.current = jumpPower.max;
             damage.current = damage.max;
 
-            moveCountdownId = TimerManager.CreateCountdown( this );
+            moveCountdownId = TimerManager.Create( this );
         }
 
         public virtual void FixedUpdate()
@@ -151,10 +152,10 @@ namespace DoubleMMPrjc
             // JEŻELI PUSH DISABLE TIME > 0 I JEDNOSTKA NIE BLOKUJE TO UNIEAKTYWNIA RUCH
             if (pushDisableTime > 0 && !blocked) {
                 canMove = false;
-                TimerManager.GetRemaingCountdown( moveCountdownId, out float seconds );
+                TimerManager.GetRemaing( moveCountdownId, out float seconds );
                 if (seconds < pushDisableTime) {
                     // USTAWIA TIMER PO KTÓRYM JEDNOSTKA ODZYSKUJE MOŻLIWOŚĆ RUCHU
-                    TimerManager.ResetCountdown( moveCountdownId, pushDisableTime );
+                    TimerManager.Reset( moveCountdownId, pushDisableTime );
                 }
             }
             // NADAJE PRĘDKOŚĆ
@@ -300,7 +301,16 @@ namespace DoubleMMPrjc
             return followers.Remove( follower );
         }
 
-        public abstract void OnContactAreaEnter(ContactArea contactArea);
+        public virtual void OnContactAreaEnter(ContactArea contactArea)
+        {
+            foreach (NPC npc in FollowersList) {
+                if (npc.ContactArea != null && !npc.FollowTarget( this )) {
+                    //npc.SetReachState();
+                    npc.SetWatchState();
+                    npc.StartPathRefind( 0.7f );
+                }
+            }
+        }
         public abstract void OnContactAreaExit(ContactArea contactArea);
         #endregion
 

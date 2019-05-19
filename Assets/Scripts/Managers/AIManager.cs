@@ -18,6 +18,9 @@ namespace DoubleMMPrjc
             private LinkedList<ContactArea> contactAreas = new LinkedList<ContactArea>();
             private ObjectPool<Dummy> dummies;
 
+            [SerializeField] private bool logStatCalls = false;
+            private int findPathCalls = 0;
+
             public void Awake()
             {
                 if (Instance != null) {
@@ -28,19 +31,30 @@ namespace DoubleMMPrjc
 
             public void Start()
             {
-                NodeConnection[] nodeNeighborhoods = NodeEditor.LoadNodeConnnections( SceneManager.GetActiveScene().name );
-                foreach (NodeConnection nodeNeighborhood in nodeNeighborhoods) {
+                GameObject nodesParent = GameObject.Find( NodeEditor.NODES_PARENT_DEFAULT_NAME );
+                if (nodesParent != null) {
 
-                    foreach (Edge edge in nodeNeighborhood.Edges) {
-                        edge.Start = GameObject.Find( NodeEditor.NODE_DEFAULT_NAME + edge.StartId ).GetComponent<Node>();
-                        edge.End = GameObject.Find( NodeEditor.NODE_DEFAULT_NAME + edge.EndId ).GetComponent<Node>();
-                        edge.CalcDistance();
+                    for (int i = 0; i < nodesParent.transform.childCount; i++) {
+                        AddNode( nodesParent.transform.GetChild( i ).GetComponent<Node>() );
                     }
 
-                    if (staticNodes.TryGetValue( nodeNeighborhood.NodeId, out Node node )) {
-                        node.AddEdges( nodeNeighborhood.Edges );
+                    NodeConnection[] nodeNeighborhoods = NodeEditor.LoadNodeConnnections( SceneManager.GetActiveScene().name );
+                    foreach (NodeConnection nodeNeighborhood in nodeNeighborhoods) {
+
+                        foreach (Edge edge in nodeNeighborhood.Edges) {
+                            edge.Start = GameObject.Find( NodeEditor.NODE_DEFAULT_NAME + edge.StartId ).GetComponent<Node>();
+                            edge.End = GameObject.Find( NodeEditor.NODE_DEFAULT_NAME + edge.EndId ).GetComponent<Node>();
+                            edge.CalcDistance();
+                        }
+
+                        if (staticNodes.TryGetValue( nodeNeighborhood.NodeId, out Node node )) {
+                            node.AddEdges( nodeNeighborhood.Edges );
+                        }
                     }
+                } else {
+                    Debug.LogWarning( "No nodes set on the map" );
                 }
+
 
                 dummies = new ObjectPool<Dummy>( dummyAsset, "Dummies" );
             }
@@ -61,6 +75,10 @@ namespace DoubleMMPrjc
 
             public static AIPathList FindPath(Entity ai, Entity target)
             {
+                Instance.findPathCalls++;
+                if ( Instance.logStatCalls ) {
+                    Debug.Log("FindPath calls count: "  + Instance.findPathCalls);
+                }
                 // SPRAWDZAMY CZY ZNALEZLISMY JAKIEKOLWIEK NODE'Y
                 List<Node> aiNodes = GetContactNodes( ai );
                 if (aiNodes == null || aiNodes.Count == 0)
@@ -118,10 +136,6 @@ namespace DoubleMMPrjc
                 // RESETUJEMY WARTOŚCI STATYCZNYCH NODE'ÓW
                 foreach (Node node in Instance.staticNodes.Values) {
                     node.Refresh();
-                }
-                // WYMARZONY WYNIK
-                if (path != null) {
-                    Debug.Log( path );
                 }
                 Destroy( start.gameObject );
                 return path;

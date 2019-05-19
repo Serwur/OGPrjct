@@ -25,18 +25,19 @@ namespace DoubleMMPrjc
             [SerializeField] private List<Edge> edges;
 
             #region Unity API
-            public void Start()
-            {
-                AIManager.AddNode( this );
-            }
-
             public void OnTriggerEnter(Collider other)
             {
-                Debug.Log(other.name);
                 NPC npc = other.GetComponent<NPC>();
-                if (npc != null && npc.CurrentComplexNode != null && npc.CurrentComplexNode.Node == this) {
-                    Debug.Log("Next node coz of reaching this named: " + name);
-                    npc.NextNode();
+                if (npc) {
+                    npc.OnNodeEnter( this );
+                }
+            }
+
+            public void OnTriggerExit(Collider other)
+            {
+                NPC npc = other.GetComponent<NPC>();
+                if (npc) {
+                    npc.OnNodeExit( this );
                 }
             }
             #endregion
@@ -61,9 +62,9 @@ namespace DoubleMMPrjc
                         visitedNode.pathCost = pathCost;
                         visitedNode.parent = this;
                         if (visitedNode == edge.Start) {
-                            visitedNode.actionToParent = edge.OnStartAction;
-                        } else {
                             visitedNode.actionToParent = edge.OnEndAction;
+                        } else {
+                            visitedNode.actionToParent = edge.OnStartAction;
                         }
                     }
                     if (!nodesList.Contains( visitedNode )) {

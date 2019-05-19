@@ -21,12 +21,12 @@ MonoBehaviour:
     directionType: 0
     active: 1
     onStartAction: 0
-    onEndAction: 0
+    onEndAction: 1
   - start: {fileID: 0}
     end: {fileID: 0}
     startId: 6
     endId: 7
     directionType: 0
     active: 1
-    onStartAction: 0
-    onEndAction: 0
+    onStartAction: 1
+    onEndAction: 1

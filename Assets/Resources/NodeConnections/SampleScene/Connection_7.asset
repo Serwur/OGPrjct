@@ -20,5 +20,5 @@ MonoBehaviour:
     endId: 7
     directionType: 0
     active: 1
-    onStartAction: 0
-    onEndAction: 0
+    onStartAction: 1
+    onEndAction: 1

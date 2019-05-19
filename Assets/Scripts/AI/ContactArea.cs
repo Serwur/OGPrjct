@@ -100,8 +100,8 @@ namespace DoubleMMPrjc
             /// <returns>Random <b>x</b> from area</returns>
             public float GetRandXInArea()
             {
-                float maxX = transform.position.x + coll.bounds.extents.x;
-                float minX = transform.position.x - maxX;
+                float maxX = coll.bounds.center.x + coll.bounds.extents.x;
+                float minX = coll.bounds.center.x - coll.bounds.extents.x;
                 return Random.Range( minX, maxX );
             }
 
@@ -111,8 +111,8 @@ namespace DoubleMMPrjc
             /// <returns>Random <b>y</b> from area</returns>
             public float GetRandYInArea()
             {
-                float maxY = transform.position.y + coll.bounds.extents.y;
-                float minY = transform.position.y - maxY;
+                float maxY = coll.bounds.center.y + coll.bounds.extents.y;
+                float minY = coll.bounds.center.y - coll.bounds.extents.y;
                 return Random.Range( minY, maxY );
             }
 
