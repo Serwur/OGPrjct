@@ -26,6 +26,7 @@ namespace DoubleMMPrjc
                 Collider[] colliders = Physics.OverlapBox( coll.bounds.center, coll.bounds.extents, coll.transform.rotation, nodeLayers, QueryTriggerInteraction.Collide );
                 foreach (Collider collider in colliders) {
                     nodesIn.Add( collider.GetComponent<Node>() );
+                    collider.enabled = false;
                 }
             }
 

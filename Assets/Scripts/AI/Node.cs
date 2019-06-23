@@ -16,7 +16,7 @@ namespace DoubleMMPrjc
             private Node parent;
             private AIAction actionToParent;
             /// <summary>
-            /// Represents id of node, it mustn't be changed!
+            /// Represents id of node, it cannot be changed!
             /// </summary>
             [SerializeField] private long id;
             /// <summary>
@@ -24,8 +24,10 @@ namespace DoubleMMPrjc
             /// </summary>
             [SerializeField] private List<Edge> edges;
 
+            // Commented this section, beacuse we propably won't use colliders
+            // to check AI behaviours. DO NOT REMOVE IT
             #region Unity API
-            public void OnTriggerEnter(Collider other)
+           /* public void OnTriggerEnter(Collider other)
             {
                 NPC npc = other.GetComponent<NPC>();
                 if (npc) {
@@ -39,7 +41,7 @@ namespace DoubleMMPrjc
                 if (npc) {
                     npc.OnNodeExit( this );
                 }
-            }
+            }*/
             #endregion
 
             #region Public Methods

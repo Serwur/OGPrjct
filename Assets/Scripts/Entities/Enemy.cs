@@ -11,7 +11,7 @@ namespace DoubleMMPrjc
         protected static readonly float REACH_RANGE = 1.5f;
 
         protected static readonly float WATCH_TIME = 12f;
-        protected static readonly float REACH_TIME = 6f;
+        protected static readonly float REACH_TIME = 15f;
 
         protected static readonly int SLEEP_CHECK_PERIOD = 50;
         protected static readonly int WATCH_CHECK_PERIOD = 25;
@@ -23,10 +23,6 @@ namespace DoubleMMPrjc
 
         protected static readonly int WATCH_POSITION_CHANGE_PERIOD = 240;
         protected int watchRandomPositionChange = 0;
-
-        protected static readonly int WATCH_POSITION_CHECK_PERIOD = 12;
-        protected int watchPositionCheck = 0;
-        protected bool watchPositionReached = false;
 
         protected long watchCountdownId;
         protected long reachCountdownId;
@@ -48,18 +44,21 @@ namespace DoubleMMPrjc
 
         public void OnDrawGizmos()
         {
-            if (GameManager.DrawEnemyRange) {
-                Gizmos.color = Color.red;
-                Gizmos.DrawWireSphere( transform.position, rangeToNextState );
-                Gizmos.color = Color.green;
-                Gizmos.DrawWireSphere( transform.position, rangeToKeepThisState );
-            }
-            if (GameManager.DrawAIDestination) {
-                Gizmos.color = Color.blue;
-                if (currentTarget != null) {
-                    Gizmos.DrawLine( transform.position, currentTarget.position );
+            if (!isDead) {
+                if (GameManager.DrawEnemyRange) {
+                    Gizmos.color = Color.red;
+                    Gizmos.DrawWireSphere( transform.position, rangeToNextState );
+                    Gizmos.color = Color.green;
+                    Gizmos.DrawWireSphere( transform.position, rangeToKeepThisState );
+                }
+                if (GameManager.DrawAIDestination) {
+                    Gizmos.color = Color.blue;
+                    if (currentTarget != null) {
+                        Gizmos.DrawLine( transform.position, currentTarget.position );
+                    }
                 }
             }
+
         }
         #endregion
 
@@ -92,42 +91,19 @@ namespace DoubleMMPrjc
                 watchRandomPositionChange = 0;
                 if (ContactArea != null) {
                     SetPosToFollow( contactArea.GetRandPosInArea() );
-                    watchPositionReached = false;
+                    positionReached = false;
                 }
             }
 
-            if (!watchPositionReached && currentTarget != null) {
-                watchPositionCheck++;
-                if (watchPositionCheck >= WATCH_POSITION_CHECK_PERIOD) {
-                    watchPositionCheck = 0;
+            if (!positionReached && currentTarget != null) {
+                positionCheck++;
+                if (positionCheck >= POSITION_CHECK_PERIOD) {
+                    positionCheck = 0;
                     if (Mathf.Abs( currentTarget.position.x - transform.position.x ) <= 0.5f) {
-                        watchPositionReached = true;
+                        positionReached = true;
                     }
                 }
                 Move( moveSpeed.current / 3f );
-            }
-        }
-
-        public override void ReachUpdate()
-        {
-            base.ReachUpdate();
-
-            /*reachDirectionUpdate++;
-            if (reachDirectionUpdate >= REACH_DIRECTION_UPDATE_PERIOD) {
-                reachDirectionUpdate = 0;
-                SetMoveDirection( currentTarget.position.x );
-            }
-            Move( moveSpeed.current );*/
-
-            if (!watchPositionReached) {
-                watchPositionCheck++;
-                if (watchPositionCheck >= WATCH_POSITION_CHECK_PERIOD) {
-                    watchPositionCheck = 0;
-                    if (Mathf.Abs( currentTarget.position.x - transform.position.x ) <= 0.5f) {
-                        watchPositionReached = true;
-                    }
-                }
-                Move( moveSpeed.current  );
             }
         }
 
@@ -151,15 +127,9 @@ namespace DoubleMMPrjc
         public override void OnAnyStateUpdate()
         {
             checkPeriod++;
-            if (State != AIState.ATTACK) {
-                attackCheckPeriod++;
-                if (CheckPeriod( ATTACK_CHECK_PERIOD )) {
-                    attackCheckPeriod++;
-                    if (IsPlayerInRange( REACH_RANGE )) {
-                        SetAttackState( "player in reach range" );
-                        return;
-                    }
-                }
+            if (landed && State != AIState.ATTACK && CheckPeriod( ATTACK_CHECK_PERIOD ) && IsPlayerInRange( REACH_RANGE )) {
+                SetAttackState( "player in reach range" );
+                return;
             }
         }
 
@@ -214,7 +184,7 @@ namespace DoubleMMPrjc
             rangeToNextState = REACH_RANGE;
 
             // Resets timer to count time for reach state to end
-            if ( TimerManager.HasEnded(reachCountdownId) ) {
+            if (TimerManager.HasEnded( reachCountdownId )) {
                 TimerManager.Reset( reachCountdownId );
             }
             TimerManager.Stop( refindPathCountdownId );
@@ -253,7 +223,7 @@ namespace DoubleMMPrjc
         {
             base.OnAnyStateChange( reason );
             checkPeriod = 0;
-            watchPositionCheck = 0;
+            positionCheck = 0;
         }
 
         public override void Die()
@@ -295,7 +265,7 @@ namespace DoubleMMPrjc
         /// </summary>
         public virtual void Attack()
         {
-            Debug.Log( name + " PERFORMS ATTACK!" );
+            //  Debug.Log( name + " PERFORMS ATTACK!" );
         }
 
         /// <summary>
@@ -314,7 +284,6 @@ namespace DoubleMMPrjc
             if (id == refindPathCountdownId) {
                 if (!FollowTarget( followedEntity )) {
                     TimerManager.Reset( refindPathCountdownId );
-                    Debug.Log( "Poownie kurwa szukanie..." );
                 }
             } else if (id == watchCountdownId && State == AIState.WATCH) {
                 if (IsPlayerInRange( SLEEP_RANGE )) {
@@ -361,10 +330,8 @@ namespace DoubleMMPrjc
             // Checking in reach state when entity (propably) fall into wrong contact area
             else if (State == AIState.REACH && HasPath && !contactArea.Contains( currentCn.Node )) {
                 if (followedEntity.ContactArea == null) {
-                    Debug.Log( "Starting interval refinding(REACH)..." );
                     StartPathRefind( 0.7f );
                 } else if (!FollowTarget( entityToFollowAfterPath )) {
-                    Debug.Log( "bam REACH" );
                     SetWatchState( "entity had REACH state, enters new area that doesn't\n" +
                                    "contains node , propably fallen on wrong area after jump,\n" +
                                    "had to find new path but cannot find one to reach target" );

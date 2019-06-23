@@ -4,7 +4,7 @@
     {
         public enum AIState
         {
-            SLEEP, WATCH, REFIND, REACH, FOLLOW, ATTACK
+            SLEEP, WATCH, WAIT, REACH, FOLLOW, ATTACK
         }
     }
 }

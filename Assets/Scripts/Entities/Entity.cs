@@ -46,7 +46,7 @@ namespace DoubleMMPrjc
         #endregion
 
         #region Protected Fields
-        [SerializeField] private HashSet<Entity> followers = new HashSet<Entity>();
+        [SerializeField] private HashSet<NPC> followers = new HashSet<NPC>();
 
         protected Rigidbody rb;
         protected BoxCollider coll;
@@ -282,6 +282,11 @@ namespace DoubleMMPrjc
         {
             rb.velocity = new Vector2( rb.velocity.x, jumpPower );
             lastMinFallSpeed = 0;
+           /* foreach (Entity entity in followers ) {
+                if ( entity.ContactArea == ContactArea ) {
+                    entity.Jump(20);
+                }
+            }*/
         }
 
         public virtual void OnCountdownEnd(long id)
@@ -291,12 +296,12 @@ namespace DoubleMMPrjc
             }
         }
 
-        public bool AddFollower(Entity follower)
+        public bool AddFollower(NPC follower)
         {
             return followers.Add( follower );
         }
 
-        public bool RemoveFollower(Entity follower)
+        public bool RemoveFollower(NPC follower)
         {
             return followers.Remove( follower );
         }
@@ -305,8 +310,6 @@ namespace DoubleMMPrjc
         {
             foreach (NPC npc in FollowersList) {
                 if (npc.ContactArea != null && !npc.FollowTarget( this )) {
-                    //npc.SetReachState();
-                    npc.SetWatchState();
                     npc.StartPathRefind( 0.7f );
                 }
             }

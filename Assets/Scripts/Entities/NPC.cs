@@ -20,11 +20,12 @@ namespace DoubleMMPrjc
         /// </summary>
         protected Entity followedEntity;
         protected Transform currentTarget;
-
         protected Dummy dummyPositionToMove;
         protected ComplexNode currentCn;
 
         protected bool landed = true;
+        protected static readonly float JUMP_Y_OFFSET = 1.2f;
+        protected static readonly float JUMP_TIME = 0.75f;
 
         protected static readonly int FOLLOW_DIRECTION_UPDATE_PERIOD = 8;
         protected int followDirectionUpdate = 0;
@@ -32,10 +33,12 @@ namespace DoubleMMPrjc
         protected static readonly int REACH_DIRECTION_UPDATE_PERIOD = 12;
         protected int reachDirectionUpdate = 0;
 
-        protected long refindPathCountdownId;
+        protected static readonly int POSITION_CHECK_PERIOD = 5;
+        protected int positionCheck = 0;
+        protected bool positionReached = false;
+        protected bool xPositionReached = false;
 
-        protected static readonly float JUMP_Y_OFFSET = 1.2f;
-        [SerializeField] [Range( 0, 1 )] private float jumpSpeedReducer = 0.8f;
+        protected long refindPathCountdownId;
 
         [SerializeField] private AIState state = AIState.SLEEP;
         [SerializeField] private AIMovingState movingState = AIMovingState.WALKING;
@@ -47,6 +50,7 @@ namespace DoubleMMPrjc
         protected string stateReasonChange = UNDEFINED;
         #endregion
 
+        #region Unity API
         public override void Start()
         {
             base.Start();
@@ -67,6 +71,9 @@ namespace DoubleMMPrjc
                     case AIState.REACH:
                         ReachUpdate();
                         break;
+                    case AIState.WAIT:
+                        RefindUpdate();
+                        break;
                     case AIState.FOLLOW:
                         FollowUpdate();
                         break;
@@ -76,6 +83,128 @@ namespace DoubleMMPrjc
                 }
             }
         }
+        #endregion
+
+        #region StateSetter
+        public virtual void SetSleepState(string reason = null)
+        {
+            state = AIState.SLEEP;
+            OnAnyStateChange( reason );
+        }
+
+        public virtual void SetWatchState(string reason = null)
+        {
+            state = AIState.WATCH;
+            OnAnyStateChange( reason );
+        }
+
+        public virtual void SetReachState(string reason = null)
+        {
+            state = AIState.REACH;
+            OnAnyStateChange( reason );
+            reachDirectionUpdate = 0;
+        }
+
+        public virtual void SetRefindState(string reason = null)
+        {
+            state = AIState.WAIT;
+            OnAnyStateChange( reason );
+            reachDirectionUpdate = 0;
+        }
+
+        public virtual void SetAttackState(string reason = null)
+        {
+            state = AIState.ATTACK;
+            OnAnyStateChange( reason );
+        }
+
+        public virtual void SetFollowState(string reason = null)
+        {
+            state = AIState.FOLLOW;
+            OnAnyStateChange( reason );
+            followDirectionUpdate = 0;
+        }
+
+        protected virtual void OnAnyStateChange(string reason)
+        {
+            if (logStatusChange) {
+                Debug.Log( "(" + logStatusCount + ") " + name + ", changed state to: "
+                    + state + ", reason: " + ( ( reason == null || reason.Equals( "" ) ) ? UNDEFINED : reason ) );
+                logStatusCount++;
+            }
+        }
+        #endregion
+
+        #region StateUpdates
+        public virtual void SleepUpdate()
+        {
+            OnAnyStateUpdate();
+        }
+
+        public virtual void WatchUpdate()
+        {
+            OnAnyStateUpdate();
+        }
+
+        public virtual void ReachUpdate()
+        {
+            OnAnyStateUpdate();
+
+            if (!xPositionReached) {
+                if (Mathf.Abs( currentTarget.position.x - transform.position.x ) < 0.25f) {
+                    xPositionReached = true;
+                } else {
+                    SetMoveDirection( currentTarget.transform.position );
+                }
+            }
+
+            positionCheck++;
+            if (positionCheck >= POSITION_CHECK_PERIOD) {
+                positionCheck = 0;
+                if (Vector2.Distance( currentTarget.position, transform.position ) <= 0.5f) {
+                    NextNode();
+                    return;
+                }
+            }
+
+            if (!xPositionReached) {
+                if (landed) {
+                    Move( moveSpeed.current );
+                } else {
+                    Move( jumpSpeed.current );
+                }
+            }
+        }
+
+        public virtual void RefindUpdate()
+        {
+            OnAnyStateUpdate();
+        }
+
+        public virtual void FollowUpdate()
+        {
+            OnAnyStateUpdate();
+            followDirectionUpdate++;
+            if (followDirectionUpdate == FOLLOW_DIRECTION_UPDATE_PERIOD) {
+                /*  if ( followedEntity.ContactArea != ContactArea ) {
+                      if ( !FollowTarget(followedEntity) && TimerManager.HasEnded(reachCountdownId) ) {
+                          SetWatchState();
+                      }
+                      return;
+                  }*/
+                SetMoveDirection( followedEntity );
+                followDirectionUpdate = 0;
+            }
+            Move( moveSpeed.current );
+        }
+
+        public virtual void AttackUpdate()
+        {
+            OnAnyStateUpdate();
+        }
+
+        public abstract void OnAnyStateUpdate();
+        #endregion
 
         /// <summary>
         /// Moves towards current direction
@@ -129,6 +258,8 @@ namespace DoubleMMPrjc
         public virtual void NextNode()
         {
             if (!PathHasEnded) {
+                positionReached = false;
+                xPositionReached = false;
                 currentCn = currentPath.Next();
                 currentTarget = currentCn.Node.transform;
                 switch (currentCn.Action) {
@@ -136,8 +267,14 @@ namespace DoubleMMPrjc
                         movingState = AIMovingState.WALKING;
                         SetMoveDirection( currentCn.Node.transform.position );
                         break;
-                    case AIAction.JUMP:
-                        JumpTo( jumpPower.current, currentTarget.position );
+                    case AIAction.JUMP:           
+                        // Sets jump power that depdens on height that must be reached
+                        float heigth = currentTarget.position.y - transform.position.y;
+                        float jumpPower = heigth / JUMP_TIME - Physics.gravity.y / 2f * JUMP_TIME;
+                        if ( jumpPower < 0 ) {
+                            jumpPower = 0;
+                        }
+                        JumpTo( jumpPower, currentTarget.position );
                         break;
                 }
             } else {
@@ -147,6 +284,13 @@ namespace DoubleMMPrjc
                 SetFollowState( "path has ended and now is time to reach last target" );
             }
         }
+
+        /*  protected bool ReachedCurrentNode()
+          {
+              if (currentCn == null || currentCn.Node == null)
+                  return false;
+
+          }*/
 
         public virtual bool MoveToPosition(Vector2 position)
         {
@@ -226,115 +370,11 @@ namespace DoubleMMPrjc
             return currentPath.Contains( node );
         }
 
-        public virtual void SetSleepState(string reason = null)
-        {
-            state = AIState.SLEEP;
-            OnAnyStateChange( reason );
-        }
-
-        public virtual void SetWatchState(string reason = null)
-        {
-            state = AIState.WATCH;
-            OnAnyStateChange( reason );
-        }
-
-        public virtual void SetReachState(string reason = null)
-        {
-            state = AIState.REACH;
-            OnAnyStateChange( reason );
-            reachDirectionUpdate = 0;
-        }
-
-        public virtual void SetAttackState(string reason = null)
-        {
-            state = AIState.ATTACK;
-            OnAnyStateChange( reason );
-        }
-
-        public virtual void SetFollowState(string reason = null)
-        {
-            state = AIState.FOLLOW;
-            OnAnyStateChange( reason );
-            followDirectionUpdate = 0;
-        }
-
-        /// <summary>
-        /// Updates every one fixed update step
-        /// </summary>
-        public virtual void SleepUpdate()
-        {
-            OnAnyStateUpdate();
-        }
-
-        /// <summary>
-        /// Updates every one fixed update step. Watch update should be like routing entity standard
-        /// path or just to select random position to move.
-        /// </summary>
-        public virtual void WatchUpdate()
-        {
-            OnAnyStateUpdate();
-        }
-
-        /// <summary>
-        /// Updates every one fixed update step
-        /// </summary>
-        public virtual void ReachUpdate()
-        {
-            OnAnyStateUpdate();
-            reachDirectionUpdate++;
-            if (reachDirectionUpdate == REACH_DIRECTION_UPDATE_PERIOD) {
-                reachDirectionUpdate = 0;
-                SetMoveDirection( currentTarget.transform.position );
-            }
-            if (landed) {
-                Move( moveSpeed.current );
-            } else {
-                Move( jumpSpeed.current );
-            }
-
-        }
-
-        /// <summary>
-        /// Updates every one fixed update step
-        /// </summary>
-        public virtual void FollowUpdate()
-        {
-            OnAnyStateUpdate();
-            followDirectionUpdate++;
-            if (followDirectionUpdate == FOLLOW_DIRECTION_UPDATE_PERIOD) {
-                /*  if ( followedEntity.ContactArea != ContactArea ) {
-                      if ( !FollowTarget(followedEntity) && TimerManager.HasEnded(reachCountdownId) ) {
-                          SetWatchState();
-                      }
-                      return;
-                  }*/
-                SetMoveDirection( followedEntity );
-                followDirectionUpdate = 0;
-            }
-            Move( moveSpeed.current );
-        }
-
-        /// <summary>
-        /// Updates every one fixed update step
-        /// </summary>
-        public virtual void AttackUpdate()
-        {
-            OnAnyStateUpdate();
-        }
-
-        protected virtual void OnAnyStateChange(string reason)
-        {
-            if (logStatusChange) {
-                Debug.Log( "(" + logStatusCount + ") " + name + ", changed state to: " 
-                    + state + ", reason: " + ( ( reason == null || reason.Equals( "" ) ) ? UNDEFINED : reason ) );
-                logStatusCount++;
-            }
-        }
-
         public override void OnFallen(float speedWhenFalling)
         {
             base.OnFallen( speedWhenFalling );
             movingState = AIMovingState.WALKING;
+            landed = true;
         }
 
         public virtual void JumpTo(float jumpPower, Vector2 end)
@@ -343,20 +383,17 @@ namespace DoubleMMPrjc
             SetMoveDirection( end );
             // Sets flag that npc started jumping
             landed = false;
-            // Resets last min fall speed
-            lastMinFallSpeed = 0;
             // Calculating move speed depdends on time need to reach x position of node
-            float time = jumpPower / Mathf.Abs( Physics.gravity.y );
-            float moveSpeed = ( end.x - transform.position.x ) / time;
-            jumpSpeed.current = Mathf.Abs( moveSpeed ) * jumpSpeedReducer;
-            rb.velocity = new Vector2( 0, jumpPower );
+            float moveSpeed = ( end.x - transform.position.x ) / JUMP_TIME;
+            jumpSpeed.current = Mathf.Abs( moveSpeed );
             movingState = AIMovingState.JUMPING;
+            Jump(jumpPower);
         }
 
         public virtual bool CanJumpFromTo(float jumpPower, Vector2 start, Vector2 end)
         {
             float heigth = end.y - start.y;
-            return heigth + JUMP_Y_OFFSET <= jumpPower * jumpPower / ( 2 * Mathf.Abs( Physics.gravity.y ) );
+            return (heigth + JUMP_Y_OFFSET) <= (jumpPower * jumpPower / ( 2 * Mathf.Abs( Physics.gravity.y ) ));
         }
 
         public virtual void OnFollowedEntityChangesContactArea(Entity followed)
@@ -364,6 +401,7 @@ namespace DoubleMMPrjc
             followed.RemoveFollower( this );
         }
 
+        /*
         public virtual void OnNodeEnter(Node node)
         {
             if (CurrentComplexNode != null && CurrentComplexNode.Node == node) {
@@ -374,7 +412,7 @@ namespace DoubleMMPrjc
         public virtual void OnNodeExit(Node node)
         {
 
-        }
+        }*/
 
         public virtual void StartPathRefind(float interval)
         {
@@ -385,6 +423,10 @@ namespace DoubleMMPrjc
         {
             base.Die();
             currentTarget = null;
+            if (dummyPositionToMove != null) {
+                dummyPositionToMove.gameObject.SetActive( false );
+                dummyPositionToMove = null;
+            }
         }
 
         protected virtual bool SetPathTo(Entity entity)
@@ -406,11 +448,6 @@ namespace DoubleMMPrjc
             return false;
         }
 
-        /// <summary>
-        /// Updates every one fixed update step
-        /// </summary>
-        public abstract void OnAnyStateUpdate();
-
         #region Getters and Setters
         /// <summary>
         /// <code>TRUE</code> if AI has path, otherwise <code>FALSE</code>
@@ -429,3 +466,4 @@ namespace DoubleMMPrjc
         #endregion
     }
 }
+ 
