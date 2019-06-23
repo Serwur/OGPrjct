@@ -1,10 +1,11 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using DoubleMMPrjc.Timer;
 
 namespace DoubleMMPrjc
 {
     [System.Serializable]
-    public class Dialogue : TimerManager.IOnCountdownEnd
+    public class Dialogue : IOnCountdownEnd
     {
         public string dialogueName = "";
         public string dialogue = "";
@@ -45,11 +46,11 @@ namespace DoubleMMPrjc
         {
             dialogueText.text += dialogue[currentChar++];
             if (currentChar == dialogue.Length) {
-                TimerManager.RemoveCountdown( countdownID );
+                TimerManager.Destroy( countdownID );
                 hasEnded = true;
             } else {
                 // ZMIENIC POTEM NA STAŁĄ PRĘDKOŚĆ
-                TimerManager.ResetCountdown( countdownID, 1 / ( 0.9f + speed / 10f ) - 1 );
+                TimerManager.Reset( countdownID, 1 / ( 0.9f + speed / 10f ) - 1 );
             }
         }
 
@@ -70,7 +71,7 @@ namespace DoubleMMPrjc
             if (speed == 1f) {
                 PushToEnd();
             } else {
-                countdownID = TimerManager.StartCountdown( 1 / ( 0.9f + speed / 10f ) - 1, this );
+                countdownID = TimerManager.Start( 1 / ( 0.9f + speed / 10f ) - 1, this );
             }
             if (followObject) {
                 CameraManager.FollowTarget( entity.transform, followSpeed );
@@ -84,7 +85,7 @@ namespace DoubleMMPrjc
         {
             hasEnded = true;
             dialogueText.text = ownerName + ": " + dialogue;
-            TimerManager.RemoveCountdown( countdownID );
+            TimerManager.Destroy( countdownID );
         }
 
 
@@ -100,7 +101,7 @@ namespace DoubleMMPrjc
         /// </summary>
         public void _Reset()
         {
-            TimerManager.RemoveCountdown( countdownID );
+            TimerManager.Destroy( countdownID );
             dialogueText = null;
             hasEnded = false;
             currentChar = 0;
