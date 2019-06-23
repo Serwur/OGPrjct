@@ -38,3 +38,11 @@ MonoBehaviour:
     active: 1
     onStartAction: 0
     onEndAction: 0
+  - start: {fileID: 0}
+    end: {fileID: 0}
+    startId: 23
+    endId: 19
+    directionType: 2
+    active: 1
+    onStartAction: 0
+    onEndAction: 0

@@ -27,21 +27,21 @@ namespace DoubleMMPrjc
             // Commented this section, beacuse we propably won't use colliders
             // to check AI behaviours. DO NOT REMOVE IT
             #region Unity API
-           /* public void OnTriggerEnter(Collider other)
-            {
-                NPC npc = other.GetComponent<NPC>();
-                if (npc) {
-                    npc.OnNodeEnter( this );
-                }
-            }
+            /* public void OnTriggerEnter(Collider other)
+             {
+                 NPC npc = other.GetComponent<NPC>();
+                 if (npc) {
+                     npc.OnNodeEnter( this );
+                 }
+             }
 
-            public void OnTriggerExit(Collider other)
-            {
-                NPC npc = other.GetComponent<NPC>();
-                if (npc) {
-                    npc.OnNodeExit( this );
-                }
-            }*/
+             public void OnTriggerExit(Collider other)
+             {
+                 NPC npc = other.GetComponent<NPC>();
+                 if (npc) {
+                     npc.OnNodeExit( this );
+                 }
+             }*/
             #endregion
 
             #region Public Methods
@@ -219,8 +219,35 @@ namespace DoubleMMPrjc
             {
                 if (GameManager.DrawNodeConnections) {
                     foreach (Edge edge in edges) {
-                        Gizmos.color = Color.green;
-                        Gizmos.DrawLine( transform.position, edge.GetAnother( this ).transform.position );
+                        if (!edge.Active) {
+                            Gizmos.color = Color.yellow;
+                            Gizmos.DrawLine( transform.position, edge.GetAnother( this ).transform.position );
+                        } else if (edge.Direction == Direction.BOTH) {
+                            Gizmos.color = Color.green;
+                            Gizmos.DrawLine( transform.position, edge.GetAnother( this ).transform.position );
+                        } else {
+                            Node start, end;
+                            Vector2 middle;
+                            if ( edge.Start == this) {
+                                start = this;
+                                end = edge.GetAnother( this );        
+                            } else {
+                                start = edge.GetAnother( this );
+                                end = this;
+                            }
+                            middle = Math.Middle( start.transform.position, end.transform.position );
+                            if (edge.Direction == Direction.TO_START) {
+                                Gizmos.color = Color.green;
+                                Gizmos.DrawLine( end.transform.position, middle );
+                                Gizmos.color = Color.red;
+                                Gizmos.DrawLine( middle, start.transform.position );
+                            } else {
+                                Gizmos.color = Color.green;
+                                Gizmos.DrawLine( start.transform.position, middle );
+                                Gizmos.color = Color.red;
+                                Gizmos.DrawLine( middle, end.transform.position );
+                            }
+                        }
                     }
                 }
             }

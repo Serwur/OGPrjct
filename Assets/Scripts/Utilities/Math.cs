@@ -1,4 +1,6 @@
-﻿namespace DoubleMMPrjc
+﻿using UnityEngine;
+
+namespace DoubleMMPrjc
 {
     namespace Utility
     {
@@ -18,6 +20,11 @@
                     multiplay *= 10;
                 int rounded = (int) ( value * multiplay );
                 return (float) rounded / multiplay;
+            }
+
+            public static Vector2 Middle(Vector2 a, Vector2 b)
+            {
+                return new Vector2( a.x + b.x, a.y + b.y ) / 2f;
             }
         }
 

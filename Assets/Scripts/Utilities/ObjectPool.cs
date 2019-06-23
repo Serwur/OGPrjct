@@ -87,6 +87,11 @@ namespace DoubleMMPrjc
                 return null;
             }
 
+            public void ReturnPooledObject(T obj)
+            {
+                obj.gameObject.SetActive( false );
+            }
+
             public void Clear()
             {
                 foreach (T t in pooledObjects) {

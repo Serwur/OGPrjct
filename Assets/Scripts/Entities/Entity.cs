@@ -22,6 +22,10 @@ namespace DoubleMMPrjc
         public float regenHitPoints = 0f;
         public float regenSourcePoints = 0f;
 
+        [Header( "Multiplayers" )]
+        [Range( 0.01f, 10f )] public float damageTakenMult = 1f;
+        [Range( 0.01f, 10f )] public float fallDamageMult = 1f;
+
         [Header( "Utility" )]
         [SerializeField] protected bool isDead = false;
         [SerializeField] protected bool canMove = true;
@@ -36,6 +40,7 @@ namespace DoubleMMPrjc
 
         [Header( "Others" )]
         public LayerMask groundLayers;
+        [Range( 0.05f, 1.5f )] public float pathRefindTimer = 0.6f;
 
         #region Dev Fields
         [Header( "Dev Tools" )]
@@ -282,11 +287,11 @@ namespace DoubleMMPrjc
         {
             rb.velocity = new Vector2( rb.velocity.x, jumpPower );
             lastMinFallSpeed = 0;
-           /* foreach (Entity entity in followers ) {
-                if ( entity.ContactArea == ContactArea ) {
-                    entity.Jump(20);
-                }
-            }*/
+            /* foreach (Entity entity in followers ) {
+                 if ( entity.ContactArea == ContactArea ) {
+                     entity.Jump(20);
+                 }
+             }*/
         }
 
         public virtual void OnCountdownEnd(long id)
@@ -309,9 +314,18 @@ namespace DoubleMMPrjc
         public virtual void OnContactAreaEnter(ContactArea contactArea)
         {
             foreach (NPC npc in FollowersList) {
-                if (npc.ContactArea != null && !npc.FollowTarget( this )) {
-                    npc.StartPathRefind( 0.7f );
+                if (!npc.FollowTarget( this )) {
+                    npc.StartPathRefind( pathRefindTimer );
                 }
+
+                //bool b = npc.FollowTarget( this );
+                /* if (npc.ContactArea != null && !npc.FollowTarget( this )) {
+                     npc.SetReachState();
+                     //npc.SetWatchState();
+                     Debug.Log("refind by enter");
+                     
+                 }
+                 Debug.Log("dont refind again");*/
             }
         }
         public abstract void OnContactAreaExit(ContactArea contactArea);

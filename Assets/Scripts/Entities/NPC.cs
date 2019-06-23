@@ -71,9 +71,6 @@ namespace DoubleMMPrjc
                     case AIState.REACH:
                         ReachUpdate();
                         break;
-                    case AIState.WAIT:
-                        RefindUpdate();
-                        break;
                     case AIState.FOLLOW:
                         FollowUpdate();
                         break;
@@ -101,13 +98,6 @@ namespace DoubleMMPrjc
         public virtual void SetReachState(string reason = null)
         {
             state = AIState.REACH;
-            OnAnyStateChange( reason );
-            reachDirectionUpdate = 0;
-        }
-
-        public virtual void SetRefindState(string reason = null)
-        {
-            state = AIState.WAIT;
             OnAnyStateChange( reason );
             reachDirectionUpdate = 0;
         }
@@ -174,11 +164,6 @@ namespace DoubleMMPrjc
                     Move( jumpSpeed.current );
                 }
             }
-        }
-
-        public virtual void RefindUpdate()
-        {
-            OnAnyStateUpdate();
         }
 
         public virtual void FollowUpdate()
@@ -280,8 +265,12 @@ namespace DoubleMMPrjc
             } else {
                 currentPath.Clear();
                 currentCn = null;
-                currentTarget = entityToFollowAfterPath.transform;
-                SetFollowState( "path has ended and now is time to reach last target" );
+                if (entityToFollowAfterPath.ContactArea != ContactArea ) {
+                    FollowTarget(entityToFollowAfterPath);
+                } else {
+                    currentTarget = entityToFollowAfterPath.transform;
+                    SetFollowState( "path has ended and now is time to reach last target" );
+                }
             }
         }
 
@@ -328,10 +317,20 @@ namespace DoubleMMPrjc
             target.AddFollower( this );
 
             NextNode();
-            SetReachState( "player is in watch range" );
+            SetReachState( "found path to target" );
+            TimerManager.Stop( refindPathCountdownId );
 
             return true;
         }
+
+        public void OnDrawGizmos()
+        {
+            if ( !isDead ) {
+                DrawGizmos();
+            }
+        }
+
+        public abstract void DrawGizmos();
 
         /// <summary>
         /// Chase/follow to given target if only it's has same contact area
@@ -439,7 +438,8 @@ namespace DoubleMMPrjc
             // RESET ALL FIELDS THAT ARE USED FOR AI MOVEMENT
             currentPath.Clear();
             currentCn = null;
-            entityToFollowAfterPath = null;
+            //23.06.19
+            //entityToFollowAfterPath = null;
             AIPathList pathList = AIManager.FindPath( this, entity );
             if (pathList != null) {
                 currentPath = pathList;

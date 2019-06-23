@@ -42,23 +42,20 @@ namespace DoubleMMPrjc
             reachCountdownId = TimerManager.Create( REACH_TIME, this );
         }
 
-        public void OnDrawGizmos()
+        public override void DrawGizmos()
         {
-            if (!isDead) {
-                if (GameManager.DrawEnemyRange) {
-                    Gizmos.color = Color.red;
-                    Gizmos.DrawWireSphere( transform.position, rangeToNextState );
-                    Gizmos.color = Color.green;
-                    Gizmos.DrawWireSphere( transform.position, rangeToKeepThisState );
-                }
-                if (GameManager.DrawAIDestination) {
-                    Gizmos.color = Color.blue;
-                    if (currentTarget != null) {
-                        Gizmos.DrawLine( transform.position, currentTarget.position );
-                    }
+            if (GameManager.DrawEnemyRange) {
+                Gizmos.color = Color.red;
+                Gizmos.DrawWireSphere( transform.position, rangeToNextState );
+                Gizmos.color = Color.green;
+                Gizmos.DrawWireSphere( transform.position, rangeToKeepThisState );
+            }
+            if (GameManager.DrawAIDestination) {
+                Gizmos.color = Color.blue;
+                if (currentTarget != null) {
+                    Gizmos.DrawLine( transform.position, currentTarget.position );
                 }
             }
-
         }
         #endregion
 
@@ -321,7 +318,6 @@ namespace DoubleMMPrjc
                     Debug.Log( "Starting interval refinding(FOLLOW)..." );
                     StartPathRefind( 0.7f );
                 } else if (!FollowTarget( followedEntity )) {
-                    Debug.Log( "bam FOLLOW" );
                     SetWatchState( "entity had FOLLOW state, enters new area that doesn't\n" +
                                    "contains node , propably fallen on wrong area after jump,\n" +
                                    "had to find new path but cannot find one to reach target" );

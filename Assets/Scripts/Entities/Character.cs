@@ -237,9 +237,6 @@ namespace DoubleMMPrjc
 
         public override void OnContactAreaExit(ContactArea contactArea)
         {
-            foreach ( NPC follower in FollowersList ) {
-              //  follower.SetWaitState(8f);
-            }
         }
         #endregion
 

@@ -28,8 +28,8 @@ MonoBehaviour:
     endId: 7
     directionType: 0
     active: 1
-    onStartAction: 1
-    onEndAction: 1
+    onStartAction: 0
+    onEndAction: 0
   - start: {fileID: 0}
     end: {fileID: 0}
     startId: 11

@@ -17,6 +17,7 @@ namespace DoubleMMPrjc
             private Dictionary<long, Node> staticNodes = new Dictionary<long, Node>();
             private LinkedList<ContactArea> contactAreas = new LinkedList<ContactArea>();
             private ObjectPool<Dummy> dummies;
+            private ObjectPool<Node> dummyNodes;
 
             [SerializeField] private bool logStatCalls = false;
             private int findPathCalls = 0;
@@ -54,9 +55,8 @@ namespace DoubleMMPrjc
                 } else {
                     Debug.LogWarning( "No nodes set on the map" );
                 }
-
-
                 dummies = new ObjectPool<Dummy>( dummyAsset, "Dummies" );
+                dummyNodes = new ObjectPool<Node> (prefabNode, 5, true, "DummyNodes");
             }
 
             /// <summary>
@@ -69,7 +69,7 @@ namespace DoubleMMPrjc
             {
                 Dummy dummy = GetDummy( position );
                 AIPathList aIPathList = FindPath( ai, dummy );
-                Destroy( dummy.gameObject );
+                dummy.gameObject.SetActive( false );
                 return aIPathList;
             }
 
@@ -93,7 +93,8 @@ namespace DoubleMMPrjc
                 // ZNAJDUJEMY NAJBLIŻSZEGO NODE'A KOŃCOWI
                 Node end = GetNearestNode( targetNodes, target.transform.position );
                 // TWORZYMY POZORNEGO NODE'A
-                Node start = Instantiate( Instance.prefabNode, ai.transform.position, ai.transform.rotation );
+                //Node start = Instantiate( Instance.prefabNode, ai.transform.position, ai.transform.rotation );
+                Node start = Instance.dummyNodes.GetPooledObject( ai.transform.position );
                 // OBLICZAMY HEURESTYKE DLA PIERWSZEGO NODE'A
                 start.CalcHeurestic( end );
                 // DODAJEMY KRAWĘDZIE MIĘDZY NOWYM NODE'EM A NAJBLIŻSZYMI
@@ -137,7 +138,7 @@ namespace DoubleMMPrjc
                 foreach (Node node in Instance.staticNodes.Values) {
                     node.Refresh();
                 }
-                Destroy( start.gameObject );
+                start.gameObject.SetActive( false );
                 return path;
             }
 

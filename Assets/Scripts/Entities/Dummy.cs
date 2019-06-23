@@ -42,6 +42,11 @@ namespace DoubleMMPrjc
         {
             // IT'S JUST DUMMY
         }
+
+        public override void DrawGizmos()
+        {
+           
+        }
     }
 
 }
