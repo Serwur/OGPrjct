@@ -1,4 +1,5 @@
 ﻿using DoubleMMPrjc.Utility;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -201,6 +202,11 @@ namespace DoubleMMPrjc
                 return Instance.dummies.GetPooledObject( position );
             }
 
+            public static void ReturnDummy(Dummy dummy)
+            {
+                Instance.dummies.ReturnPooledObject( dummy );
+            }
+
             private static Node GetMinNode(List<Node> nodes)
             {
                 if (nodes.Count == 0)
@@ -220,7 +226,6 @@ namespace DoubleMMPrjc
                 nodes.RemoveAt( minIndex );
                 return minNode;
             }
-
         }
     }
 }

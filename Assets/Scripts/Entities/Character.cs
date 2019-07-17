@@ -1,8 +1,8 @@
 ﻿using DoubleMMPrjc.AI;
+using DoubleMMPrjc.Timer;
 using Inputs;
 using System.Collections.Generic;
 using UnityEngine;
-using DoubleMMPrjc.Timer;
 
 namespace DoubleMMPrjc
 {
@@ -99,19 +99,17 @@ namespace DoubleMMPrjc
         #endregion
 
         #region Public Methods
-        /// <summary>
-        /// Do zaimplementowania skrypt ruchu gracza.
-        /// </summary>
-        public void Move(float x)
+        public override bool Move(float moveSpeed)
         {
-            if (canMove) {
-                lookDirection = x > 0 ? 1 : -1;
+            if (base.Move( moveSpeed )) {
                 rb.velocity = new Vector3( 0, rb.velocity.y );
                 animator.SetBool( "isRunning", true );
-                transform.Translate( new Vector3( x * moveSpeed.max * Time.deltaTime, 0 ), Space.World );
-                transform.rotation = Quaternion.LookRotation( new Vector3( 0, 0, lookDirection ), transform.up );
+                return true;
             }
+            return false;
         }
+
+
 
         /// <summary>
         /// Just a simple jump method
@@ -132,15 +130,15 @@ namespace DoubleMMPrjc
             if (TimerManager.HasEnded( simpleAttackCountdown )) {
                 // W innym wypadku jest on wykonany, ale jeżeli jesteśmy w aktualnie w locie
                 // to atak jest wykonany w miejscu
-                Vector3 attackDirection = new Vector3( SIMPLE_ATTACK_MOVE / 1.3f * lookDirection, rb.velocity.y );
+                Vector3 attackDirection = new Vector3( SIMPLE_ATTACK_MOVE / 1.3f * lookDirection.x, rb.velocity.y );
                 if (IsTouchingGround())
                     rb.velocity = attackDirection;
                 // Przypisujemy ostatni klawisz ze zwykłego ataku oraz resetujemy timer
                 TimerManager.Reset( simpleAttackCountdown );
                 weapon.SetNextAttackInfo(
                     new Attack( damage.max,
+                    (int) lookDirection.x,
                     lookDirection,
-                    new Vector2( lookDirection, 0 ),
                     SIMPLE_ATTACK_MOVE,
                     SIMPLE_ATTACK_DISABLE_TIME ),
                     SIMPLE_ATTACK_TIME + 0.08F );
@@ -175,14 +173,13 @@ namespace DoubleMMPrjc
         {
             if (TimerManager.HasEnded( backwardAttackCountdown )) {
                 TimerManager.Reset( backwardAttackCountdown );
-                lookDirection *= -1;
-                rb.velocity = new Vector3( SIMPLE_ATTACK_MOVE * 2 * lookDirection, rb.velocity.y );
+                TurnOpposite();
+                rb.velocity = new Vector3( SIMPLE_ATTACK_MOVE * 2 * lookDirection.x, rb.velocity.y );
                 canMove = false;
-                transform.rotation = Quaternion.LookRotation( new Vector3( 0, 0, lookDirection ), transform.up );
                 weapon.SetNextAttackInfo(
                     new Attack( damage.current * 2,
+                    (int) lookDirection.x,
                     lookDirection,
-                    new Vector3( lookDirection, 0 ),
                     SIMPLE_ATTACK_MOVE * 2,
                     BACKWARD_ATTACK_DISABLE_TIME ),
                     BACKWARD_ATTACK_TIME + 0.15F );
@@ -291,7 +288,7 @@ namespace DoubleMMPrjc
                             break;
                         case ButtonCode.LeftBumper:
                             if (canMove) {
-                               // mainSkill.GetComponent<MainSkill>().ChangeWorld();
+                                // mainSkill.GetComponent<MainSkill>().ChangeWorld();
                             }
                             currentCombination.AddLast( code );
                             break;
@@ -348,6 +345,7 @@ namespace DoubleMMPrjc
         public void OnStickHold(JoystickDoubleAxis stick)
         {
             if (stick.Code == AxisCode.LeftStick && !( IsPaused || isDead )) {
+                TurnTo( stick.X );
                 Move( stick.X );
             }
         }

@@ -17,6 +17,7 @@ namespace DoubleMMPrjc
         public Attribute moveSpeed;
         public Attribute jumpPower;
         public Attribute damage;
+        public Attribute jumpSpeed;
 
         [Header( "Regeneration" )]
         public float regenHitPoints = 0f;
@@ -57,7 +58,7 @@ namespace DoubleMMPrjc
         protected BoxCollider coll;
         [SerializeField] protected ContactArea contactArea;
         // -1 = left, 1 = right
-        protected int lookDirection = 1;
+        protected Vector2 lookDirection = new Vector2(1,0);
         protected float lastMinFallSpeed = float.MaxValue;
         protected long moveCountdownId;
         #endregion
@@ -218,6 +219,7 @@ namespace DoubleMMPrjc
             moveSpeed.UpdateAttribute();
             jumpPower.UpdateAttribute();
             damage.UpdateAttribute();
+            jumpSpeed.UpdateAttribute();
         }
 
         /// <summary>
@@ -228,7 +230,7 @@ namespace DoubleMMPrjc
         {
             if (!isBlocking && attack.AttackDirection == 0)
                 return false;
-            return attack.AttackDirection != lookDirection;
+            return attack.AttackDirection != lookDirection.x;
         }
 
         public virtual void OnFallen(float speedWhenFalling)
@@ -287,11 +289,40 @@ namespace DoubleMMPrjc
         {
             rb.velocity = new Vector2( rb.velocity.x, jumpPower );
             lastMinFallSpeed = 0;
-            /* foreach (Entity entity in followers ) {
-                 if ( entity.ContactArea == ContactArea ) {
-                     entity.Jump(20);
-                 }
-             }*/
+        }
+
+        public virtual bool Move(float moveSpeed)
+        {
+            if (moveSpeed <= 0 && !canMove)
+                return false;
+            transform.Translate( lookDirection * moveSpeed * Time.fixedDeltaTime, Space.World );
+            return true;
+        }
+
+        public void TurnTo(float x)
+        {
+            if (x >= 1)
+                TurnRight();
+            else
+                TurnLeft();
+        }
+
+        public void TurnLeft()
+        {
+            lookDirection.x = -1;
+            ChangeDirection();
+        }
+
+        public void TurnRight()
+        {
+            lookDirection.x = 1;
+            ChangeDirection();
+        }
+
+        public void TurnOpposite()
+        {
+            lookDirection.x *= -1;
+            ChangeDirection();
         }
 
         public virtual void OnCountdownEnd(long id)
@@ -328,13 +359,18 @@ namespace DoubleMMPrjc
                  Debug.Log("dont refind again");*/
             }
         }
+
+        private void ChangeDirection()
+        {
+            transform.rotation = Quaternion.LookRotation( new Vector3( 0, 0, lookDirection.x ), transform.up );
+        }
+
         public abstract void OnContactAreaExit(ContactArea contactArea);
         #endregion
 
         #region Setter And Getters
         public bool IsPaused { get => isPaused; set => isPaused = value; }
-        protected int LookDirection { get => lookDirection; }
-        public Vector3 LookRotation { get => new Vector3( lookDirection, 0 ); }
+        public Vector2 LookRotation { get => lookDirection; }
         public ContactArea ContactArea { get => contactArea; set => contactArea = value; }
         public Entity[] FollowersList { get => Utility.Collections.ToArray( followers ); }
         #endregion
