@@ -1,12 +1,9 @@
 ﻿using DoubleMMPrjc.AI;
-using DoubleMMPrjc.Timer;
-using UnityEngine;
 
 namespace DoubleMMPrjc
 {
-    public abstract class NPC : Entity
+    public abstract class NPC : Entity, IStateAIListener
     {
-
         public AIBehaviour ai;
 
         #region Unity API
@@ -27,17 +24,12 @@ namespace DoubleMMPrjc
         }
         #endregion
 
-     
-        
-
         public void OnDrawGizmos()
         {
-            if ( !isDead ) {
+            if (!isDead) {
                 DrawGizmos();
             }
         }
-
-       
 
         public override void Die()
         {
@@ -47,22 +39,68 @@ namespace DoubleMMPrjc
 
         public abstract void DrawGizmos();
 
+        public void SetSleepState(AIMoveState oldState)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void SetWatchState(AIMoveState oldState)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void SetReachState(AIMoveState oldState)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void SetAttackState(AIMoveState oldState)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void SetFollowState(AIMoveState oldState)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void OnAnyStateChange(AIMoveState oldState, AIMoveState newState)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void SleepUpdate()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void WatchUpdate()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void ReachUpdate()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void FollowUpdate()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void AttackUpdate()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void OnAnyStateUpdate(AIMoveState currentState)
+        {
+            throw new System.NotImplementedException();
+        }
+
         #region Getters and Setters
-        /// <summary>
-        /// <code>TRUE</code> if AI has path, otherwise <code>FALSE</code>
-        /// </summary>
-        public bool HasPath { get => !currentPath.IsFullyEmpty; }
-        /// <summary>
-        /// <code>TRUE</code> if AI path has ended, otherwise <code>FALSE</code>
-        /// </summary>
-        public bool PathHasEnded { get => currentPath.IsEmpty; }
-        public ComplexNode CurrentComplexNode { get => currentCn; }
-        /// <summary>
-        /// State of enemy's AI
-        /// </summary>
-        public AIState State { get => state; }
-        public AIMovingState MovingState { get => movingState; }
+
         #endregion
     }
 }
- 

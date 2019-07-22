@@ -124,7 +124,7 @@ namespace DoubleMMPrjc
         public override void OnAnyStateUpdate()
         {
             checkPeriod++;
-            if (landed && State != AIState.ATTACK && CheckPeriod( ATTACK_CHECK_PERIOD ) && IsPlayerInRange( REACH_RANGE )) {
+            if (landed && State != AIMoveState.ATTACK && CheckPeriod( ATTACK_CHECK_PERIOD ) && IsPlayerInRange( REACH_RANGE )) {
                 SetAttackState( "player in reach range" );
                 return;
             }
@@ -282,14 +282,14 @@ namespace DoubleMMPrjc
                 if (!FollowTarget( followedEntity )) {
                     TimerManager.Reset( refindPathCountdownId );
                 }
-            } else if (id == watchCountdownId && State == AIState.WATCH) {
+            } else if (id == watchCountdownId && State == AIMoveState.WATCH) {
                 if (IsPlayerInRange( SLEEP_RANGE )) {
                     TimerManager.Reset( watchCountdownId );
                 } else {
                     TimerManager.Stop( refindPathCountdownId );
                     SetSleepState( "player wasn't in sleep range while enemy had WATCH state when timer has ended" );
                 }
-            } else if (id == reachCountdownId && ( State == AIState.REACH || State == AIState.FOLLOW )) {
+            } else if (id == reachCountdownId && ( State == AIMoveState.REACH || State == AIMoveState.FOLLOW )) {
                 if (IsPlayerInRange( WATCH_RANGE )) {
                     TimerManager.Reset( reachCountdownId );
                 } else {
@@ -313,7 +313,7 @@ namespace DoubleMMPrjc
         {
             // Checking in follow state when entity (propably) fall into wrong contact
             // area by moving or player push
-            if (State == AIState.FOLLOW && !( contactArea == followedEntity.ContactArea )) {
+            if (State == AIMoveState.FOLLOW && !( contactArea == followedEntity.ContactArea )) {
                 if (followedEntity.ContactArea == null) {
                     Debug.Log( "Starting interval refinding(FOLLOW)..." );
                     StartPathRefind( 0.7f );
@@ -324,7 +324,7 @@ namespace DoubleMMPrjc
                 }
             }
             // Checking in reach state when entity (propably) fall into wrong contact area
-            else if (State == AIState.REACH && HasPath && !contactArea.Contains( currentCn.Node )) {
+            else if (State == AIMoveState.REACH && HasPath && !contactArea.Contains( currentCn.Node )) {
                 if (followedEntity.ContactArea == null) {
                     StartPathRefind( 0.7f );
                 } else if (!FollowTarget( entityToFollowAfterPath )) {

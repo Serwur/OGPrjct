@@ -28,11 +28,6 @@ namespace DoubleMMPrjc
             // IT'S JUST DUMMY
         }
 
-        public override void OnAnyStateUpdate()
-        {
-            // IT'S JUST DUMMY
-        }
-
         public override void OnContactAreaEnter(ContactArea contactArea)
         {
             // IT'S JUST DUMMY
