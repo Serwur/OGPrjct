@@ -344,20 +344,20 @@ namespace DoubleMMPrjc
 
         public virtual void OnContactAreaEnter(ContactArea contactArea)
         {
-            foreach (NPC npc in FollowersList) {
-                if (!npc.FollowTarget( this )) {
-                    npc.StartPathRefind( pathRefindTimer );
-                }
-
-                //bool b = npc.FollowTarget( this );
-                /* if (npc.ContactArea != null && !npc.FollowTarget( this )) {
-                     npc.SetReachState();
-                     //npc.SetWatchState();
-                     Debug.Log("refind by enter");
-                     
+            /* foreach (NPC npc in FollowersList) {
+                 if (!npc.FollowTarget( this )) {
+                     npc.StartPathRefind( pathRefindTimer );
                  }
-                 Debug.Log("dont refind again");*/
-            }
+
+                 //bool b = npc.FollowTarget( this );
+                 /* if (npc.ContactArea != null && !npc.FollowTarget( this )) {
+                      npc.SetReachState();
+                      //npc.SetWatchState();
+                      Debug.Log("refind by enter");
+
+                  }
+                  Debug.Log("dont refind again");
+             }*/
         }
 
         private void ChangeDirection()

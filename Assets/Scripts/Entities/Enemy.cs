@@ -52,13 +52,14 @@ namespace DoubleMMPrjc
             }
             if (GameManager.DrawAIDestination) {
                 Gizmos.color = Color.blue;
-                if (currentTarget != null) {
+              /*  if (currentTarget != null) {
                     Gizmos.DrawLine( transform.position, currentTarget.position );
-                }
+                }*/
             }
         }
         #endregion
 
+        /*
         public override void SleepUpdate()
         {
             base.SleepUpdate();
@@ -212,10 +213,10 @@ namespace DoubleMMPrjc
             }
             */
 
-            rangeToKeepThisState = REACH_RANGE;
+            /*rangeToKeepThisState = REACH_RANGE;
             rangeToNextState = 0;
         }
-
+    
         protected override void OnAnyStateChange(string reason)
         {
             base.OnAnyStateChange( reason );
@@ -335,6 +336,7 @@ namespace DoubleMMPrjc
 
             }
         }
+        */
 
         public override void OnContactAreaExit(ContactArea contactArea)
         {
