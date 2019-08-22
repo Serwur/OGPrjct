@@ -1,9 +1,12 @@
-﻿using UnityEngine;
+﻿using DoubleMMPrjc.AI;
+using DoubleMMPrjc.Timer;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace DoubleMMPrjc
 {
     [RequireComponent( typeof( Rigidbody ) )]
-    public abstract class Entity : MonoBehaviour, TimerManager.IOnCountdownEnd
+    public abstract class Entity : MonoBehaviour, IOnCountdownEnd
     {
         public static readonly float MIN_DAMAGEABLE_FALL_SPEED = 30f;
 
@@ -19,12 +22,11 @@ namespace DoubleMMPrjc
         public float regenHitPoints = 0f;
         public float regenSourcePoints = 0f;
 
+        [Header( "Multiplayers" )]
+        [Range( 0.01f, 10f )] public float damageTakenMult = 1f;
+        [Range( 0.01f, 10f )] public float fallDamageMult = 1f;
+
         [Header( "Utility" )]
-        /// <summary>
-        /// <br>Ważne pole, które informuje nas o tym czy jednostke jest martwa, jeżeli tak to wiele akcji nie jest wykonywane.</br>
-        /// <br>Pole jest po to, aby kolejno zdecydować co zrobić z jednostką, nie koniecznie musimy ją usuwać z gry, tylko</br>
-        /// <br>wykorzystać w innym potrzebnym etapie.</br>
-        /// </summary>
         [SerializeField] protected bool isDead = false;
         [SerializeField] protected bool canMove = true;
         [SerializeField] protected bool isInviolability = false;
@@ -38,6 +40,7 @@ namespace DoubleMMPrjc
 
         [Header( "Others" )]
         public LayerMask groundLayers;
+        [Range( 0.05f, 1.5f )] public float pathRefindTimer = 0.6f;
 
         #region Dev Fields
         [Header( "Dev Tools" )]
@@ -48,8 +51,11 @@ namespace DoubleMMPrjc
         #endregion
 
         #region Protected Fields
+        [SerializeField] private HashSet<NPC> followers = new HashSet<NPC>();
+
         protected Rigidbody rb;
         protected BoxCollider coll;
+        [SerializeField] protected ContactArea contactArea;
         // -1 = left, 1 = right
         protected int lookDirection = 1;
         protected float lastMinFallSpeed = float.MaxValue;
@@ -81,7 +87,7 @@ namespace DoubleMMPrjc
             jumpPower.current = jumpPower.max;
             damage.current = damage.max;
 
-            moveCountdownId = TimerManager.CreateCountdown( this );
+            moveCountdownId = TimerManager.Create( this );
         }
 
         public virtual void FixedUpdate()
@@ -96,6 +102,14 @@ namespace DoubleMMPrjc
             if (IsTouchingGround()) {
                 OnFallen( lastMinFallSpeed * -1 );
                 lastMinFallSpeed = float.MaxValue;
+            }
+        }
+
+        public void OnDestroy()
+        {
+            // Remove this entity from contact area coz it not exists anymore
+            if (ContactArea != null) {
+                ContactArea.RemoveEntity( this );
             }
         }
         #endregion
@@ -143,10 +157,10 @@ namespace DoubleMMPrjc
             // JEŻELI PUSH DISABLE TIME > 0 I JEDNOSTKA NIE BLOKUJE TO UNIEAKTYWNIA RUCH
             if (pushDisableTime > 0 && !blocked) {
                 canMove = false;
-                TimerManager.GetRemaingCountdown( moveCountdownId, out float seconds );
+                TimerManager.GetRemaing( moveCountdownId, out float seconds );
                 if (seconds < pushDisableTime) {
                     // USTAWIA TIMER PO KTÓRYM JEDNOSTKA ODZYSKUJE MOŻLIWOŚĆ RUCHU
-                    TimerManager.ResetCountdown( moveCountdownId, pushDisableTime );
+                    TimerManager.Reset( moveCountdownId, pushDisableTime );
                 }
             }
             // NADAJE PRĘDKOŚĆ
@@ -269,19 +283,60 @@ namespace DoubleMMPrjc
             isDead = true;
         }
 
+        public virtual void Jump(float jumpPower)
+        {
+            rb.velocity = new Vector2( rb.velocity.x, jumpPower );
+            lastMinFallSpeed = 0;
+            /* foreach (Entity entity in followers ) {
+                 if ( entity.ContactArea == ContactArea ) {
+                     entity.Jump(20);
+                 }
+             }*/
+        }
+
         public virtual void OnCountdownEnd(long id)
         {
             if (id == moveCountdownId) {
                 canMove = true;
-                Debug.Log( "timer with id : " + id + " has ended" );
             }
         }
+
+        public bool AddFollower(NPC follower)
+        {
+            return followers.Add( follower );
+        }
+
+        public bool RemoveFollower(NPC follower)
+        {
+            return followers.Remove( follower );
+        }
+
+        public virtual void OnContactAreaEnter(ContactArea contactArea)
+        {
+            foreach (NPC npc in FollowersList) {
+                if (!npc.FollowTarget( this )) {
+                    npc.StartPathRefind( pathRefindTimer );
+                }
+
+                //bool b = npc.FollowTarget( this );
+                /* if (npc.ContactArea != null && !npc.FollowTarget( this )) {
+                     npc.SetReachState();
+                     //npc.SetWatchState();
+                     Debug.Log("refind by enter");
+                     
+                 }
+                 Debug.Log("dont refind again");*/
+            }
+        }
+        public abstract void OnContactAreaExit(ContactArea contactArea);
         #endregion
 
         #region Setter And Getters
         public bool IsPaused { get => isPaused; set => isPaused = value; }
         protected int LookDirection { get => lookDirection; }
         public Vector3 LookRotation { get => new Vector3( lookDirection, 0 ); }
+        public ContactArea ContactArea { get => contactArea; set => contactArea = value; }
+        public Entity[] FollowersList { get => Utility.Collections.ToArray( followers ); }
         #endregion
     }
 }

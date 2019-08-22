@@ -48,19 +48,11 @@ namespace DoubleMMPrjc
             StartLerping();
 
 
-           /* if (isInRealLife == true)
+            if (isInRealLife == true)
             {
                 isInRealLife = false;
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-=======
->>>>>>> Drag&DropUI
-            }*/
-            if (isInRealLife == false)
-=======
             }
             else if (isInRealLife == false)
->>>>>>> Stashed changes
             {
                 isInRealLife = true;
             }
@@ -71,7 +63,7 @@ namespace DoubleMMPrjc
         void Update()
         {
 
-            Debug.Log(isInRealLife + " is in real life");
+            //Debug.Log(isInRealLife + " is in real life");
             if (isInRealLife == true && changingCircleAtTheMoment == false)
             {
                 

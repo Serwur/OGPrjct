@@ -1,12 +1,17 @@
-﻿using Inputs;
+﻿using DoubleMMPrjc.AI;
+using Inputs;
 using System.Collections.Generic;
 using UnityEngine;
+using DoubleMMPrjc.Timer;
 
 namespace DoubleMMPrjc
 {
     [RequireComponent( typeof( PInput ) )]
-    public class Character : Entity, IStickListener, IButtonListener,
-    ITriggerListener, IArrowsListener
+    public class Character : Entity,
+        IStickListener,
+        IButtonListener,
+        ITriggerListener,
+        IArrowsListener
     {
         #region Static Fields
         public static readonly float SIMPLE_ATTACK_TIME = 0.17f;
@@ -66,10 +71,10 @@ namespace DoubleMMPrjc
         public override void Start()
         {
             base.Start();
-            simpleAttackCountdown = TimerManager.StartCountdown( SIMPLE_ATTACK_TIME, this );
-            flyAttackCountdown = TimerManager.StartCountdown( FLY_ATTACK_TIME, this );
-            backwardAttackCountdown = TimerManager.StartCountdown( BACKWARD_ATTACK_TIME, this );
-            comboBreakCountdown = TimerManager.StartCountdown( COMBO_BREAK_TIME, this );
+            simpleAttackCountdown = TimerManager.Start( SIMPLE_ATTACK_TIME, this );
+            flyAttackCountdown = TimerManager.Start( FLY_ATTACK_TIME, this );
+            backwardAttackCountdown = TimerManager.Start( BACKWARD_ATTACK_TIME, this );
+            comboBreakCountdown = TimerManager.Start( COMBO_BREAK_TIME, this );
 
             /*Combo combo1 = new Combo( this, "Szakalaka",
                 new ButtonCode[] { ButtonCode.Y, ButtonCode.A, ButtonCode.X, ButtonCode.B },
@@ -111,11 +116,10 @@ namespace DoubleMMPrjc
         /// <summary>
         /// Just a simple jump method
         /// </summary>
-        public void Jump(float jumpPower)
+        public override void Jump(float jumpPower)
         {
-            rb.velocity = new Vector2( rb.velocity.x, jumpPower );
+            base.Jump( jumpPower );
             animator.SetBool( "isInAir", true );
-            lastMinFallSpeed = 0;
         }
 
         /// <summary>
@@ -132,7 +136,7 @@ namespace DoubleMMPrjc
                 if (IsTouchingGround())
                     rb.velocity = attackDirection;
                 // Przypisujemy ostatni klawisz ze zwykłego ataku oraz resetujemy timer
-                TimerManager.ResetCountdown( simpleAttackCountdown );
+                TimerManager.Reset( simpleAttackCountdown );
                 weapon.SetNextAttackInfo(
                     new Attack( damage.max,
                     lookDirection,
@@ -152,7 +156,7 @@ namespace DoubleMMPrjc
         public void FlyAttack()
         {
             if (TimerManager.HasEnded( flyAttackCountdown )) {
-                TimerManager.ResetCountdown( flyAttackCountdown );
+                TimerManager.Reset( flyAttackCountdown );
                 rb.velocity = new Vector3( rb.velocity.x, FLY_ATTACK_MOVE );
                 weapon.SetNextAttackInfo(
                     new Attack( damage.current,
@@ -170,7 +174,7 @@ namespace DoubleMMPrjc
         public void BackwardAttack()
         {
             if (TimerManager.HasEnded( backwardAttackCountdown )) {
-                TimerManager.ResetCountdown( backwardAttackCountdown );
+                TimerManager.Reset( backwardAttackCountdown );
                 lookDirection *= -1;
                 rb.velocity = new Vector3( SIMPLE_ATTACK_MOVE * 2 * lookDirection, rb.velocity.y );
                 canMove = false;
@@ -230,6 +234,10 @@ namespace DoubleMMPrjc
             base.OnFallen( speedWhenFalling );
             animator.SetBool( "isInAir", false );
         }
+
+        public override void OnContactAreaExit(ContactArea contactArea)
+        {
+        }
         #endregion
 
         #region Buttons
@@ -249,7 +257,7 @@ namespace DoubleMMPrjc
         {
             if (!isDead) {
                 if (!isPaused) {
-                    TimerManager.ResetCountdown( comboBreakCountdown );
+                    TimerManager.Reset( comboBreakCountdown );
                     switch (code) {
                         case ButtonCode.A:
                             if (canMove) {
@@ -282,10 +290,8 @@ namespace DoubleMMPrjc
                             currentCombination.AddLast( code );
                             break;
                         case ButtonCode.LeftBumper:
-                            Debug.Log( "0" );
                             if (canMove) {
-                                Debug.Log( "1" );
-                                mainSkill.GetComponent<MainSkill>().ChangeWorld();
+                               // mainSkill.GetComponent<MainSkill>().ChangeWorld();
                             }
                             currentCombination.AddLast( code );
                             break;
@@ -403,5 +409,6 @@ namespace DoubleMMPrjc
                 }
             }
         }
+
     }
 }
