@@ -51,8 +51,13 @@ namespace DoubleMMPrjc
            /* if (isInRealLife == true)
             {
                 isInRealLife = false;
+<<<<<<< Updated upstream
             }*/
             if (isInRealLife == false)
+=======
+            }
+            else if (isInRealLife == false)
+>>>>>>> Stashed changes
             {
                 isInRealLife = true;
             }
