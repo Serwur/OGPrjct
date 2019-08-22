@@ -51,7 +51,10 @@ namespace DoubleMMPrjc
            /* if (isInRealLife == true)
             {
                 isInRealLife = false;
+<<<<<<< HEAD
 <<<<<<< Updated upstream
+=======
+>>>>>>> Drag&DropUI
             }*/
             if (isInRealLife == false)
 =======
