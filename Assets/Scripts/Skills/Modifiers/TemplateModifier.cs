@@ -41,7 +41,7 @@ namespace DoubleMMPrjc
             countdown = TimerManager.Start( time, this, true );
         }
 
-        public void OnCountdownEnd(long id)
+        public void OnCountdownEnd(long id, float overtime)
         {
             attribute.RemoveModifier( this );
         }

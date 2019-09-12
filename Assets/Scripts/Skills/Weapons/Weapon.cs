@@ -50,7 +50,7 @@ namespace DoubleMMPrjc
             }
         }
 
-        public void OnCountdownEnd(long id)
+        public void OnCountdownEnd(long id, float overtime)
         {
             coll.enabled = false;
             attack = null;

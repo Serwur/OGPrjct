@@ -294,13 +294,6 @@ namespace DoubleMMPrjc
              }*/
         }
 
-        public virtual void OnCountdownEnd(long id)
-        {
-            if (id == moveCountdownId) {
-                canMove = true;
-            }
-        }
-
         public bool AddFollower(NPC follower)
         {
             return followers.Add( follower );
@@ -329,6 +322,13 @@ namespace DoubleMMPrjc
             }
         }
         public abstract void OnContactAreaExit(ContactArea contactArea);
+
+        public virtual void OnCountdownEnd(long id, float overtime)
+        {
+            if (id == moveCountdownId) {
+                canMove = true;
+            }
+        }
         #endregion
 
         #region Setter And Getters

@@ -214,9 +214,9 @@ namespace DoubleMMPrjc
         /// For timer when one from countdowns ends.
         /// </summary>
         /// <param name="id">Countdown id</param>
-        public override void OnCountdownEnd(long id)
+        public override void OnCountdownEnd(long id, float overtime)
         {
-            base.OnCountdownEnd( id );
+            base.OnCountdownEnd( id, overtime );
             if (moveCountdownId != id) {
                 if (id == comboBreakCountdown && currentCombination.Count >= 3) {
                     CheckCombos();

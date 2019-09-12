@@ -89,7 +89,7 @@ namespace DoubleMMPrjc
         }
 
 
-        public void OnCountdownEnd(long id)
+        public void OnCountdownEnd(long id, float overtime)
         {
             if (id == countdownID) {
                 NextChar();

@@ -2,19 +2,20 @@
 {
     namespace AI
     {
+        /// <summary>
+        /// Class is used for AI's path finding with information about <see cref="AIAction"/>
+        /// that must be done when AI reaches specifed <see cref="Node"/>
+        /// </summary>
         public class ComplexNode
         {
-            private Node node;
-            private AIAction action;
-
             public ComplexNode(Node node, AIAction action)
             {
-                this.node = node;
-                this.action = action;
+                Node = node;
+                Action = action;
             }
 
-            public Node Node { get => node; }
-            public AIAction Action { get => action; }
+            public Node Node { get; }
+            public AIAction Action { get; }
         }
 
     }

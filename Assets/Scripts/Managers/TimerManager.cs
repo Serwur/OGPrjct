@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ColdCry.Exception;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -31,8 +32,6 @@ namespace DoubleMMPrjc
             #region Public Fields
             [Header( "Properties" )]
             public float startTime = 0f;
-            [Range( 0.1f, 5f )]
-            public float timeSpeed = 1f;
             #endregion
 
             #region Private Fields
@@ -45,19 +44,16 @@ namespace DoubleMMPrjc
             #region Unity API
             private void Awake()
             {
-                if (Instance == null) {
-                    Instance = this;
-                } else {
-                    Debug.LogError( "Timer::Awake::(Trying to create another TimerManager object!)" );
-                    Destroy( gameObject );
-                    return;
+                if (Instance != null) {
+                    throw new SingletonException( "Cannot create second object of type " + GetType().Name );
                 }
+                Instance = this;
                 time = startTime;
             }
 
-            private void FixedUpdate()
+            private void Update()
             {
-                Tick( Time.fixedDeltaTime );
+                Tick( Time.deltaTime );
             }
             #endregion
 
@@ -96,9 +92,18 @@ namespace DoubleMMPrjc
             public static long Create(float countdown, IOnCountdownEnd listener = null, bool removeWhenEnds = false)
             {
                 if (countdown < 0)
-                    throw new SystemException( "Time for countdown cannot be less than 0!" );
+                    throw new SystemException( "Countdown time cannot be less than 0!" );
                 long id = NextId();
-                Instance.endedCountdowns.Add( id, new Countdown( countdown, listener, removeWhenEnds ) );
+                Instance.endedCountdowns.Add( id, new Countdown( countdown, listener, removeWhenEnds, false ) );
+                return id;
+            }
+
+            public static long CreateSchedule(float interval, IOnCountdownEnd listener = null)
+            {
+                if (interval < 0)
+                    throw new SystemException( "Interval time cannot be less than 0!" );
+                long id = NextId();
+                Instance.endedCountdowns.Add( id, new Countdown( interval, listener, false, true ) );
                 return id;
             }
 
@@ -116,7 +121,16 @@ namespace DoubleMMPrjc
                 if (countdown < 0)
                     throw new Exception( "Time for countdown cannot be less than 0!" );
                 long id = NextId();
-                Instance.notEndedCountdowns.Add( id, new Countdown( countdown, listener, removeWhenEnds ) );
+                Instance.notEndedCountdowns.Add( id, new Countdown( countdown, listener, removeWhenEnds, false ) );
+                return id;
+            }
+
+            public static long StartSchedule(float interval, IOnCountdownEnd listener)
+            {
+                if (interval < 0)
+                    throw new Exception( "Interval time cannot be less than 0!" );
+                long id = NextId();
+                Instance.notEndedCountdowns.Add( id, new Countdown( interval, listener, false, true ) );
                 return id;
             }
 
@@ -181,11 +195,24 @@ namespace DoubleMMPrjc
             /// Checks if countdown with given id has ended.
             /// </summary>
             /// <param name="id">id of countdown</param>
-            /// <returns><b>True</b> if countdown exists, otherwise it returns <b>false</b></returns>
+            /// <returns><b>True</b> if countdown has ended, otherwise returns <b>false</b></returns>
             public static bool HasEnded(long id)
             {
                 if (GetCountdown( id, out Countdown countdown )) {
                     return countdown.HasEnded;
+                }
+                return false;
+            }
+
+            /// <summary>
+            /// Checks if countdown with given id is scheduled.
+            /// </summary>
+            /// <param name="id">id of countdown</param>
+            /// <returns><b>True</b> if countdown is scheduled, otherwise returns <b>false</b></returns>
+            public static bool IsScheduled(long id)
+            {
+                if (GetCountdown( id, out Countdown countdown )) {
+                    return countdown.IsScheduled;
                 }
                 return false;
             }
@@ -199,7 +226,7 @@ namespace DoubleMMPrjc
             {
                 if (GetCountdownNotEnded( id, out Countdown countdown )) {
                     Instance.notEndedCountdowns.Remove( id );
-                    if ( !Instance.endedCountdowns.ContainsKey(id)) {
+                    if (!Instance.endedCountdowns.ContainsKey( id )) {
                         Instance.endedCountdowns.Add( id, countdown );
                     }
                     return true;
@@ -290,21 +317,32 @@ namespace DoubleMMPrjc
             /// <param name="passedTime">Czas, który minął w danej klatce lub "fixed" klatce</param>
             private void Tick(float passedTime)
             {
-                time += passedTime * timeSpeed;
+                time += passedTime;
                 LinkedList<long> countdownsToRemove = new LinkedList<long>();
+
                 foreach (long key in notEndedCountdowns.Keys) {
-                    if (notEndedCountdowns[key].HasEnded) {
-                        countdownsToRemove.AddLast( key );
-                        if (!notEndedCountdowns[key].DestroyWhenEnds)
-                            endedCountdowns.Add( key, notEndedCountdowns[key] );
+                    Countdown countdown = notEndedCountdowns[key];
+                    float overtime = countdown.Overtime;
+                    if (overtime >= 0) {
+
+                        if (!countdown.IsScheduled) {
+                            countdownsToRemove.AddLast( key );
+                            if (countdown.Listener != null)
+                                countdown.Listener.OnCountdownEnd( key, overtime );
+                            if (!countdown.DestroyWhenEnds)
+                                endedCountdowns.Add( key, countdown );
+                        }                          
+                        else {
+                            countdown.Listener.OnCountdownEnd( key, overtime );
+                            countdown.Reset( countdown.CountdownTime );          
+                        }
+                            
                     }
                 }
+
                 foreach (long key in countdownsToRemove) {
                     Countdown countdown = notEndedCountdowns[key];
                     notEndedCountdowns.Remove( key );
-                    if (countdown.Listener != null) {
-                        countdown.Listener.OnCountdownEnd( key );
-                    }
                 }
             }
 
@@ -337,21 +375,6 @@ namespace DoubleMMPrjc
             #endregion
 
             #region Getters And Setters
-            /// <summary>
-            /// How fast time passes. If trying to set 0 or less then it throws exception.
-            /// </summary>
-            public static float TimeSpeed
-            {
-                get {
-                    return Instance.timeSpeed;
-                }
-
-                set {
-                    if (value <= 0f)
-                        throw new SystemException( "Time speed cannot be 0 or less!" );
-                    Instance.timeSpeed = value;
-                }
-            }
             /// <summary>
             /// Time in seconds represented in format: 00
             /// </summary>
@@ -395,17 +418,19 @@ namespace DoubleMMPrjc
 
             private class Countdown
             {
-                private float countdownTime = 0f;
                 private float countdownStartTime = 0f;
                 private float timeSpeed = 1f;
-                private IOnCountdownEnd listener = null;
-                private bool destroyWhenEnds = false;
+                private float countdownTime;
+                private IOnCountdownEnd listener;
+                private bool destroyWhenEnds;
+                private bool isScheduled;
 
-                public Countdown(float countdownTime, IOnCountdownEnd listener, bool destroyWhenEnds)
+                public Countdown(float countdownTime, IOnCountdownEnd listener, bool destroyWhenEnds, bool isScheduled)
                 {
                     this.countdownTime = countdownTime;
                     this.listener = listener;
                     this.destroyWhenEnds = destroyWhenEnds;
+                    this.isScheduled = isScheduled;
                     countdownStartTime = Instance.time;
                 }
 
@@ -427,7 +452,8 @@ namespace DoubleMMPrjc
                 /// <returns>
                 /// <b>True</b>, if countdown ended otherwise <b>false</b>.
                 /// </returns>
-                public virtual bool HasEnded => ( Instance.time - countdownStartTime ) * timeSpeed >= countdownTime;
+                public bool HasEnded => ( Instance.time - countdownStartTime ) * timeSpeed >= countdownTime;
+                public float Overtime => ( Instance.time - countdownStartTime ) * timeSpeed - countdownTime;
                 /// <summary>
                 /// Gets time in seconds to end the countdown.
                 /// </summary>
@@ -447,11 +473,8 @@ namespace DoubleMMPrjc
                 public bool DestroyWhenEnds { get => destroyWhenEnds; set => destroyWhenEnds = value; }
                 public float CountdownTime { get => countdownTime; }
                 public float CountdownStartTime { get => countdownStartTime; }
-                public float TimeSpeed
-                {
-                    get { return timeSpeed; }
-                    set { timeSpeed = value; }
-                }
+                public float TimeSpeed { get => timeSpeed; set => timeSpeed = value; }
+                public bool IsScheduled { get => isScheduled; set => isScheduled = value; }
             }
         }
 
@@ -475,7 +498,7 @@ namespace DoubleMMPrjc
         /// </summary>
         public interface IOnCountdownEnd
         {
-            void OnCountdownEnd(long id);
+            void OnCountdownEnd(long id, float overtime);
         }
     }
 }

@@ -275,9 +275,9 @@ namespace DoubleMMPrjc
             return Vector2.Distance( GameManager.Character.transform.position, transform.position ) <= range;
         }
 
-        public override void OnCountdownEnd(long id)
+        public override void OnCountdownEnd(long id, float overtime)
         {
-            base.OnCountdownEnd( id );
+            base.OnCountdownEnd( id, overtime );
             if (id == refindPathCountdownId) {
                 if (!FollowTarget( followedEntity )) {
                     TimerManager.Reset( refindPathCountdownId );
