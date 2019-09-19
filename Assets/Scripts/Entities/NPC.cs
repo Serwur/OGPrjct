@@ -42,7 +42,7 @@ namespace ColdCry.Objects
         protected long refindPathCountdownId;
 
         [SerializeField] private AIState state = AIState.SLEEP;
-        [SerializeField] private AIMovingState movingState = AIMovingState.WALKING;
+        [SerializeField] private AIMovementStatus movingState = AIMovementStatus.WALKING;
         [SerializeField] private bool logStatusChange = true;
         private int logStatusCount = 1;
 
@@ -250,7 +250,7 @@ namespace ColdCry.Objects
                 currentTarget = currentCn.Node.transform;
                 switch (currentCn.Action) {
                     case AIAction.WALK:
-                        movingState = AIMovingState.WALKING;
+                        movingState = AIMovementStatus.WALKING;
                         SetMoveDirection( currentCn.Node.transform.position );
                         break;
                     case AIAction.JUMP:           
@@ -373,7 +373,7 @@ namespace ColdCry.Objects
         public override void OnFallen(float speedWhenFalling)
         {
             base.OnFallen( speedWhenFalling );
-            movingState = AIMovingState.WALKING;
+            movingState = AIMovementStatus.WALKING;
             landed = true;
         }
 
@@ -386,7 +386,7 @@ namespace ColdCry.Objects
             // Calculating move speed depdends on time need to reach x position of node
             float moveSpeed = ( end.x - transform.position.x ) / JUMP_TIME;
             jumpSpeed.Current = Mathf.Abs( moveSpeed );
-            movingState = AIMovingState.JUMPING;
+            movingState = AIMovementStatus.JUMPING;
             Jump(jumpPower);
         }
 
@@ -463,7 +463,7 @@ namespace ColdCry.Objects
         /// State of enemy's AI
         /// </summary>
         public AIState State { get => state; }
-        public AIMovingState MovingState { get => movingState; }
+        public AIMovementStatus MovingState { get => movingState; }
         #endregion
     }
 }
