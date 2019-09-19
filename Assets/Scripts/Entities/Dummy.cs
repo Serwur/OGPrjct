@@ -1,7 +1,8 @@
-﻿using DoubleMMPrjc.AI;
+﻿using ColdCry.AI;
+using DoubleMMPrjc.AI;
 using UnityEngine;
 
-namespace DoubleMMPrjc
+namespace ColdCry.Objects
 {
 
     public class Dummy : NPC

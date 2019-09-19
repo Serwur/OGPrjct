@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace DoubleMMPrjc
+namespace ColdCry
 {
     public class DialogueList : ScriptableObject
     {

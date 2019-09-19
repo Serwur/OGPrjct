@@ -1,8 +1,9 @@
-﻿using DoubleMMPrjc.AI;
-using DoubleMMPrjc.Timer;
+﻿using ColdCry.AI;
+using ColdCry.Utility;
+using DoubleMMPrjc.AI;
 using UnityEngine;
 
-namespace DoubleMMPrjc
+namespace ColdCry.Objects
 {
     public abstract class NPC : Entity
     {
@@ -159,9 +160,9 @@ namespace DoubleMMPrjc
 
             if (!xPositionReached) {
                 if (landed) {
-                    Move( moveSpeed.current );
+                    Move( moveSpeed.Current );
                 } else {
-                    Move( jumpSpeed.current );
+                    Move( jumpSpeed.Current );
                 }
             }
         }
@@ -180,7 +181,7 @@ namespace DoubleMMPrjc
                 SetMoveDirection( followedEntity );
                 followDirectionUpdate = 0;
             }
-            Move( moveSpeed.current );
+            Move( moveSpeed.Current );
         }
 
         public virtual void AttackUpdate()
@@ -192,7 +193,7 @@ namespace DoubleMMPrjc
         #endregion
 
         /// <summary>
-        /// Moves towards current direction
+        /// Moves towards Current direction
         /// </summary>
         /// <param name="moveSpeed">Moving speed, if less or equal 0 then there is no movement</param>
         public virtual void Move(float moveSpeed)
@@ -384,7 +385,7 @@ namespace DoubleMMPrjc
             landed = false;
             // Calculating move speed depdends on time need to reach x position of node
             float moveSpeed = ( end.x - transform.position.x ) / JUMP_TIME;
-            jumpSpeed.current = Mathf.Abs( moveSpeed );
+            jumpSpeed.Current = Mathf.Abs( moveSpeed );
             movingState = AIMovingState.JUMPING;
             Jump(jumpPower);
         }

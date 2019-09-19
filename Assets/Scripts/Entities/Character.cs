@@ -1,10 +1,12 @@
-﻿using DoubleMMPrjc.AI;
+﻿using ColdCry.AI;
+using ColdCry.Core;
+using ColdCry.Utility;
+using DoubleMMPrjc.AI;
 using Inputs;
 using System.Collections.Generic;
 using UnityEngine;
-using DoubleMMPrjc.Timer;
 
-namespace DoubleMMPrjc
+namespace ColdCry.Objects
 {
     [RequireComponent( typeof( PInput ) )]
     public class Character : Entity,
@@ -108,7 +110,7 @@ namespace DoubleMMPrjc
                 lookDirection = x > 0 ? 1 : -1;
                 rb.velocity = new Vector3( 0, rb.velocity.y );
                 animator.SetBool( "isRunning", true );
-                transform.Translate( new Vector3( x * moveSpeed.max * Time.deltaTime, 0 ), Space.World );
+                transform.Translate( new Vector3( x * moveSpeed.Max * Time.deltaTime, 0 ), Space.World );
                 transform.rotation = Quaternion.LookRotation( new Vector3( 0, 0, lookDirection ), transform.up );
             }
         }
@@ -138,7 +140,7 @@ namespace DoubleMMPrjc
                 // Przypisujemy ostatni klawisz ze zwykłego ataku oraz resetujemy timer
                 TimerManager.Reset( simpleAttackCountdown );
                 weapon.SetNextAttackInfo(
-                    new Attack( damage.max,
+                    new Attack( damage.Max,
                     lookDirection,
                     new Vector2( lookDirection, 0 ),
                     SIMPLE_ATTACK_MOVE,
@@ -159,7 +161,7 @@ namespace DoubleMMPrjc
                 TimerManager.Reset( flyAttackCountdown );
                 rb.velocity = new Vector3( rb.velocity.x, FLY_ATTACK_MOVE );
                 weapon.SetNextAttackInfo(
-                    new Attack( damage.current,
+                    new Attack( damage.Current,
                     new Vector2( 0, 1 ),
                     15,
                     FLY_ATTACK_DISABLE_TIME ),
@@ -180,7 +182,7 @@ namespace DoubleMMPrjc
                 canMove = false;
                 transform.rotation = Quaternion.LookRotation( new Vector3( 0, 0, lookDirection ), transform.up );
                 weapon.SetNextAttackInfo(
-                    new Attack( damage.current * 2,
+                    new Attack( damage.Current * 2,
                     lookDirection,
                     new Vector3( lookDirection, 0 ),
                     SIMPLE_ATTACK_MOVE * 2,
@@ -263,10 +265,10 @@ namespace DoubleMMPrjc
                             if (canMove) {
                                 if (IsTouchingGround()) {
                                     doubleJumped = false;
-                                    Jump( jumpPower.max );
+                                    Jump( jumpPower.Max );
                                 } else if (!doubleJumped) {
                                     doubleJumped = true;
-                                    Jump( jumpPower.max * 0.7f );
+                                    Jump( jumpPower.Max * 0.7f );
                                 }
                             }
                             currentCombination.AddLast( code );

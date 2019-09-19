@@ -1,8 +1,10 @@
-﻿using DoubleMMPrjc.AI;
-using DoubleMMPrjc.Timer;
+﻿using ColdCry.AI;
+using ColdCry.Core;
+using ColdCry.Utility;
+using DoubleMMPrjc.AI;
 using UnityEngine;
 
-namespace DoubleMMPrjc
+namespace ColdCry.Objects
 {
     public class Enemy : NPC
     {
@@ -100,7 +102,7 @@ namespace DoubleMMPrjc
                         positionReached = true;
                     }
                 }
-                Move( moveSpeed.current / 3f );
+                Move( moveSpeed.Current / 3f );
             }
         }
 

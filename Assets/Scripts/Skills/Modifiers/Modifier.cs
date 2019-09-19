@@ -4,7 +4,7 @@
 /// <br>Jak same nazwy mówią pierwszy modifier działa przez cały okres czasu życia jednostki,</br>
 /// <br>natomiast drugi znika po określonym czasie.</br>
 /// </summary>
-namespace DoubleMMPrjc
+namespace ColdCry
 {
     public abstract class Modifier
     {

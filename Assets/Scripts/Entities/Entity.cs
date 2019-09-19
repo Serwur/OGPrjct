@@ -1,9 +1,11 @@
-﻿using DoubleMMPrjc.AI;
-using DoubleMMPrjc.Timer;
+﻿using ColdCry.AI;
+using ColdCry.Core;
+using ColdCry.Utility;
+using DoubleMMPrjc.AI;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace DoubleMMPrjc
+namespace ColdCry.Objects
 {
     [RequireComponent( typeof( Rigidbody ) )]
     public abstract class Entity : MonoBehaviour, IOnCountdownEnd
@@ -80,12 +82,12 @@ namespace DoubleMMPrjc
         {
             GameManager.AddEntity( this );
             UpdateAttributes();
-            hitPoints.current = hitPoints.max;
-            sourcePoints.current = sourcePoints.max;
-            armor.current = armor.max;
-            moveSpeed.current = moveSpeed.max;
-            jumpPower.current = jumpPower.max;
-            damage.current = damage.max;
+            hitPoints.Current = hitPoints.Max;
+            sourcePoints.Current = sourcePoints.Max;
+            armor.Current = armor.Max;
+            moveSpeed.Current = moveSpeed.Max;
+            jumpPower.Current = jumpPower.Max;
+            damage.Current = damage.Max;
 
             moveCountdownId = TimerManager.Create( this );
         }
@@ -133,11 +135,11 @@ namespace DoubleMMPrjc
             // ORAZ ZADAWANE OBRAŻENIA SĄ WIĘKSZE NIŻ 0 TO TRACI PUNKTY ŻYCIA
             if (!( isInviolability || blocked ) && attack.Damage > 0f) {
                 if (attack.PercenteDamage) {
-                    hitPoints.current -= hitPoints.max * attack.Damage;
+                    hitPoints.Current -= hitPoints.Max * attack.Damage;
                 } else {
-                    hitPoints.current -= attack.Damage;
+                    hitPoints.Current -= attack.Damage;
                 }
-                if (hitPoints.current <= 0f)
+                if (hitPoints.Current <= 0f)
                     Die();
                 return true;
             }
@@ -178,17 +180,17 @@ namespace DoubleMMPrjc
         /// </summary>
         public virtual void Regenerate()
         {
-            float nextHitPoints = hitPoints.current + regenHitPoints;
-            if (nextHitPoints > hitPoints.max)
-                hitPoints.current = hitPoints.max;
+            float nextHitPoints = hitPoints.Current + regenHitPoints;
+            if (nextHitPoints > hitPoints.Max)
+                hitPoints.Current = hitPoints.Max;
             else
-                hitPoints.current = nextHitPoints;
+                hitPoints.Current = nextHitPoints;
 
-            float nextSourcePoints = sourcePoints.current + regenSourcePoints;
-            if (nextSourcePoints > sourcePoints.max)
-                sourcePoints.current = hitPoints.max;
+            float nextSourcePoints = sourcePoints.Current + regenSourcePoints;
+            if (nextSourcePoints > sourcePoints.Max)
+                sourcePoints.Current = hitPoints.Max;
             else
-                sourcePoints.current = nextSourcePoints;
+                sourcePoints.Current = nextSourcePoints;
         }
 
         /// <summary>
@@ -198,11 +200,11 @@ namespace DoubleMMPrjc
         /// <returns>TRUE jeżeli zwiększono ilość punktów zdrowia, w przeciwnym wypadku FALSE</returns>
         public virtual bool Heal(float heal)
         {
-            float nextHitPoints = hitPoints.current + heal;
-            if (nextHitPoints > hitPoints.max)
-                hitPoints.current = hitPoints.max;
+            float nextHitPoints = hitPoints.Current + heal;
+            if (nextHitPoints > hitPoints.Max)
+                hitPoints.Current = hitPoints.Max;
             else
-                hitPoints.current = nextHitPoints;
+                hitPoints.Current = nextHitPoints;
             return true;
         }
 
@@ -268,7 +270,7 @@ namespace DoubleMMPrjc
             rb.freezeRotation = true;
             rb.angularVelocity = Vector3.zero;
             transform.rotation = Quaternion.Euler( Vector3.zero );
-            hitPoints.current = hitPoints.max;
+            hitPoints.Current = hitPoints.Max;
         }
 
         /// <summary>
@@ -278,8 +280,8 @@ namespace DoubleMMPrjc
         public virtual void Die()
         {
             rb.freezeRotation = false;
-            rb.AddForce( new Vector3( Random.Range( -14, 14 ), Random.Range( -5, 25 ) ), ForceMode.VelocityChange );
-            rb.AddTorque( new Vector3( Random.Range( 15, 35 ), Random.Range( -25, 25 ), Random.Range( -25, 25 ) ), ForceMode.VelocityChange );
+            rb.AddForce( new Vector3( UnityEngine.Random.Range( -14, 14 ), UnityEngine.Random.Range( -5, 25 ) ), ForceMode.VelocityChange );
+            rb.AddTorque( new Vector3( UnityEngine.Random.Range( 15, 35 ), UnityEngine.Random.Range( -25, 25 ), UnityEngine.Random.Range( -25, 25 ) ), ForceMode.VelocityChange );
             isDead = true;
         }
 

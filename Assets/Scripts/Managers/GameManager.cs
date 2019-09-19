@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using ColdCry.Objects;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -6,7 +7,7 @@ using UnityEngine;
 /// znajdujących się na poziomie. Powinna ona posiadać metody ułatwiające komunikację z graczami, a obiektami</br>
 /// na których mogą wykonywać interakcje.
 /// </summary>
-namespace DoubleMMPrjc
+namespace ColdCry.Core
 {
     public class GameManager : MonoBehaviour
     {

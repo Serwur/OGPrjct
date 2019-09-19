@@ -1,5 +1,4 @@
 ﻿using ColdCry.Exception;
-using ColdCry.GameObjects;
 using ColdCry.Utility;
 using System.Collections.Generic;
 
@@ -49,26 +48,6 @@ namespace ColdCry
             } catch (KeyNotFoundException) {
                 return key;
             }
-        }
-
-        public static string GetResource(ResourceType resourceType)
-        {
-            return Get( "RESOURCE_" + resourceType );
-        }
-
-        public static string GetBuilding(BuildingType buildingType)
-        {
-            return Get( "BUILDING_" + buildingType );
-        }
-
-        public static string GetNumber(NumbersNames number)
-        {
-            return Get( "NUMBER_" + number );
-        }
-
-        public static string GetShortenNumber(NumbersNames number)
-        {
-            return Get( "S_NUMBER_" + number );
         }
 
         public static Language Language { get; private set; }

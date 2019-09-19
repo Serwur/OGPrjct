@@ -1,8 +1,9 @@
-﻿using Inputs;
+﻿using ColdCry.Objects;
+using Inputs;
 using System;
 using System.Collections.Generic;
 
-namespace DoubleMMPrjc
+namespace ColdCry
 {
     public class Combo : IComparable<Combo>
     {

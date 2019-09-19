@@ -1,4 +1,4 @@
-﻿namespace DoubleMMPrjc
+﻿namespace ColdCry
 {
     public class PermamentModifier : Modifier
     {

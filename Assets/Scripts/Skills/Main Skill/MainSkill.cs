@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEditor.Experimental.Rendering.HDPipeline;
 using UnityEditor.VFX; */
 
-namespace DoubleMMPrjc
+namespace ColdCry
 {
     public class MainSkill : MonoBehaviour
     {

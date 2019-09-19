@@ -1,8 +1,10 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using DoubleMMPrjc.Timer;
+using ColdCry.Utility;
+using ColdCry.Core;
+using ColdCry.Objects;
 
-namespace DoubleMMPrjc
+namespace ColdCry
 {
     [System.Serializable]
     public class Dialogue : IOnCountdownEnd

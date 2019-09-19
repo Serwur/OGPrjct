@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
-using DoubleMMPrjc.Timer;
+using ColdCry.Utility;
 
-namespace DoubleMMPrjc
+namespace ColdCry
 {
     public class TemplateModifier : Modifier, IOnCountdownEnd
     {

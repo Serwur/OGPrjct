@@ -1,11 +1,10 @@
-﻿using DoubleMMPrjc.Utility;
+﻿using ColdCry.Core;
+using ColdCry.Utility;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace DoubleMMPrjc
+namespace ColdCry.AI
 {
-    namespace AI
-    {
         public class Node : MonoBehaviour, IExtendedString
         {
 
@@ -265,8 +264,5 @@ namespace DoubleMMPrjc
             public AIAction ActionToParent { get => actionToParent; set => actionToParent = value; }
             #endregion
         }
-    }
-
-
 }
 

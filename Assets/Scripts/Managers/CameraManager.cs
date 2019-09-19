@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace DoubleMMPrjc
+namespace ColdCry.Core
 {
     public class CameraManager : MonoBehaviour
     {

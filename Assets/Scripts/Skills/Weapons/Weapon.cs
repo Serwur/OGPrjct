@@ -1,7 +1,9 @@
-﻿using UnityEngine;
-using DoubleMMPrjc.Timer;
+﻿using ColdCry.Core;
+using ColdCry.Objects;
+using ColdCry.Utility;
+using UnityEngine;
 
-namespace DoubleMMPrjc
+namespace ColdCry
 {
     public class Weapon : MonoBehaviour, IOnCountdownEnd
     {

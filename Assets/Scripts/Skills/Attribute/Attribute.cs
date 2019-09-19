@@ -8,7 +8,7 @@ using UnityEngine;
 /// <br><b>current:</b> aktualna wartość atrybutu dla jednostki, która powinna być wykorzystywana do określenia</br>
 /// <br>aktualnego stanu...</br>
 /// </summary>
-namespace DoubleMMPrjc
+namespace ColdCry
 {
     [System.Serializable]
     public class Attribute
@@ -20,15 +20,15 @@ namespace DoubleMMPrjc
         /// <summary>
         /// Aktualna staystyka uwzględniając modyfikatory. Nie może przekroczyć maksymalnej statystyki.
         /// </summary>
-        [SerializeField] private float Current { get; set; } = 0;
+        [SerializeField] public float Current { get; set; } = 0;
         /// <summary>
         /// Maksymalna statystyka uwzględniając modyfikatory
         /// </summary>
-        [SerializeField] private float Max { get; set; } = 0;
+        [SerializeField] public float Max { get; set; } = 0;
         /// <summary>
         /// Jeżeli równe "true" to pole current może przekroczyć wartość maksymalną
         /// </summary>
-        [SerializeField] private bool CanExceedMax { get; set; } = false;
+        [SerializeField] public bool CanExceedMax { get; set; } = false;
 
         /// <summary>
         /// Uwzględnia tylko maksymalny modyfikator tymczasowy, dotyczy to negatywnych jak i pozytywnych
@@ -48,6 +48,7 @@ namespace DoubleMMPrjc
         /// </summary>
         protected LinkedList<PermamentModifier> permamentModifers = new LinkedList<PermamentModifier>();
 
+        /*
         public float ChangeBasic(float change)
         {
 
@@ -62,7 +63,7 @@ namespace DoubleMMPrjc
         public float ChangeMax(float change)
         {
 
-        }
+        }*/
 
         /// <summary>
         /// Dodaje modyfikator atrybutu
