@@ -16,15 +16,19 @@ namespace DoubleMMPrjc
         /// <summary>
         /// Bazowa statystyka bez żadnych modyfikatorów
         /// </summary>
-        public float basic = 0;
+        [SerializeField] public float Basic { get; set; } = 0;
         /// <summary>
         /// Aktualna staystyka uwzględniając modyfikatory. Nie może przekroczyć maksymalnej statystyki.
         /// </summary>
-        public float current = 0;
+        [SerializeField] private float Current { get; set; } = 0;
         /// <summary>
         /// Maksymalna statystyka uwzględniając modyfikatory
         /// </summary>
-        public float max = 0;
+        [SerializeField] private float Max { get; set; } = 0;
+        /// <summary>
+        /// Jeżeli równe "true" to pole current może przekroczyć wartość maksymalną
+        /// </summary>
+        [SerializeField] private bool CanExceedMax { get; set; } = false;
 
         /// <summary>
         /// Uwzględnia tylko maksymalny modyfikator tymczasowy, dotyczy to negatywnych jak i pozytywnych
@@ -43,6 +47,22 @@ namespace DoubleMMPrjc
         /// Lista modyfikatorów permamentnych atrybutu.
         /// </summary>
         protected LinkedList<PermamentModifier> permamentModifers = new LinkedList<PermamentModifier>();
+
+        public float ChangeBasic(float change)
+        {
+
+        }
+
+        public float ChangeCurrent(float change)
+        {
+            float result = Current - change;
+            if ( result )
+        }
+
+        public float ChangeMax(float change)
+        {
+
+        }
 
         /// <summary>
         /// Dodaje modyfikator atrybutu
@@ -82,7 +102,7 @@ namespace DoubleMMPrjc
         /// </summary>
         public void UpdateAttribute()
         {
-            max = basic;
+            Max = Basic;
             // float maxTemplate = 0, maxPermament = 0;
             //  GetMaxModifier( new HashSet<Modifier> );
             foreach (TemplateModifier modifier in templateModifers) {
@@ -90,13 +110,13 @@ namespace DoubleMMPrjc
 
                   }
                   else*/
-                max *= modifier.GetModify();
+                Max *= modifier.GetModify();
             }
             foreach (PermamentModifier modifier in permamentModifers) {
-                max *= modifier.GetModify();
+                Max *= modifier.GetModify();
             }
-            if (current > max)
-                current = max;
+            if (Current > Max)
+                Current = Max;
         }
 
         /* GetMaxModifier

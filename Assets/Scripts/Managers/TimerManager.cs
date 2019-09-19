@@ -3,22 +3,21 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// <br>Klasa reprezentująca odliczacz czasu, należy stworzyć jedną jej instancję na scenie, aby z niej poprawnie korzystać.</br>
-/// <br>Może być wykorzystywana do odliczania czasu jak sama nazwa wskazuje bez wykorzystywania większej ilości mocy obliczeniowej</br>
-/// <br>jeżeli miałoby to miejsce tworząc osobno odliczenia dla każdej zdolności, odliczania czasu do czegoś bądź każdej innej rzeczy</br>
-/// <br>wymagającej odstępów czasu między akcjami.</br>
-/// <br>Do poprawnego stworzenia nowego czasu odliczania należy użyć metody <code>StartCountdown()</code> oraz przechwycić</br>
-/// <br>referencję na zwrócony obiekt typu Countdown.</br>
-/// <br>Aby sprawnie otrzymywać komunikat o zakończonym czasie danego obiektu Countdown, należy w swojej klasie zaimplementować</br>
-/// <br>interfejs <code>IOnCountdownEnd</code>, metoda <code>OnCountdownEnd()</code> zostanie wywołana jednorazowo w momencie zakończenia </br>
-/// <br>czasu odliczenia.</br>
-/// </summary>
-
 namespace DoubleMMPrjc
 {
     namespace Timer
     {
+        /// <summary>
+        /// <br>Klasa reprezentująca odliczacz czasu, należy stworzyć jedną jej instancję na scenie, aby z niej poprawnie korzystać.</br>
+        /// <br>Może być wykorzystywana do odliczania czasu jak sama nazwa wskazuje bez wykorzystywania większej ilości mocy obliczeniowej</br>
+        /// <br>jeżeli miałoby to miejsce tworząc osobno odliczenia dla każdej zdolności, odliczania czasu do czegoś bądź każdej innej rzeczy</br>
+        /// <br>wymagającej odstępów czasu między akcjami.</br>
+        /// <br>Do poprawnego stworzenia nowego czasu odliczania należy użyć metody <code>StartCountdown()</code> oraz przechwycić</br>
+        /// <br>referencję na zwrócony obiekt typu Countdown.</br>
+        /// <br>Aby sprawnie otrzymywać komunikat o zakończonym czasie danego obiektu Countdown, należy w swojej klasie zaimplementować</br>
+        /// <br>interfejs <code>IOnCountdownEnd</code>, metoda <code>OnCountdownEnd()</code> zostanie wywołana jednorazowo w momencie zakończenia </br>
+        /// <br>czasu odliczenia.</br>
+        /// </summary>
         public class TimerManager : MonoBehaviour
         {
             #region Static Fields
@@ -177,6 +176,7 @@ namespace DoubleMMPrjc
                 if (newCountdown < 0)
                     throw new SystemException( "Countdown time cannot be less than 0!" );
                 if (GetCountdown( id, out Countdown countdown )) {
+                    countdown.WillBeRemoved = false;
                     Instance.endedCountdowns.Remove( id );
                     if (!Instance.notEndedCountdowns.ContainsKey( id )) {
                         Instance.notEndedCountdowns.Add( id, countdown );
@@ -325,24 +325,28 @@ namespace DoubleMMPrjc
                     float overtime = countdown.Overtime;
                     if (overtime >= 0) {
 
+                        countdownsToRemove.AddLast( key );
+                        countdown.WillBeRemoved = true;
+
                         if (!countdown.IsScheduled) {
-                            countdownsToRemove.AddLast( key );
-                            if (countdown.Listener != null)
-                                countdown.Listener.OnCountdownEnd( key, overtime );
                             if (!countdown.DestroyWhenEnds)
                                 endedCountdowns.Add( key, countdown );
-                        }                          
-                        else {
+                            if (countdown.Listener != null)
+                                countdown.Listener.OnCountdownEnd( key, overtime );
+                        } else {
                             countdown.Listener.OnCountdownEnd( key, overtime );
-                            countdown.Reset( countdown.CountdownTime );          
+                            countdown.Reset( countdown.CountdownTime );
+                            countdownsToRemove.AddLast( key );
                         }
-                            
+
                     }
+
                 }
 
                 foreach (long key in countdownsToRemove) {
                     Countdown countdown = notEndedCountdowns[key];
-                    notEndedCountdowns.Remove( key );
+                    if (countdown.WillBeRemoved)
+                        notEndedCountdowns.Remove( key );
                 }
             }
 
@@ -424,6 +428,7 @@ namespace DoubleMMPrjc
                 private IOnCountdownEnd listener;
                 private bool destroyWhenEnds;
                 private bool isScheduled;
+                private bool willBeRemoved = false;
 
                 public Countdown(float countdownTime, IOnCountdownEnd listener, bool destroyWhenEnds, bool isScheduled)
                 {
@@ -475,6 +480,7 @@ namespace DoubleMMPrjc
                 public float CountdownStartTime { get => countdownStartTime; }
                 public float TimeSpeed { get => timeSpeed; set => timeSpeed = value; }
                 public bool IsScheduled { get => isScheduled; set => isScheduled = value; }
+                public bool WillBeRemoved { get => willBeRemoved; set => willBeRemoved = value; }
             }
         }
 
