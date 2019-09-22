@@ -1,7 +1,6 @@
 ﻿using ColdCry.AI;
 using ColdCry.Core;
 using ColdCry.Utility;
-using DoubleMMPrjc.AI;
 using UnityEngine;
 
 namespace ColdCry.Objects
@@ -89,7 +88,7 @@ namespace ColdCry.Objects
             if (watchRandomPositionChange >= WATCH_POSITION_CHANGE_PERIOD) {
                 watchRandomPositionChange = 0;
                 if (ContactArea != null) {
-                    SetPosToFollow( contactArea.GetRandPosInArea() );
+                    SetPosToFollow( ContactArea.GetRandPosInArea() );
                     positionReached = false;
                 }
             }
@@ -102,7 +101,7 @@ namespace ColdCry.Objects
                         positionReached = true;
                     }
                 }
-                Move( moveSpeed.Current / 3f );
+                Move( MoveSpeed.Current / 3f );
             }
         }
 
@@ -170,7 +169,7 @@ namespace ColdCry.Objects
             foundPathEalier = false;
             currentTarget = null;
             if (ContactArea != null) {
-                SetPosToFollow( contactArea.GetRandPosInArea() );
+                SetPosToFollow( ContactArea.GetRandPosInArea() );
             }
         }
 

@@ -94,7 +94,7 @@ namespace ColdCry.AI
             Node end = GetNearestNode( targetNodes, target.transform.position );
             // TWORZYMY POZORNEGO NODE'A
             //Node start = Instantiate( Instance.prefabNode, ai.transform.position, ai.transform.rotation );
-            Node start = Instance.dummyNodes.GetPooledObject( ai.transform.position );
+            Node start = Instance.dummyNodes.Get( ai.transform.position );
             // OBLICZAMY HEURESTYKE DLA PIERWSZEGO NODE'A
             start.CalcHeurestic( end );
             // DODAJEMY KRAWĘDZIE MIĘDZY NOWYM NODE'EM A NAJBLIŻSZYMI
@@ -198,7 +198,12 @@ namespace ColdCry.AI
         /// <returns>New dummy object</returns>
         public static Dummy GetDummy(Vector2 position)
         {
-            return Instance.dummies.GetPooledObject( position );
+            return Instance.dummies.Get( position );
+        }
+
+        public static void ReturnDummy(Dummy dummy)
+        {
+            Instance.dummies.Return(dummy);
         }
 
         private static Node GetMinNode(List<Node> nodes)

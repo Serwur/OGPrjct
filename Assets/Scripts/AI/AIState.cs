@@ -1,10 +1,7 @@
-﻿namespace DoubleMMPrjc
+﻿namespace ColdCry.AI
 {
-    namespace AI
+    public enum AIState
     {
-        public enum AIState
-        {
-            SLEEP, WATCH, REACH, FOLLOW, ATTACK
-        }
+        SLEEP, WATCH, WAIT, REACH, FOLLOW, ATTACK
     }
 }

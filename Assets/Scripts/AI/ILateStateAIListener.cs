@@ -2,18 +2,18 @@
 {
     public interface ILateStateAIListener
     {
-        void SetLateSleepState(AIMovementStatus oldState);
-        void SetLateWatchState(AIMovementStatus oldState);
-        void SetLateReachState(AIMovementStatus oldState);
-        void SetLateAttackState(AIMovementStatus oldState);
-        void SetLateFollowState(AIMovementStatus oldState);
-        void OnAnyLateStateChange(AIMovementStatus oldState, AIMovementStatus newState);
+        void SetLateSleepState(AIState oldState);
+        void SetLateWatchState(AIState oldState);
+        void SetLateReachState(AIState oldState);
+        void SetLateAttackState(AIState oldState);
+        void SetLateFollowState(AIState oldState);
+        void OnAnyLateStateChange(AIState oldState, AIState newState);
 
         void LateSleepUpdate();
         void LateWatchUpdate();
         void LateReachUpdate();
         void LateFollowUpdate();
         void LateAttackUpdate();
-        void OnAnyLateStateUpdate(AIMovementStatus currentState);
+        void OnAnyLateStateUpdate(AIState currentState);
     }
 }

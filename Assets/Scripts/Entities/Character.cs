@@ -1,7 +1,5 @@
-﻿using ColdCry.AI;
-using ColdCry.Core;
+﻿using ColdCry.Core;
 using ColdCry.Utility;
-using DoubleMMPrjc.AI;
 using Inputs;
 using System.Collections.Generic;
 using UnityEngine;
@@ -93,35 +91,56 @@ namespace ColdCry.Objects
 
         public override void FixedUpdate()
         {
-            if (!isDead) {
+            if (!IsDead) {
                 base.FixedUpdate();
-                animator.SetFloat( "speedY", rb.velocity.y );
+                animator.SetFloat( "speedY", Rb.velocity.y );
             }
         }
         #endregion
 
         #region Public Methods
-        /// <summary>
-        /// Do zaimplementowania skrypt ruchu gracza.
-        /// </summary>
-        public void Move(float x)
+        public override void OnMove(float moveSpeed, float x)
         {
-            if (canMove) {
-                lookDirection = x > 0 ? 1 : -1;
-                rb.velocity = new Vector3( 0, rb.velocity.y );
-                animator.SetBool( "isRunning", true );
-                transform.Translate( new Vector3( x * moveSpeed.Max * Time.deltaTime, 0 ), Space.World );
-                transform.rotation = Quaternion.LookRotation( new Vector3( 0, 0, lookDirection ), transform.up );
-            }
+            animator.SetBool( "isRunning", true );
         }
 
-        /// <summary>
-        /// Just a simple jump method
-        /// </summary>
-        public override void Jump(float jumpPower)
+        public override void OnJump(float jumpPower)
         {
-            base.Jump( jumpPower );
             animator.SetBool( "isInAir", true );
+        }
+
+        public override void OnDamageTook(Attack attack)
+        {
+
+        }
+
+        public override void OnRegenerate()
+        {
+
+        }
+
+        public override void OnFallen(float speedWhenFalling)
+        {
+            animator.SetBool( "isInAir", false );
+        }
+
+        public override void OnBeingHealed(float healedHp)
+        {
+
+        }
+
+        public override void OnDie()
+        {
+            animator.SetFloat( "speedY", 0 );
+            animator.SetBool( "isInAir", false );
+            animator.SetTrigger( "isDying" );
+        }
+
+        public override void ResetUnit()
+        {
+            base.ResetUnit();
+            DialogueManager._Reset( true );
+            animator.Play( "Player_Idle" );
         }
 
         /// <summary>
@@ -134,20 +153,20 @@ namespace ColdCry.Objects
             if (TimerManager.HasEnded( simpleAttackCountdown )) {
                 // W innym wypadku jest on wykonany, ale jeżeli jesteśmy w aktualnie w locie
                 // to atak jest wykonany w miejscu
-                Vector3 attackDirection = new Vector3( SIMPLE_ATTACK_MOVE / 1.3f * lookDirection, rb.velocity.y );
+                Vector3 attackDirection = new Vector3( SIMPLE_ATTACK_MOVE / 1.3f * LookDirection, Rb.velocity.y );
                 if (IsTouchingGround())
-                    rb.velocity = attackDirection;
+                    Rb.velocity = attackDirection;
                 // Przypisujemy ostatni klawisz ze zwykłego ataku oraz resetujemy timer
                 TimerManager.Reset( simpleAttackCountdown );
                 weapon.SetNextAttackInfo(
-                    new Attack( damage.Max,
-                    lookDirection,
-                    new Vector2( lookDirection, 0 ),
+                    new Attack( Damage.Max,
+                    LookDirection,
+                    new Vector2( LookDirection, 0 ),
                     SIMPLE_ATTACK_MOVE,
                     SIMPLE_ATTACK_DISABLE_TIME ),
                     SIMPLE_ATTACK_TIME + 0.08F );
                 animator.SetTrigger( "simpleAttack" );
-                canMove = false;
+                CanMove = false;
             }
         }
 
@@ -159,9 +178,9 @@ namespace ColdCry.Objects
         {
             if (TimerManager.HasEnded( flyAttackCountdown )) {
                 TimerManager.Reset( flyAttackCountdown );
-                rb.velocity = new Vector3( rb.velocity.x, FLY_ATTACK_MOVE );
+                Rb.velocity = new Vector3( Rb.velocity.x, FLY_ATTACK_MOVE );
                 weapon.SetNextAttackInfo(
-                    new Attack( damage.Current,
+                    new Attack( Damage.Current,
                     new Vector2( 0, 1 ),
                     15,
                     FLY_ATTACK_DISABLE_TIME ),
@@ -177,14 +196,14 @@ namespace ColdCry.Objects
         {
             if (TimerManager.HasEnded( backwardAttackCountdown )) {
                 TimerManager.Reset( backwardAttackCountdown );
-                lookDirection *= -1;
-                rb.velocity = new Vector3( SIMPLE_ATTACK_MOVE * 2 * lookDirection, rb.velocity.y );
-                canMove = false;
-                transform.rotation = Quaternion.LookRotation( new Vector3( 0, 0, lookDirection ), transform.up );
+                LookDirection *= -1;
+                Rb.velocity = new Vector3( SIMPLE_ATTACK_MOVE * 2 * LookDirection, Rb.velocity.y );
+                CanMove = false;
+                transform.rotation = Quaternion.LookRotation( new Vector3( 0, 0, LookDirection ), transform.up );
                 weapon.SetNextAttackInfo(
-                    new Attack( damage.Current * 2,
-                    lookDirection,
-                    new Vector3( lookDirection, 0 ),
+                    new Attack( Damage.Current * 2,
+                    LookDirection,
+                    new Vector3( LookDirection, 0 ),
                     SIMPLE_ATTACK_MOVE * 2,
                     BACKWARD_ATTACK_DISABLE_TIME ),
                     BACKWARD_ATTACK_TIME + 0.15F );
@@ -192,24 +211,19 @@ namespace ColdCry.Objects
             }
         }
 
-        public override bool ShouldBlockAttack(Attack attack)
+        /// <summary>
+        /// Sprawdza wszystkie możliwe combosy poczynając od combosów najbardziej
+        /// skomplikowanych klawiszowo (najwięcej klawiszy), jeżeli których z nich
+        /// jest poprawny to combos się wykona (tylko jeden combos może się wykonać)
+        /// </summary>
+        private void CheckCombos()
         {
-            return base.ShouldBlockAttack( attack );
-        }
-
-        public override void ResetUnit()
-        {
-            base.ResetUnit();
-            DialogueManager._Reset( true );
-            animator.Play( "Player_Idle" );
-        }
-
-        public override void Die()
-        {
-            base.Die();
-            animator.SetFloat( "speedY", 0 );
-            animator.SetBool( "isInAir", false );
-            animator.SetTrigger( "isDying" );
+            foreach (Combo combo in combos) {
+                if (combo.IsValid( currentCombination )) {
+                    combo.action();
+                    return;
+                }
+            }
         }
 
         /// <summary>
@@ -226,29 +240,19 @@ namespace ColdCry.Objects
                 } else if (simpleAttackCountdown == id ||
                             backwardAttackCountdown == id ||
                             flyAttackCountdown == id) {
-                    canMove = true;
+                    CanMove = true;
                 }
             }
-        }
-
-        public override void OnFallen(float speedWhenFalling)
-        {
-            base.OnFallen( speedWhenFalling );
-            animator.SetBool( "isInAir", false );
-        }
-
-        public override void OnContactAreaExit(ContactArea contactArea)
-        {
         }
         #endregion
 
         #region Buttons
         public void OnButtonHeld(ButtonCode code)
         {
-            if (!isDead) {
-                if (code == ButtonCode.RightBumper && canMove) {
-                    canMove = false;
-                    isBlocking = true;
+            if (!IsDead) {
+                if (code == ButtonCode.RightBumper && CanMove) {
+                    CanMove = false;
+                    IsBlocking = true;
                     if (!animator.GetBool( "isBlocking" ))
                         animator.SetBool( "isBlocking", true );
                 }
@@ -257,43 +261,43 @@ namespace ColdCry.Objects
 
         public void OnButtonPressed(ButtonCode code)
         {
-            if (!isDead) {
-                if (!isPaused) {
+            if (!IsDead) {
+                if (!IsPaused) {
                     TimerManager.Reset( comboBreakCountdown );
                     switch (code) {
                         case ButtonCode.A:
-                            if (canMove) {
+                            if (CanMove) {
                                 if (IsTouchingGround()) {
                                     doubleJumped = false;
-                                    Jump( jumpPower.Max );
+                                    Jump( JumpPower.Max );
                                 } else if (!doubleJumped) {
                                     doubleJumped = true;
-                                    Jump( jumpPower.Max * 0.7f );
+                                    Jump( JumpPower.Max * 0.7f );
                                 }
                             }
                             currentCombination.AddLast( code );
                             break;
                         case ButtonCode.B:
-                            if (canMove) {
+                            if (CanMove) {
                                 BackwardAttack();
                             }
                             currentCombination.AddLast( code );
                             break;
                         case ButtonCode.X:
-                            if (canMove) {
+                            if (CanMove) {
                                 SimpleAtack();
                             }
                             currentCombination.AddLast( code );
                             break;
                         case ButtonCode.Y:
-                            if (IsTouchingGround() && canMove) {
+                            if (IsTouchingGround() && CanMove) {
                                 FlyAttack();
                             }
                             currentCombination.AddLast( code );
                             break;
                         case ButtonCode.LeftBumper:
-                            if (canMove) {
-                               // mainSkill.GetComponent<MainSkill>().ChangeWorld();
+                            if (CanMove) {
+                                // mainSkill.GetComponent<MainSkill>().ChangeWorld();
                             }
                             currentCombination.AddLast( code );
                             break;
@@ -316,7 +320,7 @@ namespace ColdCry.Objects
                 }
                 if (code == ButtonCode.Back) {
                     if (DialogueManager.HasEndedDialogueList()) {
-                        DialogueManager.StartDialogues( dialogueLists[0] );
+                        DialogueManager.StartDialogues( DialogueLists[0] );
                     } else {
                         DialogueManager.PushNextDialogue();
                     }
@@ -332,10 +336,10 @@ namespace ColdCry.Objects
 
         public void OnButtonReleased(ButtonCode code)
         {
-            if (!isDead) {
+            if (!IsDead) {
                 if (code == ButtonCode.RightBumper) {
-                    isBlocking = false;
-                    canMove = true;
+                    IsBlocking = false;
+                    CanMove = true;
                     animator.SetBool( "isBlocking", false );
                 }
             }
@@ -349,14 +353,14 @@ namespace ColdCry.Objects
 
         public void OnStickHold(JoystickDoubleAxis stick)
         {
-            if (stick.Code == AxisCode.LeftStick && !( IsPaused || isDead )) {
+            if (stick.Code == AxisCode.LeftStick && !( IsPaused || IsDead )) {
                 Move( stick.X );
             }
         }
 
         public void OnStickDeadZone(JoystickDoubleAxis stick)
         {
-            if (stick.Code == AxisCode.LeftStick && !( IsPaused || isDead )) {
+            if (stick.Code == AxisCode.LeftStick && !( IsPaused || IsDead )) {
                 animator.SetBool( "isRunning", false );
             }
 
@@ -395,22 +399,12 @@ namespace ColdCry.Objects
         public void OnArrowsDeadZone(JoystickDoubleAxis arrows)
         {
         }
-        #endregion
 
-        /// <summary>
-        /// Sprawdza wszystkie możliwe combosy poczynając od combosów najbardziej
-        /// skomplikowanych klawiszowo (najwięcej klawiszy), jeżeli których z nich
-        /// jest poprawny to combos się wykona (tylko jeden combos może się wykonać)
-        /// </summary>
-        private void CheckCombos()
+        public override void OnPushedOff(float pushPower, Vector3 direction, float disableTime)
         {
-            foreach (Combo combo in combos) {
-                if (combo.IsValid( currentCombination )) {
-                    combo.action();
-                    return;
-                }
-            }
+            throw new System.NotImplementedException();
         }
+        #endregion
 
     }
 }

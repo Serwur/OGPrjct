@@ -1,48 +1,48 @@
 ﻿using ColdCry.AI;
 using ColdCry.Core;
+using ColdCry.Notifers;
 using ColdCry.Utility;
-using DoubleMMPrjc.AI;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace ColdCry.Objects
 {
     [RequireComponent( typeof( Rigidbody ) )]
-    public abstract class Entity : MonoBehaviour, IOnCountdownEnd
+    public abstract class Entity : MonoBehaviour, IOnCountdownEnd, IHitPointsObservable, ISourcePointsObservable
     {
-        public static readonly float MIN_DAMAGEABLE_FALL_SPEED = 30f;
-
         [Header( "Attributes" )]
-        public Attribute hitPoints;
-        public Attribute sourcePoints;
-        public Attribute armor;
-        public Attribute moveSpeed;
-        public Attribute jumpPower;
-        public Attribute damage;
+        [SerializeField] private Attribute hitPoints;
+        [SerializeField] private Attribute sourcePoints;
+        [SerializeField] private Attribute moveSpeed;
+        [SerializeField] private Attribute jumpPower;
+        [SerializeField] private Attribute damage;
+        [SerializeField] private Attribute flySpeed;
 
         [Header( "Regeneration" )]
-        public float regenHitPoints = 0f;
-        public float regenSourcePoints = 0f;
+        [SerializeField] private float regenHitPoints = 0f;
+        [SerializeField] private float regenSourcePoints = 0f;
 
         [Header( "Multiplayers" )]
-        [Range( 0.01f, 10f )] public float damageTakenMult = 1f;
-        [Range( 0.01f, 10f )] public float fallDamageMult = 1f;
+        [Range( 0.01f, 10f )] private float damageTakenMult = 1f;
+        [Range( 0.01f, 10f )] private float fallDamageMult = 1f;
 
         [Header( "Utility" )]
-        [SerializeField] protected bool isDead = false;
-        [SerializeField] protected bool canMove = true;
-        [SerializeField] protected bool isInviolability = false;
-        [SerializeField] protected bool isPaused = false;
-        [SerializeField] protected bool isBlocking = false;
-        [SerializeField] protected bool isPushImmune = false;
-        [SerializeField] protected bool isFallDamagable = true;
+        [SerializeField] private bool isDead = false;
+        [SerializeField] private bool canMove = true;
+        [SerializeField] private bool isInviolability = false;
+        [SerializeField] private bool isPaused = false;
+        [SerializeField] private bool isBlocking = false;
+        [SerializeField] private bool isPushImmune = false;
+        [SerializeField] private bool isFallDamagable = true;
+        [SerializeField] private bool isInAir = false;
 
         [Header( "Dialogs" )]
-        public DialogueList[] dialogueLists;
+        [SerializeField] private DialogueList[] dialogueLists;
 
         [Header( "Others" )]
         public LayerMask groundLayers;
-        [Range( 0.05f, 1.5f )] public float pathRefindTimer = 0.6f;
+        [Range( 0.05f, 1.5f )] private float pathRefindTimer = 0.6f;
+        [SerializeField] private float minDamagableFallSpeed = 30f;
 
         #region Dev Fields
         [Header( "Dev Tools" )]
@@ -53,57 +53,60 @@ namespace ColdCry.Objects
         #endregion
 
         #region Protected Fields
-        [SerializeField] private HashSet<NPC> followers = new HashSet<NPC>();
+        private HashSet<AIBehaviour> aiFollowers = new HashSet<AIBehaviour>();
+        private List<IHitPointsObserver> hitPointsObservers;
+        private List<ISourcePointsObserver> sourcePointsObservers;
+        private Rigidbody rb;
+        private BoxCollider coll;
+        private ContactArea contactArea;
+        private Vector2 lookDirection = Vector2.right;
+        private float lastMinFallSpeed = float.MaxValue;
+        private MovementStatus movementStatus = MovementStatus.WALKING;
 
-        protected Rigidbody rb;
-        protected BoxCollider coll;
-        [SerializeField] protected ContactArea contactArea;
-        // -1 = left, 1 = right
-        protected int lookDirection = 1;
-        protected float lastMinFallSpeed = float.MaxValue;
         protected long moveCountdownId;
         #endregion
 
         #region Unity API
         public virtual void Awake()
         {
-            rb = GetComponent<Rigidbody>();
-            rb.freezeRotation = true;
+            Rb = GetComponent<Rigidbody>();
+            Rb.freezeRotation = true;
+            startPosition = transform.position;
+            HitPointsObservers = new List<IHitPointsObserver>( 1 );
+            SourcePointsObservers = new List<ISourcePointsObserver>( 1 );
+
             // DEV TOOL TO DELETE IN FUTURE
             if (!anotherCollider) {
-                coll = GetComponent<BoxCollider>();
+                Coll = GetComponent<BoxCollider>();
             } else {
-                coll = transform.Find( colliderChild ).GetComponent<BoxCollider>();
+                Coll = transform.Find( colliderChild ).GetComponent<BoxCollider>();
             }
-            startPosition = transform.position;
         }
 
         public virtual void Start()
         {
             GameManager.AddEntity( this );
             UpdateAttributes();
-            hitPoints.Current = hitPoints.Max;
-            sourcePoints.Current = sourcePoints.Max;
-            armor.Current = armor.Max;
-            moveSpeed.Current = moveSpeed.Max;
-            jumpPower.Current = jumpPower.Max;
-            damage.Current = damage.Max;
+            HitPoints.Current = HitPoints.Max;
+            SourcePoints.Current = SourcePoints.Max;
+            MoveSpeed.Current = MoveSpeed.Max;
+            JumpPower.Current = JumpPower.Max;
+            Damage.Current = Damage.Max;
 
             moveCountdownId = TimerManager.Create( this );
         }
 
         public virtual void FixedUpdate()
         {
-            if (lastMinFallSpeed > rb.velocity.y) {
-                lastMinFallSpeed = rb.velocity.y;
+            if (LastMinFallSpeed > Rb.velocity.y) {
+                LastMinFallSpeed = Rb.velocity.y;
             }
         }
 
         public virtual void OnCollisionEnter(Collision collision)
         {
             if (IsTouchingGround()) {
-                OnFallen( lastMinFallSpeed * -1 );
-                lastMinFallSpeed = float.MaxValue;
+                Fallen( LastMinFallSpeed * -1 );
             }
         }
 
@@ -117,33 +120,139 @@ namespace ColdCry.Objects
         #endregion
 
         #region Public Methods
+
+        /// <summary>
+        /// Do zaimplementowania skrypt ruchu gracza.
+        /// </summary>
+        public void Move(float x)
+        {
+            if (MovementStatus == MovementStatus.WALKING)
+                Move( MoveSpeed.Current, x );
+            else if (MovementStatus == MovementStatus.JUMPING)
+                Move( FlySpeed.Current, x );
+        }
+
+        public void Move(Vector2 destination)
+        {
+            if (MovementStatus == MovementStatus.WALKING)
+                Move( moveSpeed.Current, transform.position.x - destination.x );
+            else if (MovementStatus == MovementStatus.JUMPING)
+                Move( flySpeed.Current, transform.position.x - destination.x );
+        }
+
+        public void Move(float moveSpeed, Vector2 destination)
+        {
+            Move( moveSpeed, transform.position.x - destination.x );
+        }
+
+        public void Move(Entity entity)
+        {
+            if (MovementStatus == MovementStatus.WALKING)
+                Move( moveSpeed.Current, transform.position.x - entity.transform.position.x );
+            else if (MovementStatus == MovementStatus.JUMPING)
+                Move( flySpeed.Current, transform.position.x - entity.transform.position.x );
+        }
+
+        public void Move(float moveSpeed, Entity entity)
+        {
+            Move( moveSpeed, transform.position.x - entity.transform.position.x );
+        }
+
+        public void Move(Transform _transform)
+        {
+            if (MovementStatus == MovementStatus.WALKING)
+                Move( moveSpeed.Current, transform.position.x - _transform.position.x );
+            else if (MovementStatus == MovementStatus.JUMPING)
+                Move( flySpeed.Current, transform.position.x - _transform.position.x );
+        }
+
+        public void Move(float moveSpeed, Transform _transform)
+        {
+            Move( moveSpeed, transform.position.x - _transform.position.x );
+        }
+
+        public void Move(float moveSpeed, float x)
+        {
+            if (CanMove && moveSpeed > 0) {
+                LookDirection = x > 0 ? Vector2.right : Vector2.left;
+                Rb.velocity = new Vector3( 0, Rb.velocity.y );
+                transform.Translate( new Vector3( x * moveSpeed * Time.deltaTime, 0 ), Space.World );
+                transform.rotation = Quaternion.LookRotation( new Vector3( 0, 0, LookDirection.x ), transform.up );
+                OnMove( moveSpeed, x );
+            }
+        }
+
+        public void Jump(float jumpPower)
+        {
+            Rb.velocity = new Vector2( Rb.velocity.x, jumpPower );
+            LastMinFallSpeed = 0;
+            MovementStatus = MovementStatus.JUMPING;
+            IsInAir = true;
+            OnJump( jumpPower );
+        }
+
         /// <summary>
         /// Zadaje obrażenia jednostce.
         /// </summary>
         /// <param name="attack">Informacje o wykonywanym ataku</param>
         /// <returns>Zwraca TRUE, jeżeli jednostka otrzymała jakiekolwiek obrażenia w przeciwnym wypadku zwraca FALSE</returns>
-        public virtual bool TakeDamage(Attack attack)
+        public bool TakeDamage(Attack attack)
         {
             // SPRAWDZA CZY JEDNOSTKA NIE ZABLOKOWAŁA ATAKU
             bool blocked = ShouldBlockAttack( attack );
             // JEŻELI JEDNOSTKA NIE JEST ODPORNA NA ODEPCHNIĘCIA I MOC
             // ODEPCHNIĘCIA JEST WIĘKSZA OD 0 TO JĄ ODPYCHA
-            if (!isPushImmune && attack.PushPower > 0f) {
-                Throw( attack, blocked );
+            if (!IsPushImmune && attack.PushPower > 0f) {
+                PushOff( attack, blocked );
             }
             // JEŻELI JEDNOSTKA JEST NIETYKALNA, ZABLOKOWAŁA ATAK
             // ORAZ ZADAWANE OBRAŻENIA SĄ WIĘKSZE NIŻ 0 TO TRACI PUNKTY ŻYCIA
-            if (!( isInviolability || blocked ) && attack.Damage > 0f) {
+            if (!( IsInviolability || blocked ) && attack.Damage > 0f) {
                 if (attack.PercenteDamage) {
-                    hitPoints.Current -= hitPoints.Max * attack.Damage;
+                    HitPoints.Current -= HitPoints.Max * attack.Damage;
                 } else {
-                    hitPoints.Current -= attack.Damage;
+                    HitPoints.Current -= attack.Damage;
                 }
-                if (hitPoints.Current <= 0f)
+                OnDamageTook( attack );
+                if (HitPoints.Current <= 0f)
                     Die();
                 return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// Metoda lecząca jednostkę o podane punkty zdrowia. Nadpisać metodę w klasach pochodnych, jeżeli istnieje taka potrzeba.
+        /// </summary>
+        /// <param name="heal">Ilość punktów zdrowia do uleczenia</param>
+        /// <returns>TRUE jeżeli zwiększono ilość punktów zdrowia, w przeciwnym wypadku FALSE</returns>
+        public bool Heal(float heal)
+        {
+            float nextHitPoints = HitPoints.Current + heal;
+            if (nextHitPoints > HitPoints.Max)
+                HitPoints.Current = HitPoints.Max;
+            else
+                HitPoints.Current = nextHitPoints;
+            OnBeingHealed( heal );
+            return true;
+        }
+
+        /// <summary>
+        /// <br>Zabija jednostkę wykonując przy tym zaimplementowane działania np. wykonywanie animacji śmierci, dodanie</br>
+        /// <br>punktów graczom itp. itd.</br>
+        /// </summary>
+        public void Die()
+        {
+            Rb.freezeRotation = false;
+            Rb.AddForce( new Vector3( UnityEngine.Random.Range( -14, 14 ), UnityEngine.Random.Range( -5, 25 ) ), ForceMode.VelocityChange );
+            Rb.AddTorque( new Vector3( UnityEngine.Random.Range( 15, 35 ), UnityEngine.Random.Range( -25, 25 ), UnityEngine.Random.Range( -25, 25 ) ), ForceMode.VelocityChange );
+            IsDead = true;
+            OnDie();
+        }
+
+        public virtual void PushOff(Attack attack, bool blocked = false)
+        {
+            PushOff( attack.PushPower, attack.PushDirection, attack.PushDisableTime, blocked );
         }
 
         /// <summary>
@@ -154,11 +263,11 @@ namespace ColdCry.Objects
         /// <param name="direction">Kierunek odrzutu</param>
         /// <param name="pushDisableTime">Czas wstrzymania możliwości ruchu, jeżeli 0 lub mniej to ruch
         /// nie zostaje wyłączony</param>
-        public virtual void Throw(float pushPower, Vector3 direction, float pushDisableTime, bool blocked = false)
+        public virtual void PushOff(float pushPower, Vector3 direction, float pushDisableTime, bool blocked = false)
         {
             // JEŻELI PUSH DISABLE TIME > 0 I JEDNOSTKA NIE BLOKUJE TO UNIEAKTYWNIA RUCH
             if (pushDisableTime > 0 && !blocked) {
-                canMove = false;
+                CanMove = false;
                 TimerManager.GetRemaing( moveCountdownId, out float seconds );
                 if (seconds < pushDisableTime) {
                     // USTAWIA TIMER PO KTÓRYM JEDNOSTKA ODZYSKUJE MOŻLIWOŚĆ RUCHU
@@ -166,60 +275,29 @@ namespace ColdCry.Objects
                 }
             }
             // NADAJE PRĘDKOŚĆ
-            rb.velocity = direction * pushPower;
-        }
-
-        public virtual void Throw(Attack attack, bool blocked = false)
-        {
-            Throw( attack.PushPower, attack.PushDirection, attack.PushDisableTime, blocked );
+            Rb.velocity = direction * pushPower;
+            OnPushedOff( pushPower, direction, pushDisableTime );
         }
 
         /// <summary>
         /// <br>Metoda wywoływana co sekundę w celu regeneracji zycia oraz zasobów.</br>
         /// <br>Powinna być wywołana w jednej klasie, która będzie mieć dostep do wszystkich jednostek np. GameMaster.</br>
         /// </summary>
-        public virtual void Regenerate()
+        public void Regenerate()
         {
-            float nextHitPoints = hitPoints.Current + regenHitPoints;
-            if (nextHitPoints > hitPoints.Max)
-                hitPoints.Current = hitPoints.Max;
+            float nextHitPoints = HitPoints.Current + RegenHitPoints;
+            if (nextHitPoints > HitPoints.Max)
+                HitPoints.Current = HitPoints.Max;
             else
-                hitPoints.Current = nextHitPoints;
+                HitPoints.Current = nextHitPoints;
 
-            float nextSourcePoints = sourcePoints.Current + regenSourcePoints;
-            if (nextSourcePoints > sourcePoints.Max)
-                sourcePoints.Current = hitPoints.Max;
+            float nextSourcePoints = SourcePoints.Current + RegenSourcePoints;
+            if (nextSourcePoints > SourcePoints.Max)
+                SourcePoints.Current = HitPoints.Max;
             else
-                sourcePoints.Current = nextSourcePoints;
-        }
+                SourcePoints.Current = nextSourcePoints;
 
-        /// <summary>
-        /// Metoda lecząca jednostkę o podane punkty zdrowia. Nadpisać metodę w klasach pochodnych, jeżeli istnieje taka potrzeba.
-        /// </summary>
-        /// <param name="heal">Ilość punktów zdrowia do uleczenia</param>
-        /// <returns>TRUE jeżeli zwiększono ilość punktów zdrowia, w przeciwnym wypadku FALSE</returns>
-        public virtual bool Heal(float heal)
-        {
-            float nextHitPoints = hitPoints.Current + heal;
-            if (nextHitPoints > hitPoints.Max)
-                hitPoints.Current = hitPoints.Max;
-            else
-                hitPoints.Current = nextHitPoints;
-            return true;
-        }
-
-        /// <summary>
-        /// <br>Aktualizuje statystyki jednostki takie jak maksymalna ilość zdrowia, maksymalna ilość zasobów, atak, pancerz itp. itd.</br>
-        /// <br>Metoda powinna być wywoływana w momencie zmiany którejś ze statystyk zwiększających lub zmniejsząjących obrażenia, życie maksymalne itp..</br>
-        /// </summary>
-        public virtual void UpdateAttributes()
-        {
-            hitPoints.UpdateAttribute();
-            sourcePoints.UpdateAttribute();
-            armor.UpdateAttribute();
-            moveSpeed.UpdateAttribute();
-            jumpPower.UpdateAttribute();
-            damage.UpdateAttribute();
+            OnRegenerate();
         }
 
         /// <summary>
@@ -228,19 +306,36 @@ namespace ColdCry.Objects
         /// <returns><code>TRUE</code> if attack should be blocked, otherwise <code>FALSE</code></returns>
         public virtual bool ShouldBlockAttack(Attack attack)
         {
-            if (!isBlocking && attack.AttackDirection == 0)
+            if (!IsBlocking && attack.AttackDirection == 0)
                 return false;
-            return attack.AttackDirection != lookDirection;
+            return attack.AttackDirection != LookDirection.x;
         }
 
-        public virtual void OnFallen(float speedWhenFalling)
+        public void Fallen(float speedWhenFalling)
         {
-            if (isFallDamagable && speedWhenFalling > MIN_DAMAGEABLE_FALL_SPEED) {
+            isInAir = false;
+            MovementStatus = MovementStatus.WALKING;
+            if (IsFallDamagable && speedWhenFalling > minDamagableFallSpeed) {
                 TakeDamage(
                     new Attack(
-                        ( speedWhenFalling - MIN_DAMAGEABLE_FALL_SPEED ) / MIN_DAMAGEABLE_FALL_SPEED,
+                        ( speedWhenFalling - minDamagableFallSpeed ) / minDamagableFallSpeed,
                         true ) );
             }
+            LastMinFallSpeed = float.MaxValue;
+            OnFallen( speedWhenFalling );
+        }
+
+        /// <summary>
+        /// <br>Aktualizuje statystyki jednostki takie jak maksymalna ilość zdrowia, maksymalna ilość zasobów, atak, pancerz itp. itd.</br>
+        /// <br>Metoda powinna być wywoływana w momencie zmiany którejś ze statystyk zwiększających lub zmniejsząjących obrażenia, życie maksymalne itp..</br>
+        /// </summary>
+        public virtual void UpdateAttributes()
+        {
+            HitPoints.UpdateAttribute();
+            SourcePoints.UpdateAttribute();
+            MoveSpeed.UpdateAttribute();
+            JumpPower.UpdateAttribute();
+            Damage.UpdateAttribute();
         }
 
         /// <summary>
@@ -249,9 +344,9 @@ namespace ColdCry.Objects
         /// <returns>TRUE if character is touching ground, otherwise FALSE</returns>
         public virtual bool IsTouchingGround()
         {
-            return Physics.CheckBox( new Vector3( coll.bounds.center.x, coll.bounds.min.y, coll.bounds.center.z ),
-                new Vector3( coll.bounds.extents.x * 0.85f, coll.bounds.extents.y * 0.1f, coll.bounds.extents.z * 0.85f ),
-                coll.transform.rotation, groundLayers );
+            return Physics.CheckBox( new Vector3( Coll.bounds.center.x, Coll.bounds.min.y, Coll.bounds.center.z ),
+                new Vector3( Coll.bounds.extents.x * 0.85f, Coll.bounds.extents.y * 0.1f, Coll.bounds.extents.z * 0.85f ),
+                Coll.transform.rotation, groundLayers );
         }
 
         /// <summary>
@@ -260,85 +355,113 @@ namespace ColdCry.Objects
         /// </summary>
         public virtual void ResetUnit()
         {
-            rb.velocity = Vector3.zero;
+            Rb.velocity = Vector3.zero;
             transform.position = startPosition;
-            isBlocking = false;
-            canMove = true;
-            isInviolability = false;
-            lastMinFallSpeed = 0;
-            isDead = false;
-            rb.freezeRotation = true;
-            rb.angularVelocity = Vector3.zero;
+            IsBlocking = false;
+            CanMove = true;
+            IsInviolability = false;
+            LastMinFallSpeed = 0;
+            IsDead = false;
+            Rb.freezeRotation = true;
+            Rb.angularVelocity = Vector3.zero;
             transform.rotation = Quaternion.Euler( Vector3.zero );
-            hitPoints.Current = hitPoints.Max;
+            HitPoints.Current = HitPoints.Max;
         }
 
-        /// <summary>
-        /// <br>Zabija jednostkę wykonując przy tym zaimplementowane działania np. wykonywanie animacji śmierci, dodanie</br>
-        /// <br>punktów graczom itp. itd.</br>
-        /// </summary>
-        public virtual void Die()
+        public bool AddFollower(AIBehaviour follower)
         {
-            rb.freezeRotation = false;
-            rb.AddForce( new Vector3( UnityEngine.Random.Range( -14, 14 ), UnityEngine.Random.Range( -5, 25 ) ), ForceMode.VelocityChange );
-            rb.AddTorque( new Vector3( UnityEngine.Random.Range( 15, 35 ), UnityEngine.Random.Range( -25, 25 ), UnityEngine.Random.Range( -25, 25 ) ), ForceMode.VelocityChange );
-            isDead = true;
+            return AiFollowers.Add( follower );
         }
 
-        public virtual void Jump(float jumpPower)
+        public bool RemoveFollower(AIBehaviour follower)
         {
-            rb.velocity = new Vector2( rb.velocity.x, jumpPower );
-            lastMinFallSpeed = 0;
-            /* foreach (Entity entity in followers ) {
-                 if ( entity.ContactArea == ContactArea ) {
-                     entity.Jump(20);
-                 }
-             }*/
-        }
-
-        public bool AddFollower(NPC follower)
-        {
-            return followers.Add( follower );
-        }
-
-        public bool RemoveFollower(NPC follower)
-        {
-            return followers.Remove( follower );
+            return AiFollowers.Remove( follower );
         }
 
         public virtual void OnContactAreaEnter(ContactArea contactArea)
         {
-            foreach (NPC npc in FollowersList) {
-                if (!npc.FollowTarget( this )) {
-                    npc.StartPathRefind( pathRefindTimer );
+            foreach (AIBehaviour aiFollower in AiFollowers) {
+                if (!aiFollower.FollowTarget( this )) {
+                    aiFollower.StartPathRefind( pathRefindTimer );
                 }
-
-                //bool b = npc.FollowTarget( this );
-                /* if (npc.ContactArea != null && !npc.FollowTarget( this )) {
-                     npc.SetReachState();
-                     //npc.SetWatchState();
-                     Debug.Log("refind by enter");
-                     
-                 }
-                 Debug.Log("dont refind again");*/
             }
         }
-        public abstract void OnContactAreaExit(ContactArea contactArea);
+        public virtual void OnContactAreaExit(ContactArea contactArea)
+        {
+
+        }
 
         public virtual void OnCountdownEnd(long id, float overtime)
         {
             if (id == moveCountdownId) {
-                canMove = true;
+                CanMove = true;
             }
+        }
+
+        public void AddHitPointsObserver(IHitPointsObserver observer)
+        {
+
+        }
+
+        public void RemoveHitPointsObserver(IHitPointsObserver observer)
+        {
+
+        }
+
+        public void AddSourcePointsObserver(ISourcePointsObserver observer)
+        {
+
+        }
+
+        public void RemoveSourcePointsObserver(ISourcePointsObserver observer)
+        {
+
         }
         #endregion
 
+        #region Abstract
+        public abstract void OnMove(float moveSpeed, float x);
+        public abstract void OnJump(float jumpPower);
+        public abstract void OnFallen(float speedWhenFalling);
+        public abstract void OnDamageTook(Attack attack);
+        public abstract void OnRegenerate();
+        public abstract void OnPushedOff(float pushPower, Vector3 direction, float disableTime);
+        public abstract void OnBeingHealed(float healedHp);
+        public abstract void OnDie();
+        #endregion
+
         #region Setter And Getters
+        public Vector3 LookRotation { get => new Vector3( LookDirection.x, 0 ); }
+        public Attribute HitPoints { get => hitPoints; set => hitPoints = value; }
+        public Attribute SourcePoints { get => sourcePoints; set => sourcePoints = value; }
+        public Attribute MoveSpeed { get => moveSpeed; set => moveSpeed = value; }
+        public Attribute JumpPower { get => jumpPower; set => jumpPower = value; }
+        public Attribute Damage { get => damage; set => damage = value; }
+        public Attribute FlySpeed { get => flySpeed; set => flySpeed = value; }
+        public float RegenHitPoints { get => regenHitPoints; set => regenHitPoints = value; }
+        public float RegenSourcePoints { get => regenSourcePoints; set => regenSourcePoints = value; }
+        public float DamageTakenMult { get => damageTakenMult; set => damageTakenMult = value; }
+        public float FallDamageMult { get => fallDamageMult; set => fallDamageMult = value; }
+        public bool IsDead { get => isDead; set => isDead = value; }
+        public bool CanMove { get => canMove; set => canMove = value; }
+        public bool IsInviolability { get => isInviolability; set => isInviolability = value; }
         public bool IsPaused { get => isPaused; set => isPaused = value; }
-        protected int LookDirection { get => lookDirection; }
-        public Vector3 LookRotation { get => new Vector3( lookDirection, 0 ); }
+        public bool IsBlocking { get => isBlocking; set => isBlocking = value; }
+        public bool IsPushImmune { get => isPushImmune; set => isPushImmune = value; }
+        public bool IsFallDamagable { get => isFallDamagable; set => isFallDamagable = value; }
+        public float PathRefindTimer { get => pathRefindTimer; set => pathRefindTimer = value; }
+        public float MinDamagableFallSpeed { get => minDamagableFallSpeed; set => minDamagableFallSpeed = value; }
+        public DialogueList[] DialogueLists { get => dialogueLists; set => dialogueLists = value; }
+        public bool IsInAir { get => isInAir; set => isInAir = value; }
+        public HashSet<AIBehaviour> AiFollowers { get => aiFollowers; set => aiFollowers = value; }
+        public List<IHitPointsObserver> HitPointsObservers { get => hitPointsObservers; set => hitPointsObservers = value; }
+        public List<ISourcePointsObserver> SourcePointsObservers { get => sourcePointsObservers; set => sourcePointsObservers = value; }
+        public Rigidbody Rb { get => rb; set => rb = value; }
+        public BoxCollider Coll { get => coll; set => coll = value; }
         public ContactArea ContactArea { get => contactArea; set => contactArea = value; }
-        public Entity[] FollowersList { get => Utility.Collections.ToArray( followers ); }
+        public Vector2 LookDirection { get => lookDirection; set => lookDirection = value; }
+        public float LastMinFallSpeed { get => lastMinFallSpeed; set => lastMinFallSpeed = value; }
+        public MovementStatus MovementStatus { get => movementStatus; set => movementStatus = value; }
         #endregion
     }
 }

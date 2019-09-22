@@ -30,7 +30,7 @@ namespace ColdCry.Utility
             this.canGrow = canGrow;
 
             pooledObjects = new List<T>( size );
-            ;
+
             if (parentName != null) {
                 parent = new GameObject( parentName );
             }
@@ -47,7 +47,36 @@ namespace ColdCry.Utility
             }
         }
 
-        public T GetPooledObject()
+        public ObjectPool(T prefab, int size, Transform parent) : this( prefab, size, false, parent )
+        {
+
+        }
+
+        public ObjectPool(T prefab, int size, bool canGrow, Transform parent)
+        {
+            if (size <= 0) {
+                throw new System.ArgumentException( "Size cannot be 0 or less" );
+            }
+
+            this.prefab = prefab;
+            this.canGrow = canGrow;
+
+            pooledObjects = new List<T>( size );
+
+            for (int i = 0; i < size; i++) {
+                T objectPool = null;
+                if (parent != null) {
+                    objectPool = GameObject.Instantiate( prefab, parent.transform );
+                } else {
+                    objectPool = GameObject.Instantiate( prefab );
+                }
+                objectPool.gameObject.SetActive( false );
+                objectPool.transform.parent = parent;
+                pooledObjects.Add( objectPool );
+            }
+        }
+
+        public T Get()
         {
             foreach (T pooledObject in pooledObjects) {
                 if (!pooledObject.gameObject.activeInHierarchy) {
@@ -63,12 +92,12 @@ namespace ColdCry.Utility
             return null;
         }
 
-        public T GetPooledObject(Vector2 position)
+        public T Get(Vector2 position)
         {
-            return GetPooledObject( position, Quaternion.identity );
+            return Get( position, Quaternion.identity );
         }
 
-        public T GetPooledObject(Vector2 position, Quaternion rotation)
+        public T Get(Vector2 position, Quaternion rotation)
         {
             foreach (T pooledObject in pooledObjects) {
                 if (!pooledObject.gameObject.activeInHierarchy) {
@@ -87,9 +116,17 @@ namespace ColdCry.Utility
             return null;
         }
 
-        public void ReturnPooledObject(T obj)
+        public void Return(T obj)
         {
+            if (!pooledObjects.Contains( obj ))
+                throw new System.ArgumentException( "Object doesn't belong to pool" );
             obj.gameObject.SetActive( false );
+        }
+
+        public void ReturnToParent(T obj)
+        {
+            obj.transform.parent = parent.transform;
+            Return( obj );
         }
 
         public void Clear()
@@ -118,6 +155,7 @@ namespace ColdCry.Utility
         public int Size { get => pooledObjects.Count; }
         public bool CanGrow { get => canGrow; set => canGrow = value; }
         public T Prefab { get => prefab; }
+        public GameObject Parent { get => parent; }
     }
 
 }
