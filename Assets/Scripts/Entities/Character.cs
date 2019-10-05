@@ -136,6 +136,16 @@ namespace ColdCry.Objects
             animator.SetTrigger( "isDying" );
         }
 
+        public override void OnPushedOff(float pushPower, Vector3 direction, float disableTime)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override void DrawGizmos()
+        {
+            throw new System.NotImplementedException();
+        }
+
         public override void ResetUnit()
         {
             base.ResetUnit();
@@ -153,21 +163,22 @@ namespace ColdCry.Objects
             if (TimerManager.HasEnded( simpleAttackCountdown )) {
                 // W innym wypadku jest on wykonany, ale jeżeli jesteśmy w aktualnie w locie
                 // to atak jest wykonany w miejscu
-                Vector3 attackDirection = new Vector3( SIMPLE_ATTACK_MOVE / 1.3f * LookDirection, Rb.velocity.y );
+                Vector3 attackDirection = new Vector3( SIMPLE_ATTACK_MOVE / 1.3f * LookDirection.x, Rb.velocity.y );
                 if (IsTouchingGround())
                     Rb.velocity = attackDirection;
                 // Przypisujemy ostatni klawisz ze zwykłego ataku oraz resetujemy timer
                 TimerManager.Reset( simpleAttackCountdown );
                 weapon.SetNextAttackInfo(
                     new Attack( Damage.Max,
-                    LookDirection,
-                    new Vector2( LookDirection, 0 ),
+                    (int) LookDirection.x,
+                    new Vector2( (int)LookDirection.x, 0 ),
                     SIMPLE_ATTACK_MOVE,
                     SIMPLE_ATTACK_DISABLE_TIME ),
                     SIMPLE_ATTACK_TIME + 0.08F );
                 animator.SetTrigger( "simpleAttack" );
                 CanMove = false;
             }
+
         }
 
         /// <summary>
@@ -197,13 +208,13 @@ namespace ColdCry.Objects
             if (TimerManager.HasEnded( backwardAttackCountdown )) {
                 TimerManager.Reset( backwardAttackCountdown );
                 LookDirection *= -1;
-                Rb.velocity = new Vector3( SIMPLE_ATTACK_MOVE * 2 * LookDirection, Rb.velocity.y );
+                Rb.velocity = new Vector3( SIMPLE_ATTACK_MOVE * 2 * LookDirection.x, Rb.velocity.y );
                 CanMove = false;
-                transform.rotation = Quaternion.LookRotation( new Vector3( 0, 0, LookDirection ), transform.up );
+                transform.rotation = Quaternion.LookRotation( new Vector3( 0, 0, LookDirection.x ), transform.up );
                 weapon.SetNextAttackInfo(
                     new Attack( Damage.Current * 2,
-                    LookDirection,
-                    new Vector3( LookDirection, 0 ),
+                    (int) LookDirection.x,
+                    new Vector3( LookDirection.x, 0 ),
                     SIMPLE_ATTACK_MOVE * 2,
                     BACKWARD_ATTACK_DISABLE_TIME ),
                     BACKWARD_ATTACK_TIME + 0.15F );
@@ -398,11 +409,6 @@ namespace ColdCry.Objects
 
         public void OnArrowsDeadZone(JoystickDoubleAxis arrows)
         {
-        }
-
-        public override void OnPushedOff(float pushPower, Vector3 direction, float disableTime)
-        {
-            throw new System.NotImplementedException();
         }
         #endregion
 

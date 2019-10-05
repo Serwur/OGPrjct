@@ -4,15 +4,15 @@ using UnityEngine;
 
 namespace ColdCry.Objects
 {
-    public abstract class NPC : Entity, IStateAIListener
+    public class NPC : Entity
     {
-        protected AIBehaviour aiBehaviour;
+        protected AIMovementBehaviour aiBehaviour;
 
         #region Unity API
         public override void Awake()
         {
             base.Awake();
-            aiBehaviour = GetComponent<AIBehaviour>();
+            aiBehaviour = GetComponent<AIMovementBehaviour>();
         }
 
         public void OnDrawGizmos()
@@ -28,72 +28,52 @@ namespace ColdCry.Objects
             AIBehaviour.Stop();
         }
 
-        public void SetSleepState(AIState oldState)
-        {
-
-        }
-
-        public void SetWatchState(AIState oldState)
-        {
-
-        }
-
-        public void SetReachState(AIState oldState)
-        {
-
-        }
-
-        public void SetAttackState(AIState oldState)
-        {
-
-        }
-
-        public void SetFollowState(AIState oldState)
-        {
-
-        }
-
-        public void OnAnyStateChange(AIState oldState, AIState newState)
-        {
-
-        }
-
-        public void OnAnyStateUpdate(AIState currentState)
-        {
-
-        }
-
-        public void SleepUpdate()
-        {
-
-        }
-
-        public void WatchUpdate()
-        {
-
-        }
-
-        public void ReachUpdate()
-        {
-
-        }
-
-        public void FollowUpdate()
-        {
-
-        }
-
-        public void AttackUpdate()
-        {
-
-        }
-
         #region Abstract
-        public abstract void DrawGizmos();
+
+
+        public override void OnMove(float moveSpeed, float x)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override void OnJump(float jumpPower)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override void OnFallen(float speedWhenFalling)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override void OnDamageTook(Attack attack)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override void OnRegenerate()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override void OnPushedOff(float pushPower, Vector3 direction, float disableTime)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override void OnBeingHealed(float healedHp)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override void DrawGizmos()
+        {
+            throw new System.NotImplementedException();
+        }
         #endregion
 
         #region Getters and Setters
-        public AIBehaviour AIBehaviour { get => aiBehaviour; private set => aiBehaviour = value; }
+        public AIMovementBehaviour AIBehaviour { get => aiBehaviour; private set => aiBehaviour = value; }
         #endregion
     }
 }

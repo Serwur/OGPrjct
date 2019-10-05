@@ -98,10 +98,20 @@ namespace ColdCry.Utility
 
         public static long CreateSchedule(float interval, IOnCountdownEnd listener = null)
         {
+            return CreateSchedule( interval, listener, -1 );
+        }
+
+        public static long CreateSchedule(float interval, int repeats)
+        {
+            return CreateSchedule( interval, null, repeats );
+        }
+
+        public static long CreateSchedule(float interval, IOnCountdownEnd listener, int repeats)
+        {
             if (interval < 0)
                 throw new SystemException( "Interval time cannot be less than 0!" );
             long id = NextId();
-            Instance.endedCountdowns.Add( id, new Countdown( interval, listener, false, true ) );
+            Instance.endedCountdowns.Add( id, new Countdown( interval, null, false, repeats ) );
             return id;
         }
 
@@ -123,12 +133,22 @@ namespace ColdCry.Utility
             return id;
         }
 
-        public static long StartSchedule(float interval, IOnCountdownEnd listener)
+        public static long StartSchedule(float interval, IOnCountdownEnd listener = null)
+        {
+            return StartSchedule( interval, listener, -1 );
+        }
+
+        public static long StartSchedule(float interval, int repeats)
+        {
+            return StartSchedule( interval, null, repeats );
+        }
+
+        public static long StartSchedule(float interval, IOnCountdownEnd listener, int repeats)
         {
             if (interval < 0)
                 throw new ArgumentException( "Interval time cannot be less than 0!" );
             long id = NextId();
-            Instance.notEndedCountdowns.Add( id, new Countdown( interval, listener, false, true ) );
+            Instance.notEndedCountdowns.Add( id, new Countdown( interval, listener, false, repeats ) );
             return id;
         }
 
@@ -217,6 +237,21 @@ namespace ColdCry.Utility
         }
 
         /// <summary>
+        /// Pauses/resumes countdown
+        /// </summary>
+        /// <param name="id">ID of affected countdown</param>
+        /// <param name="pause"><b>True</b> to pause, <b>false</b> to resume</param>
+        /// <returns><b>True</b> if countdown has been found, otherwise <b>false</b></returns>
+        public static bool Pause(long id, bool pause)
+        {
+            if (GetCountdownNotEnded( id, out Countdown countdown )) {
+                countdown.Paused = pause;
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Stops countdown with given id. This method doesn't call listeners.
         /// </summary>
         /// <param name="id">Id of countdown</param>
@@ -225,6 +260,7 @@ namespace ColdCry.Utility
         {
             if (GetCountdownNotEnded( id, out Countdown countdown )) {
                 Instance.notEndedCountdowns.Remove( id );
+                countdown.Paused = false;
                 if (!Instance.endedCountdowns.ContainsKey( id )) {
                     Instance.endedCountdowns.Add( id, countdown );
                 }
@@ -274,6 +310,7 @@ namespace ColdCry.Utility
             return Instance.notEndedCountdowns.Remove( id );
         }
 
+        [Obsolete( "Doesn't used anymore" )]
         /// <summary>
         /// Sets countdown to remove when ends depdens on given <br>remove</br> argument.
         /// </summary>
@@ -298,8 +335,7 @@ namespace ColdCry.Utility
         {
             if (timeSpeed <= 0f)
                 throw new System.Exception( "TimerManager::SetCountdownTimeSpeed::(Time speed cannot be less than 0 or equal)" );
-            Countdown countdown;
-            if (GetCountdown( id, out countdown )) {
+            if (GetCountdown( id, out Countdown countdown )) {
                 countdown.TimeSpeed = timeSpeed;
                 return true;
             }
@@ -308,44 +344,49 @@ namespace ColdCry.Utility
         #endregion
 
         #region Private Methods
-        /// <summary>
-        /// <br>Metoda powinna być wywoływana metodzie Update() lub FixedUpdate(), a jako argument przekazany czas Time.DeltaTime lub Time.FixedDeltaTime.</br>
-        /// <br><b>DO POPRAWNEGO DZIAŁANIA NALEŻY TYLKO I WYŁĄCZNIE W JEDNYM MIEJSCU WYWOŁYWAĆ TĄ METODĘ, W PRZECIWNYM WYPADKU</br>
-        /// <br>DOJDZIE DO BŁĘDNEGO ODLICZANIA CZASU</b></br>
-        /// </summary>
-        /// <param name="passedTime">Czas, który minął w danej klatce lub "fixed" klatce</param>
+        // Main method
         private void Tick(float passedTime)
         {
             time += passedTime;
+
             LinkedList<long> countdownsToRemove = new LinkedList<long>();
 
             foreach (long key in notEndedCountdowns.Keys) {
                 Countdown countdown = notEndedCountdowns[key];
+
+                if (countdown.Paused)
+                    continue;
+
                 float overtime = countdown.Overtime;
                 if (overtime >= 0) {
-
-                    countdownsToRemove.AddLast( key );
                     countdown.WillBeRemoved = true;
 
-                    if (!countdown.IsScheduled) {
-                        if (!countdown.DestroyWhenEnds)
-                            endedCountdowns.Add( key, countdown );
-                        if (countdown.Listener != null)
-                            countdown.Listener.OnCountdownEnd( key, overtime );
-                    } else {
+                    if (countdown.Listener != null)
                         countdown.Listener.OnCountdownEnd( key, overtime );
-                        countdown.Reset( countdown.CountdownTime );
-                        countdownsToRemove.AddLast( key );
+
+                    if (countdown.IsScheduled) {
+                        if (countdown.Repeats <= 0) {
+                            countdown.Reset( countdown.CountdownTime );
+                            countdown.WillBeRemoved = false;
+                        } else {
+                            countdown.CurrentRepeat--;
+                            if (countdown.CurrentRepeat >= countdown.Repeats) {
+                                countdown.Reset( countdown.CountdownTime );
+                                countdown.WillBeRemoved = false;
+                            }
+                        }
                     }
 
                 }
 
+                if (countdown.WillBeRemoved) {
+                    countdownsToRemove.AddLast( key );
+                    endedCountdowns.Add( key, countdown );
+                }
             }
 
             foreach (long key in countdownsToRemove) {
-                Countdown countdown = notEndedCountdowns[key];
-                if (countdown.WillBeRemoved)
-                    notEndedCountdowns.Remove( key );
+                notEndedCountdowns.Remove( key );
             }
         }
 
@@ -421,21 +462,27 @@ namespace ColdCry.Utility
 
         private class Countdown
         {
-            private float countdownStartTime = 0f;
-            private float timeSpeed = 1f;
-            private float countdownTime;
-            private IOnCountdownEnd listener;
-            private bool destroyWhenEnds;
-            private bool isScheduled;
-            private bool willBeRemoved = false;
+            public Countdown(float countdownTime, IOnCountdownEnd listener, bool destroyWhenEnds)
+                : this( countdownTime, listener, destroyWhenEnds, false )
+            { }
 
             public Countdown(float countdownTime, IOnCountdownEnd listener, bool destroyWhenEnds, bool isScheduled)
             {
-                this.countdownTime = countdownTime;
-                this.listener = listener;
-                this.destroyWhenEnds = destroyWhenEnds;
-                this.isScheduled = isScheduled;
-                countdownStartTime = Instance.time;
+                CountdownTime = countdownTime;
+                Listener = listener;
+                DestroyWhenEnds = destroyWhenEnds;
+                IsScheduled = isScheduled;
+                CountdownStartTime = Instance.time;
+            }
+
+            public Countdown(float countdownTime, IOnCountdownEnd listener, bool destroyWhenEnds, int repeats)
+            {
+                CountdownTime = countdownTime;
+                Listener = listener;
+                DestroyWhenEnds = destroyWhenEnds;
+                IsScheduled = true;
+                Repeats = repeats;
+                CountdownStartTime = Instance.time;
             }
 
             /// <summary>
@@ -446,8 +493,8 @@ namespace ColdCry.Utility
             /// </param>
             public void Reset(float newCountdown)
             {
-                countdownTime = newCountdown;
-                countdownStartTime = Instance.time;
+                CountdownTime = newCountdown;
+                CountdownStartTime = Instance.time;
             }
 
             /// <summary>
@@ -456,15 +503,15 @@ namespace ColdCry.Utility
             /// <returns>
             /// <b>True</b>, if countdown ended otherwise <b>false</b>.
             /// </returns>
-            public bool HasEnded => ( Instance.time - countdownStartTime ) * timeSpeed >= countdownTime;
-            public float Overtime => ( Instance.time - countdownStartTime ) * timeSpeed - countdownTime;
+            public bool HasEnded => ( Instance.time - CountdownStartTime ) * TimeSpeed >= CountdownTime;
+            public float Overtime => ( Instance.time - CountdownStartTime ) * TimeSpeed - CountdownTime;
             /// <summary>
             /// Gets time in seconds to end the countdown.
             /// </summary>
             /// <returns>
             /// Time in seconds left to end countdown.
             /// </returns>
-            public float Seconds => ( countdownTime - ( Instance.time - countdownStartTime ) );
+            public float Seconds => ( CountdownTime - ( Instance.time - CountdownStartTime ) );
             public string InSec
             {
                 get {
@@ -473,13 +520,17 @@ namespace ColdCry.Utility
                     return ( lessThanZero ? "-" : "" ) + ( ( seconds < 10 ) ? "0" : "" ) + ( lessThanZero ? -seconds : seconds ).ToString();
                 }
             }
-            public IOnCountdownEnd Listener { get => listener; set => listener = value; }
-            public bool DestroyWhenEnds { get => destroyWhenEnds; set => destroyWhenEnds = value; }
-            public float CountdownTime { get => countdownTime; }
-            public float CountdownStartTime { get => countdownStartTime; }
-            public float TimeSpeed { get => timeSpeed; set => timeSpeed = value; }
-            public bool IsScheduled { get => isScheduled; set => isScheduled = value; }
-            public bool WillBeRemoved { get => willBeRemoved; set => willBeRemoved = value; }
+
+            public IOnCountdownEnd Listener { get; set; }
+            public bool DestroyWhenEnds { get; set; }
+            public float CountdownTime { get; private set; }
+            public float CountdownStartTime { get; private set; } = 0f;
+            public float TimeSpeed { get; set; } = 1f;
+            public bool IsScheduled { get; set; }
+            public bool WillBeRemoved { get; set; } = false;
+            public int Repeats { get; set; } = -1;
+            public int CurrentRepeat { get; set; } = 0;
+            public bool Paused { get; set; } = false;
         }
     }
 

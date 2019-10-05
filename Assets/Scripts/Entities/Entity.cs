@@ -53,7 +53,7 @@ namespace ColdCry.Objects
         #endregion
 
         #region Protected Fields
-        private HashSet<AIBehaviour> aiFollowers = new HashSet<AIBehaviour>();
+        private HashSet<AIMovementBehaviour> aiFollowers = new HashSet<AIMovementBehaviour>();
         private List<IHitPointsObserver> hitPointsObservers;
         private List<ISourcePointsObserver> sourcePointsObservers;
         private Rigidbody rb;
@@ -368,21 +368,25 @@ namespace ColdCry.Objects
             HitPoints.Current = HitPoints.Max;
         }
 
-        public bool AddFollower(AIBehaviour follower)
+        public bool AddFollower(AIMovementBehaviour follower)
         {
             return AiFollowers.Add( follower );
         }
 
-        public bool RemoveFollower(AIBehaviour follower)
+        public bool RemoveFollower(AIMovementBehaviour follower)
         {
             return AiFollowers.Remove( follower );
         }
 
         public virtual void OnContactAreaEnter(ContactArea contactArea)
         {
-            foreach (AIBehaviour aiFollower in AiFollowers) {
-                if (!aiFollower.FollowTarget( this )) {
-                    aiFollower.StartPathRefind( pathRefindTimer );
+            foreach (AIMovementBehaviour aiFollower in AiFollowers) {
+                AIMovementResponse response = aiFollower.TrackTarget( this, false );
+                switch (response) {
+                    case AIMovementResponse.NO_CONTACT_AREA:
+                    case AIMovementResponse.NO_PATH_TO_TARGET:
+                        aiFollower.StartPathRefind();
+                        break;
                 }
             }
         }
@@ -428,6 +432,7 @@ namespace ColdCry.Objects
         public abstract void OnPushedOff(float pushPower, Vector3 direction, float disableTime);
         public abstract void OnBeingHealed(float healedHp);
         public abstract void OnDie();
+        public abstract void DrawGizmos();
         #endregion
 
         #region Setter And Getters
@@ -453,7 +458,7 @@ namespace ColdCry.Objects
         public float MinDamagableFallSpeed { get => minDamagableFallSpeed; set => minDamagableFallSpeed = value; }
         public DialogueList[] DialogueLists { get => dialogueLists; set => dialogueLists = value; }
         public bool IsInAir { get => isInAir; set => isInAir = value; }
-        public HashSet<AIBehaviour> AiFollowers { get => aiFollowers; set => aiFollowers = value; }
+        public HashSet<AIMovementBehaviour> AiFollowers { get => aiFollowers; set => aiFollowers = value; }
         public List<IHitPointsObserver> HitPointsObservers { get => hitPointsObservers; set => hitPointsObservers = value; }
         public List<ISourcePointsObserver> SourcePointsObservers { get => sourcePointsObservers; set => sourcePointsObservers = value; }
         public Rigidbody Rb { get => rb; set => rb = value; }
