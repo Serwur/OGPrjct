@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ColdCry.Utility
+namespace ColdCry.Utility.Time
 {
 
     /// <summary>
@@ -24,6 +24,8 @@ namespace ColdCry.Utility
         public static readonly int HOUR_UNIT = 3600;
         public static readonly int DAY_UNIT = 86400;
 
+        private static long CURRENT_ID = 0;
+
         private static TimerManager Instance;
         #endregion
 
@@ -34,9 +36,8 @@ namespace ColdCry.Utility
 
         #region Private Fields
         private float time = 0f;
-        private long nextId = 0;
-        private Dictionary<long, Countdown> endedCountdowns = new Dictionary<long, Countdown>();
-        private Dictionary<long, Countdown> notEndedCountdowns = new Dictionary<long, Countdown>();
+        private Dictionary<long, ICountdown> endedCountdowns = new Dictionary<long, ICountdown>();
+        private Dictionary<long, ICountdown> notEndedCountdowns = new Dictionary<long, ICountdown>();
         #endregion
 
         #region Unity API
@@ -49,10 +50,7 @@ namespace ColdCry.Utility
             time = startTime;
         }
 
-        private void Update()
-        {
-            Tick( Time.deltaTime );
-        }
+        private void Update() => Tick( UnityEngine.Time.deltaTime );
         #endregion
 
         #region Public Methods
@@ -70,114 +68,67 @@ namespace ColdCry.Utility
         }
 
         /// <summary>
-        /// Should be used when just want to gets ID and doesn't want to start countdown at this moment
+        /// Should be used when just want to gets ID and doesn't want to start time at this moment
         /// </summary>
-        /// <param name="listener">Listener to listen call back when countdown ends</param>
-        /// <param name="removeWhenEnds">If <code><b>True</b></code> countdown will be removed when ends</param>
+        /// <param name="time">Countdown time in seconds</param>
+        /// <param name="listener">Listener to listen call back when time ends</param>
+        /// <param name="removeWhenEnds">If <code><b>True</b></code> time will be removed when ends</param>
         /// <returns></returns>
-        public static long Create(IOnCountdownEnd listener = null, bool removeWhenEnds = false)
+        public static ICountdown Create(float time = 1f, Action<float> onEndAction = null)
         {
-            return Create( 0, listener, removeWhenEnds );
+            return Countdown.GetInstance( time, onEndAction );
+        }
+
+        public static ICountdown CreateSchedule(float interval = 1f, int repeats = -1, Action<float> onEndAction = null)
+        {
+            return ScheduledCountdown.GetInstance( interval, repeats, onEndAction );
         }
 
         /// <summary>
-        /// Should be used when just want to gets ID and doesn't want to start countdown at this moment
-        /// </summary>
-        /// <param name="countdown">Countdown time in seconds</param>
-        /// <param name="listener">Listener to listen call back when countdown ends</param>
-        /// <param name="removeWhenEnds">If <code><b>True</b></code> countdown will be removed when ends</param>
-        /// <returns></returns>
-        public static long Create(float countdown, IOnCountdownEnd listener = null, bool removeWhenEnds = false)
-        {
-            if (countdown < 0)
-                throw new SystemException( "Countdown time cannot be less than 0!" );
-            long id = NextId();
-            Instance.endedCountdowns.Add( id, new Countdown( countdown, listener, removeWhenEnds, false ) );
-            return id;
-        }
-
-        public static long CreateSchedule(float interval, IOnCountdownEnd listener = null)
-        {
-            return CreateSchedule( interval, listener, -1 );
-        }
-
-        public static long CreateSchedule(float interval, int repeats)
-        {
-            return CreateSchedule( interval, null, repeats );
-        }
-
-        public static long CreateSchedule(float interval, IOnCountdownEnd listener, int repeats)
-        {
-            if (interval < 0)
-                throw new SystemException( "Interval time cannot be less than 0!" );
-            long id = NextId();
-            Instance.endedCountdowns.Add( id, new Countdown( interval, null, false, repeats ) );
-            return id;
-        }
-
-        /// <summary>
-        /// Starts a new countdown with given time. If time is less than 0 then exception is thrown.
+        /// Starts a new time with given time. If time is less than 0 then exception is thrown.
         /// It's important to take <b>id</b> as returned long value.
         /// </summary>
-        /// <param name="countdown">Time to countdown</param>
+        /// <param name="time">Time to time</param>
         /// <param name="start">True, if should start immidetly</param>
-        /// <param name="listener">Listener to listen call back when countdown ends</param>
-        /// <param name="removeWhenEnds">If <code><b>True</b></code> countdown will be removed when ends</param>
-        /// <returns>id of new countdown</returns>
-        public static long Start(float countdown, IOnCountdownEnd listener = null, bool removeWhenEnds = false)
+        /// <param name="listener">Listener to listen call back when time ends</param>
+        /// <param name="removeWhenEnds">If <code><b>True</b></code> time will be removed when ends</param>
+        /// <returns>id of new time</returns>
+        public static ICountdown Start(float time = 1f, Action<float> onEndAction = null)
         {
-            if (countdown < 0)
-                throw new ArgumentException( "Time for countdown cannot be less than 0!" );
-            long id = NextId();
-            Instance.notEndedCountdowns.Add( id, new Countdown( countdown, listener, removeWhenEnds, false ) );
-            return id;
+            ICountdown countdown = Create( time, onEndAction );
+            countdown.Start();
+            return countdown;
         }
 
-        public static long StartSchedule(float interval, IOnCountdownEnd listener = null)
+        public static ICountdown StartSchedule(float interval = 1f, int repeats = -1, Action<float> onEndAction = null)
         {
-            return StartSchedule( interval, listener, -1 );
+            ICountdown countdown = CreateSchedule( interval, repeats, onEndAction );
+            countdown.Start();
+            return countdown;
         }
 
-        public static long StartSchedule(float interval, int repeats)
-        {
-            return StartSchedule( interval, null, repeats );
-        }
-
-        public static long StartSchedule(float interval, IOnCountdownEnd listener, int repeats)
-        {
-            if (interval < 0)
-                throw new ArgumentException( "Interval time cannot be less than 0!" );
-            long id = NextId();
-            Instance.notEndedCountdowns.Add( id, new Countdown( interval, listener, false, repeats ) );
-            return id;
-        }
-
+        /*
         /// <summary>
-        /// Returns remaing time of countdown in seconds as <b>string</b>
+        /// Returns remaing time of time in seconds as <b>string</b>
         /// </summary>
-        /// <param name="countdown">Id of countdown</param>
+        /// <param name="time">Id of time</param>
         /// <param name="seconds">Out parameter to get remaing time</param>
-        /// <returns><code><b>True</b></code> if given countdown exists, otherwise <code><b>false</b></code></returns>
+        /// <returns><code><b>True</b></code> if given time exists, otherwise <code><b>false</b></code></returns>
         public static bool GetRemaing(long id, out string seconds)
         {
-            if (GetCountdown( id, out Countdown countdown )) {
-                seconds = countdown.InSec;
-                return true;
-            }
-            seconds = null;
-            return false;
-        }
+            return GetRemaing( id, seconds.ToString() );
+        }*/
 
         /// <summary>
-        /// Returns remaing time of countdown in seconds as <b>float</b> value
+        /// Returns remaing time of time in seconds as <b>float</b> value
         /// </summary>
-        /// <param name="countdown">Id of countdown</param>
+        /// <param name="time">Id of time</param>
         /// <param name="seconds">Out parameter to get remaing time</param>
-        /// <returns><code><b>True</b></code> if given countdown exists, otherwise <code><b>false</b></code></returns>
+        /// <returns><code><b>True</b></code> if given time exists, otherwise <code><b>false</b></code></returns>
         public static bool GetRemaing(long id, out float seconds)
         {
-            if (GetCountdown( id, out Countdown countdown )) {
-                seconds = countdown.Seconds;
+            if (GetCountdown( id, out ICountdown time )) {
+                seconds = time.Remaing;
                 return true;
             }
             seconds = float.MinValue;
@@ -185,25 +136,34 @@ namespace ColdCry.Utility
         }
 
         /// <summary>
-        /// Resets a countdown with given ID and sets a new countdown time if given second parameter.
+        /// Restarts time with given ID and sets a new time time if given second parameter.
         /// </summary>
-        /// <param name="id">ID of countdown</param>
-        /// <param name="newCountdown">New time for countdown</param>
-        /// <returns><b>True</b> if countdown has been reseted (it means that countdown exists), otherwise it returns <b>false</b></returns>
-        public static bool Reset(long id, float newCountdown = float.MaxValue)
+        /// <param name="id">ID of time</param>
+        /// <returns><b>True</b> if time has been reseted (it means that time exists), otherwise it returns <b>false</b></returns>
+        public static bool Restart(long id)
         {
-            if (newCountdown < 0)
-                throw new SystemException( "Countdown time cannot be less than 0!" );
-            if (GetCountdown( id, out Countdown countdown )) {
-                countdown.WillBeRemoved = false;
-                Instance.endedCountdowns.Remove( id );
-                if (!Instance.notEndedCountdowns.ContainsKey( id )) {
-                    Instance.notEndedCountdowns.Add( id, countdown );
-                }
-                if (newCountdown == float.MaxValue) {
-                    countdown.Reset( countdown.CountdownTime );
-                } else {
-                    countdown.Reset( newCountdown );
+            if (GetCountdown( id, out ICountdown countdown )) {
+                countdown.Restart();
+                return true;
+            }
+            return false;
+        }
+
+        public static bool Restart(long id, float time)
+        {
+            if (GetCountdown( id, out ICountdown countdown )) {
+                countdown.Restart(time);
+                return true;
+            }
+            return false;
+        }
+
+        public static bool Restart(long id, float time, int repeats)
+        {
+            if (GetCountdown( id, out ICountdown countdown )) {
+                if ( IsScheduled(countdown) ) {
+                    ScheduledCountdown scheduledCountdown = countdown as ScheduledCountdown;
+                    scheduledCountdown.Restart( time, repeats );
                 }
                 return true;
             }
@@ -211,98 +171,98 @@ namespace ColdCry.Utility
         }
 
         /// <summary>
-        /// Checks if countdown with given id has ended.
+        /// Checks if time with given id has ended.
         /// </summary>
-        /// <param name="id">id of countdown</param>
-        /// <returns><b>True</b> if countdown has ended, otherwise returns <b>false</b></returns>
+        /// <param name="id">id of time</param>
+        /// <returns><b>True</b> if time has ended, otherwise returns <b>false</b></returns>
         public static bool HasEnded(long id)
         {
-            if (GetCountdown( id, out Countdown countdown )) {
-                return countdown.HasEnded;
+            if (GetCountdown( id, out ICountdown time )) {
+                return time.HasEnded();
             }
             return false;
         }
 
         /// <summary>
-        /// Checks if countdown with given id is scheduled.
+        /// Checks if time with given id is scheduled.
         /// </summary>
-        /// <param name="id">id of countdown</param>
-        /// <returns><b>True</b> if countdown is scheduled, otherwise returns <b>false</b></returns>
+        /// <param name="id">id of time</param>
+        /// <returns><b>True</b> if time is scheduled, otherwise returns <b>false</b></returns>
         public static bool IsScheduled(long id)
         {
-            if (GetCountdown( id, out Countdown countdown )) {
-                return countdown.IsScheduled;
+            if (GetCountdown( id, out ICountdown time )) {
+                return time.GetType() == typeof( ScheduledCountdown );
             }
             return false;
         }
 
-        /// <summary>
-        /// Pauses/resumes countdown
-        /// </summary>
-        /// <param name="id">ID of affected countdown</param>
-        /// <param name="pause"><b>True</b> to pause, <b>false</b> to resume</param>
-        /// <returns><b>True</b> if countdown has been found, otherwise <b>false</b></returns>
-        public static bool Pause(long id, bool pause)
+        public static bool IsScheduled(ICountdown time)
         {
-            if (GetCountdownNotEnded( id, out Countdown countdown )) {
-                countdown.Paused = pause;
+            return time.GetType() == typeof( ScheduledCountdown );
+        }
+
+        /// <summary>
+        /// Pauses/resumes time
+        /// </summary>
+        /// <param name="id">ID of affected time</param>
+        /// <returns><b>True</b> if time has been found, otherwise <b>false</b></returns>
+        public static bool Pause(long id)
+        {
+            if (GetCountdownNotEnded( id, out ICountdown countdown )) {
+                countdown.Pause();
                 return true;
             }
             return false;
         }
 
         /// <summary>
-        /// Stops countdown with given id. This method doesn't call listeners.
+        /// Stops time with given id. This method doesn't call listeners.
         /// </summary>
-        /// <param name="id">Id of countdown</param>
-        /// <returns><b>True</b> if countdown exists, otherwise it returns <b>false</b></returns>
+        /// <param name="id">Id of time</param>
+        /// <returns><b>True</b> if time exists, otherwise it returns <b>false</b></returns>
         public static bool Stop(long id)
         {
-            if (GetCountdownNotEnded( id, out Countdown countdown )) {
-                Instance.notEndedCountdowns.Remove( id );
-                countdown.Paused = false;
-                if (!Instance.endedCountdowns.ContainsKey( id )) {
-                    Instance.endedCountdowns.Add( id, countdown );
-                }
+            if (GetCountdownNotEnded( id, out ICountdown countdown )) {
+                countdown.Stop();
                 return true;
             }
             return false;
         }
 
         /// <summary>
-        /// Reset countdown times of all countdowns.
+        /// Reset time times of all countdowns.
         /// </summary>
-        public static void ResetAll()
+        public static void RestartAll()
         {
-            ResetNotEnded();
-            ResetEnded();
+            RestartNotEnded();
+            RestartEnded();
         }
 
         /// <summary>
-        /// Reset countdown times of all not ended countdowns.
+        /// Reset time times of all not ended countdowns.
         /// </summary>
-        public static void ResetNotEnded()
+        public static void RestartNotEnded()
         {
-            foreach (Countdown countdown in Instance.notEndedCountdowns.Values) {
-                countdown.Reset( countdown.CountdownTime );
+            foreach (ICountdown countdown in Instance.notEndedCountdowns.Values) {
+                countdown.Restart();
             }
         }
 
         /// <summary>
-        /// Reset countdown times of all ended countdowns.
+        /// Reset time times of all ended countdowns.
         /// </summary>
-        public static void ResetEnded()
+        public static void RestartEnded()
         {
-            foreach (Countdown countdown in Instance.endedCountdowns.Values) {
-                countdown.Reset( countdown.CountdownTime );
+            foreach (ICountdown countdown in Instance.endedCountdowns.Values) {
+                countdown.Restart( );
             }
         }
 
         /// <summary>
-        /// Remove countdown of given id.
+        /// Remove time of given id.
         /// </summary>
-        /// <param name="id">id of countdown</param>
-        /// <returns><b>True</b> if countdown was removed (it means countdown exists) otherwise returns <b>false</b>.</returns>
+        /// <param name="id">id of time</param>
+        /// <returns><b>True</b> if time was removed (it means time exists) otherwise returns <b>false</b>.</returns>
         public static bool Destroy(long id)
         {
             if (Instance.endedCountdowns.Remove( id ))
@@ -310,37 +270,38 @@ namespace ColdCry.Utility
             return Instance.notEndedCountdowns.Remove( id );
         }
 
+        /*
         [Obsolete( "Doesn't used anymore" )]
         /// <summary>
-        /// Sets countdown to remove when ends depdens on given <br>remove</br> argument.
+        /// Sets time to remove when ends depdens on given <br>remove</br> argument.
         /// </summary>
-        /// <param name="id">id of countdown</param>
+        /// <param name="id">id of time</param>
         /// <param name="remove"></param>
-        /// <returns>><b>True</b> if field ws set (it means countdown exists) otherwise returns <b>false</b>.</returns>
+        /// <returns>><b>True</b> if field ws set (it means time exists) otherwise returns <b>false</b>.</returns>
         public static bool DestroyWhenEnds(long id, bool remove)
         {
-            if (GetCountdown( id, out Countdown countdown )) {
-                countdown.DestroyWhenEnds = remove;
+            if (GetCountdown( id, out Countdown time )) {
+                time.DestroyWhenEnds = remove;
                 return true;
             }
             return false;
         }
 
         /// <summary>
-        /// Sets time speed represented how fast time passes for specified countdown.
+        /// Sets time speed represented how fast time passes for specified time.
         /// </summary>
-        /// <param name="timeSpeed">Time speed to set for countdown</param>
-        /// <returns><b>True</b> if countdown exists, otherwise it returns <b>false</b></returns>
+        /// <param name="timeSpeed">Time speed to set for time</param>
+        /// <returns><b>True</b> if time exists, otherwise it returns <b>false</b></returns>
         public static bool SetSpeed(long id, float timeSpeed)
         {
             if (timeSpeed <= 0f)
                 throw new System.Exception( "TimerManager::SetCountdownTimeSpeed::(Time speed cannot be less than 0 or equal)" );
-            if (GetCountdown( id, out Countdown countdown )) {
-                countdown.TimeSpeed = timeSpeed;
+            if (GetCountdown( id, out Countdown time )) {
+                time.TimeSpeed = timeSpeed;
                 return true;
             }
             return false;
-        }
+        }*/
         #endregion
 
         #region Private Methods
@@ -349,72 +310,44 @@ namespace ColdCry.Utility
         {
             time += passedTime;
 
-            LinkedList<long> countdownsToRemove = new LinkedList<long>();
+            LinkedList<ICountdown> countdownsToRemove = new LinkedList<ICountdown>();
 
-            foreach (long key in notEndedCountdowns.Keys) {
-                Countdown countdown = notEndedCountdowns[key];
+            foreach (ICountdown countdown in notEndedCountdowns.Values) {
 
                 if (countdown.Paused)
                     continue;
 
-                float overtime = countdown.Overtime;
-                if (overtime >= 0) {
-                    countdown.WillBeRemoved = true;
-
-                    if (countdown.Listener != null)
-                        countdown.Listener.OnCountdownEnd( key, overtime );
-
-                    if (countdown.IsScheduled) {
-                        if (countdown.Repeats <= 0) {
-                            countdown.Reset( countdown.CountdownTime );
-                            countdown.WillBeRemoved = false;
-                        } else {
-                            countdown.CurrentRepeat--;
-                            if (countdown.CurrentRepeat >= countdown.Repeats) {
-                                countdown.Reset( countdown.CountdownTime );
-                                countdown.WillBeRemoved = false;
-                            }
-                        }
+                if (countdown.HasEnded()) {
+                    countdown.OnEnd();
+                    if (!countdown.ShouldRestart()) {
+                        countdownsToRemove.AddLast( countdown );
                     }
-
-                }
-
-                if (countdown.WillBeRemoved) {
-                    countdownsToRemove.AddLast( key );
-                    endedCountdowns.Add( key, countdown );
                 }
             }
 
-            foreach (long key in countdownsToRemove) {
-                notEndedCountdowns.Remove( key );
+            foreach (ICountdown time in countdownsToRemove) {
+                notEndedCountdowns.Remove( time.ID );
+                if (!endedCountdowns.ContainsKey( time.ID ))
+                    endedCountdowns.Add( time.ID, time );
             }
         }
 
         /// <summary>
-        /// Gets countdown from singleton named Instance. If countdown with id doesn't exists it returns null.
+        /// Gets time from singleton named Instance. If time with id doesn't exists it returns null.
         /// </summary>
-        /// <param name="id">id of countdown to get</param>
+        /// <param name="id">id of time to get</param>
         /// <returns>Countdown with given id</returns>
-        private static bool GetCountdown(long id, out Countdown countdown)
+        private static bool GetCountdown(long id, out ICountdown time)
         {
-            if (Instance.notEndedCountdowns.TryGetValue( id, out countdown )) {
+            if (Instance.notEndedCountdowns.TryGetValue( id, out time )) {
                 return true;
             }
-            return Instance.endedCountdowns.TryGetValue( id, out countdown );
+            return Instance.endedCountdowns.TryGetValue( id, out time );
         }
 
-        private static bool GetCountdownNotEnded(long id, out Countdown countdown)
+        private static bool GetCountdownNotEnded(long id, out ICountdown time)
         {
-            return Instance.notEndedCountdowns.TryGetValue( id, out countdown );
-        }
-
-        /// <summary>
-        /// Generates new id
-        /// </summary>
-        /// <returns>Unique ID</returns>
-        private static long NextId()
-        {
-            return Instance.nextId++;
+            return Instance.notEndedCountdowns.TryGetValue( id, out time );
         }
         #endregion
 
@@ -449,6 +382,12 @@ namespace ColdCry.Utility
                 return ( ( hours < 10 ) ? "0" : "" ) + hours.ToString() + ":" + InMinutesSeconds;
             }
         }
+
+
+        private static long NextID()
+        {
+            return CURRENT_ID++;
+        }
         /// <summary>
         /// Gives past time in seconds of created singleton.
         /// </summary>
@@ -460,100 +399,200 @@ namespace ColdCry.Utility
         public static int CountEndedCountdowns => Instance.endedCountdowns.Count;
         #endregion
 
-        private class Countdown
+        /// <summary>
+        /// Gets time in seconds to end the time.
+        /// </summary>
+        /// <returns>
+        /// Time in seconds left to end time.
+        /// </returns>
+        /*  public float Seconds => ( CountdownTime - ( Instance.time - CountdownStartTime ) );
+          public string InSec
+          {
+              get {
+                  int seconds = (int) ( Seconds % MINUTE_UNIT );
+                  bool lessThanZero = seconds < 0;
+                  return ( lessThanZero ? "-" : "" ) + ( ( seconds < 10 ) ? "0" : "" ) + ( lessThanZero ? -seconds : seconds ).ToString();
+              }
+          }*/
+
+        public class Countdown : ICountdown
         {
-            public Countdown(float countdownTime, IOnCountdownEnd listener, bool destroyWhenEnds)
-                : this( countdownTime, listener, destroyWhenEnds, false )
-            { }
+            private bool pause = false;
+            private float timeWhenPaused = 0f;
 
-            public Countdown(float countdownTime, IOnCountdownEnd listener, bool destroyWhenEnds, bool isScheduled)
+            protected Countdown()
             {
-                CountdownTime = countdownTime;
-                Listener = listener;
-                DestroyWhenEnds = destroyWhenEnds;
-                IsScheduled = isScheduled;
-                CountdownStartTime = Instance.time;
+
             }
 
-            public Countdown(float countdownTime, IOnCountdownEnd listener, bool destroyWhenEnds, int repeats)
+            protected Countdown(long id, float time, Action<float> onEndAction)
             {
-                CountdownTime = countdownTime;
-                Listener = listener;
-                DestroyWhenEnds = destroyWhenEnds;
-                IsScheduled = true;
-                Repeats = repeats;
-                CountdownStartTime = Instance.time;
+                ID = id;
+                Time = time;
+                StartTime = Instance.time;
+                EndTime = Instance.time + Time;
+                OnEndAction = onEndAction;
             }
 
-            /// <summary>
-            /// Resets the countdown with new countdown time.
-            /// </summary>
-            /// <param name="newCountdown">
-            /// New countdown time to end.
-            /// </param>
-            public void Reset(float newCountdown)
+            public static Countdown GetInstance(float time = 1f, Action<float> onEndAction = null)
             {
-                CountdownTime = newCountdown;
-                CountdownStartTime = Instance.time;
+                if (Instance == null) {
+                    throw new MissingEssentialGameObject( "Cannot create time without active TimerManager object on scene" );
+                }
+                if (time < 0)
+                    throw new SystemException( "Countdown time cannot be less than 0!" );
+                Countdown countdown = new Countdown( NextID(), time, onEndAction );
+                Instance.endedCountdowns.Add( countdown.ID, countdown );
+                return countdown;
             }
 
-            /// <summary>
-            /// Checks if countdown has ended.
-            /// </summary>
-            /// <returns>
-            /// <b>True</b>, if countdown ended otherwise <b>false</b>.
-            /// </returns>
-            public bool HasEnded => ( Instance.time - CountdownStartTime ) * TimeSpeed >= CountdownTime;
-            public float Overtime => ( Instance.time - CountdownStartTime ) * TimeSpeed - CountdownTime;
-            /// <summary>
-            /// Gets time in seconds to end the countdown.
-            /// </summary>
-            /// <returns>
-            /// Time in seconds left to end countdown.
-            /// </returns>
-            public float Seconds => ( CountdownTime - ( Instance.time - CountdownStartTime ) );
-            public string InSec
+            public virtual void Start()
             {
-                get {
-                    int seconds = (int) ( Seconds % MINUTE_UNIT );
-                    bool lessThanZero = seconds < 0;
-                    return ( lessThanZero ? "-" : "" ) + ( ( seconds < 10 ) ? "0" : "" ) + ( lessThanZero ? -seconds : seconds ).ToString();
+                if (Paused) {
+                    StartTime += Instance.time - timeWhenPaused;
+                    EndTime += Instance.time - timeWhenPaused;
+                } else {
+                    StartTime = Instance.time;
+                    EndTime = Instance.time + Time;
+                }
+                pause = false;
+                timeWhenPaused = 0;
+                if (!Instance.notEndedCountdowns.ContainsKey( ID )) {
+                    Instance.notEndedCountdowns.Add( ID, this );
+                    Instance.endedCountdowns.Remove( ID );
                 }
             }
 
-            public IOnCountdownEnd Listener { get; set; }
-            public bool DestroyWhenEnds { get; set; }
-            public float CountdownTime { get; private set; }
-            public float CountdownStartTime { get; private set; } = 0f;
-            public float TimeSpeed { get; set; } = 1f;
-            public bool IsScheduled { get; set; }
-            public bool WillBeRemoved { get; set; } = false;
-            public int Repeats { get; set; } = -1;
-            public int CurrentRepeat { get; set; } = 0;
-            public bool Paused { get; set; } = false;
-        }
-    }
+            public virtual void Restart()
+            {
+                Restart( Time );
+            }
 
-    /// <summary>
-    /// <br>Interface that should be used in every case when something must happen all the time</br>
-    /// <br>even object doesn't need to know when countdown ends.</br>
-    /// <br>Important: remember to use Reset method on Countdown object when timer ends!</br>
-    /// <br>Example: all units on the map need to regenerate hp or mana in the same time even they</br>
-    ///          <br>are stunned, imbollized, disactive etc., then this method will be called all</br>
-    ///          <br>the time when countdown ends.</br>
-    /// <example>
-    /// <code>
-    /// void OnCountdownEnd(Countdown countdown) {
-    ///     foreach ( Unit unit in units ) {
-    ///         unit.Regenerate();
-    ///     }
-    ///     countdown.Reset();
-    /// }
-    /// </code>
-    /// </example>
-    /// </summary>
-    public interface IOnCountdownEnd
-    {
-        void OnCountdownEnd(long id, float overtime);
+            public virtual void Restart(float time)
+            {
+                Time = time;
+                pause = false;
+                timeWhenPaused = 0;
+                StartTime = Instance.time;
+                EndTime = Instance.time + Time;
+                if (!Instance.notEndedCountdowns.ContainsKey( ID )) {
+                    Instance.notEndedCountdowns.Add( ID, this );
+                    Instance.endedCountdowns.Remove( ID );
+                }
+            }
+
+            public virtual void Pause()
+            {
+                if (Instance.notEndedCountdowns.ContainsKey( ID ) && !pause) {
+                    timeWhenPaused = Instance.time;
+                    pause = true;
+                }
+            }
+
+            public virtual void Stop()
+            {
+                pause = false;
+                timeWhenPaused = 0;
+                Instance.notEndedCountdowns.Remove( ID );
+                if (!Instance.endedCountdowns.ContainsKey( ID )) {
+                    Instance.endedCountdowns.Add( ID, this );
+                }
+            }
+
+            public virtual bool HasEnded()
+            {
+                return EndTime <= Instance.time;
+            }
+
+            public virtual void OnEnd()
+            {
+                if (OnEndAction != null) {
+                    OnEndAction.Invoke( Mathf.Abs( EndTime - Instance.time ) );
+                }
+                foreach (IObserver<ICountdown> observer in Observers) {
+                    observer.Notify( this );
+                }
+            }
+
+            public virtual bool ShouldRestart()
+            {
+                return EndTime > Instance.time;
+            }
+
+            public virtual void Subscribe(IObserver<ICountdown> observer)
+            {
+                Observers.AddLast( observer );
+            }
+
+            public virtual void Unsubscribe(IObserver<ICountdown> observer)
+            {
+                Observers.Remove( observer );
+            }
+
+            public Action<float> OnEndAction { get; set; }
+            public float Remaing => pause ? EndTime - timeWhenPaused : EndTime - Instance.time;
+            public float Time { get; protected set; }
+            public float StartTime { get; protected set; }
+            public float EndTime { get; protected set; }
+            public bool Paused => pause;
+            public long ID { get; set; }
+            protected LinkedList<IObserver<ICountdown>> Observers { get; set; } = new LinkedList<IObserver<ICountdown>>();
+        }
+
+
+        public class ScheduledCountdown : Countdown
+        {
+            private bool pause = false;
+            private float timeWhenPaused = 0f;
+
+            protected ScheduledCountdown(long id, float time, int repeats, Action<float> onEndAction) : base( id, time, onEndAction )
+            {
+                Repeats = repeats;
+            }
+
+            public static ScheduledCountdown GetInstance(float time = 1f, int repeats = 0, Action<float> onEndAction = null)
+            {
+                if (Instance == null) {
+                    throw new MissingEssentialGameObject( "Cannot create time without active TimerManager object on scene" );
+                }
+                if (time < 0)
+                    throw new SystemException( "Countdown time cannot be less than 0!" );
+                ScheduledCountdown countdown = new ScheduledCountdown( NextID(), time, repeats, onEndAction );
+                Instance.endedCountdowns.Add( countdown.ID, countdown );
+                return countdown;
+            }
+
+            public override void Restart()
+            {
+                Restart( Time );
+            }
+
+            public override void Restart(float time)
+            {
+                Restart( time, -1 );
+            }
+
+            public void Restart(float time, int repeats)
+            {
+                CurrentRepeat = Repeats;
+                base.Restart( time );
+            }
+
+            public override void OnEnd()
+            {
+                base.OnEnd();
+                CurrentRepeat--;
+            }
+
+            public override bool ShouldRestart()
+            {
+                if (Repeats <= 0)
+                    return true;
+                return CurrentRepeat > 0;
+            }
+
+            public int Repeats { get; internal set; }
+            public int CurrentRepeat { get; private set; }
+        }
     }
 }

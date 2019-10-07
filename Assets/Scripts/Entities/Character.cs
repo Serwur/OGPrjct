@@ -167,7 +167,7 @@ namespace ColdCry.Objects
                 if (IsTouchingGround())
                     Rb.velocity = attackDirection;
                 // Przypisujemy ostatni klawisz ze zwykłego ataku oraz resetujemy timer
-                TimerManager.Reset( simpleAttackCountdown );
+                TimerManager.Restart( simpleAttackCountdown );
                 weapon.SetNextAttackInfo(
                     new Attack( Damage.Max,
                     (int) LookDirection.x,
@@ -188,7 +188,7 @@ namespace ColdCry.Objects
         public void FlyAttack()
         {
             if (TimerManager.HasEnded( flyAttackCountdown )) {
-                TimerManager.Reset( flyAttackCountdown );
+                TimerManager.Restart( flyAttackCountdown );
                 Rb.velocity = new Vector3( Rb.velocity.x, FLY_ATTACK_MOVE );
                 weapon.SetNextAttackInfo(
                     new Attack( Damage.Current,
@@ -206,7 +206,7 @@ namespace ColdCry.Objects
         public void BackwardAttack()
         {
             if (TimerManager.HasEnded( backwardAttackCountdown )) {
-                TimerManager.Reset( backwardAttackCountdown );
+                TimerManager.Restart( backwardAttackCountdown );
                 LookDirection *= -1;
                 Rb.velocity = new Vector3( SIMPLE_ATTACK_MOVE * 2 * LookDirection.x, Rb.velocity.y );
                 CanMove = false;
@@ -274,7 +274,7 @@ namespace ColdCry.Objects
         {
             if (!IsDead) {
                 if (!IsPaused) {
-                    TimerManager.Reset( comboBreakCountdown );
+                    TimerManager.Restart( comboBreakCountdown );
                     switch (code) {
                         case ButtonCode.A:
                             if (CanMove) {

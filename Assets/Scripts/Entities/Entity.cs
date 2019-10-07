@@ -2,13 +2,14 @@
 using ColdCry.Core;
 using ColdCry.Notifers;
 using ColdCry.Utility;
+using ColdCry.Utility.Time;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace ColdCry.Objects
 {
     [RequireComponent( typeof( Rigidbody ) )]
-    public abstract class Entity : MonoBehaviour, IOnCountdownEnd, IHitPointsObservable, ISourcePointsObservable
+    public abstract class Entity : MonoBehaviour, IHitPointsObservable, ISourcePointsObservable
     {
         [Header( "Attributes" )]
         [SerializeField] private Attribute hitPoints;
@@ -271,7 +272,7 @@ namespace ColdCry.Objects
                 TimerManager.GetRemaing( moveCountdownId, out float seconds );
                 if (seconds < pushDisableTime) {
                     // USTAWIA TIMER PO KTÓRYM JEDNOSTKA ODZYSKUJE MOŻLIWOŚĆ RUCHU
-                    TimerManager.Reset( moveCountdownId, pushDisableTime );
+                    TimerManager.Restart( moveCountdownId, pushDisableTime );
                 }
             }
             // NADAJE PRĘDKOŚĆ

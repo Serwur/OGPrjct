@@ -1,10 +1,11 @@
 ﻿using ColdCry.Utility;
+using System;
 using System.Collections.Generic;
 
 namespace ColdCry.AI
 {
 
-    public class AIPathList
+    public class AIPathList : ICloneable
     {
 
         private LinkedList<ComplexNode> cnList = new LinkedList<ComplexNode>();
@@ -160,6 +161,16 @@ namespace ColdCry.AI
             }
 
             return path;
+        }
+
+        public object Clone()
+        {
+            AIPathList clone = new AIPathList {
+                cnList = cnList,
+                cnHistoryList = cnHistoryList,
+                currentCn = currentCn
+            };
+            return clone;
         }
 
         /// <summary>

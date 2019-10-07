@@ -39,7 +39,7 @@ namespace ColdCry
         {
             this.attack = attack;
             coll.enabled = true;
-            TimerManager.Reset( collisionOffDelayCountdown, disableDelay );
+            TimerManager.Restart( collisionOffDelayCountdown, disableDelay );
         }
 
         public void Disable(float delay = 0)
@@ -48,7 +48,7 @@ namespace ColdCry
             if (delay == 0) {
                 coll.enabled = false;
             } else {
-                TimerManager.Reset( collisionOffDelayCountdown, delay );
+                TimerManager.Restart( collisionOffDelayCountdown, delay );
             }
         }
 

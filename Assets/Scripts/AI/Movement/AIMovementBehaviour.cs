@@ -150,7 +150,7 @@ namespace ColdCry.AI
         {
             Memory.Save();
 
-            if (TargetType != AITargetType.STEADY) {
+            if (TargetType != AITargetType.STEADY && !keepOldTargetIfNotFound) {
                 ClearDummy();
             }
 
@@ -284,17 +284,20 @@ namespace ColdCry.AI
         /// <param name="interval">Time in seconds to repeat</param>
         /// <param name="breakTime">Time after scheduled refinding will broke</param>
         /// <returns></returns>
-        public virtual bool StartPathRefind()
+        public bool StartPathRefind()
         {
-            TimerManager.Reset( RefindPathCountdownId, RefindInterval );
+            TimerManager.Restart( RefindPathCountdownId, RefindInterval );
             return true;
         }
 
-        public virtual void OnCountdownEnd(long id, float overtime)
+        public void OnCountdownEnd(long id, float overtime)
         {
             if (id == RefindPathCountdownId) {
-                AIMovementResponse reponse = FindPath( FollowedEntity, true );
-                TimerManager.Reset( RefindPathCountdownId );
+                AIMovementResponse response = FindPath( FollowedEntity, true );
+                if (response == AIMovementResponse.TARGET_IN_SAME_AREA 
+                    || response == AIMovementResponse.PATH_FOUND) {
+                    TimerManager.Stop( id );
+                }
             }
         }
 
@@ -324,6 +327,7 @@ namespace ColdCry.AI
             } else {
                 ClearPath();
                 if (EntityToFollowAfterPath.ContactArea != Owner.ContactArea) {
+                    StartPathRefind();
                     AIMovementResponse response = FindPath( EntityToFollowAfterPath, true );
                     switch (response) {
                         case AIMovementResponse.TARGET_NULL:
@@ -397,19 +401,22 @@ namespace ColdCry.AI
         public MemoryPart SaveMemory()
         {
             MemoryPart part = new MemoryPart {
-                { "MovementType", TargetType },
+                { "TargetType", TargetType },
                 { "MovementState", MovementState },
-                { "MovementType", TargetType },
-                { "MovementType", TargetType },
-                { "MovementType", TargetType },
-                { "MovementType", TargetType }
+                { "TemplateDummy", TemplateDummy },
+                { "FollowedEntity", FollowedEntity },
+                { "EntityToFollowAfterPath", EntityToFollowAfterPath },
+                { "CurrentTarget", CurrentTarget },
+                { "CurrentPath", CurrentPath.Clone() },
+                { "CurrentNode", CurrentNode }
             };
             return part;
         }
 
         public void LoadMemory(MemoryPart data)
         {
-
+            TargetType = data.Get<AITargetType>( "TargetType" );
+            MovementState = data.Get<AIMovementState>( "MovementState" );
         }
 
         #region Getters and Setters
@@ -421,7 +428,7 @@ namespace ColdCry.AI
         public Transform CurrentTarget { get; private set; }
         public Dummy TemplateDummy { get; private set; }
         public ComplexNode CurrentNode { get; private set; }
-        public Memorier Memory { get; set; }
+        public Memorier Memory { get; private set; }
         public List<IObserver<AIMovementState>> StateChangeObservers { get; set; } = new List<IObserver<AIMovementState>>();
 
         public AITargetType TargetType { get; private set; }

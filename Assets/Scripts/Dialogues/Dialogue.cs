@@ -52,7 +52,7 @@ namespace ColdCry
                 hasEnded = true;
             } else {
                 // ZMIENIC POTEM NA STAŁĄ PRĘDKOŚĆ
-                TimerManager.Reset( countdownID, 1 / ( 0.9f + speed / 10f ) - 1 );
+                TimerManager.Restart( countdownID, 1 / ( 0.9f + speed / 10f ) - 1 );
             }
         }
 

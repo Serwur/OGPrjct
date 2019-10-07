@@ -39,8 +39,8 @@ namespace ColdCry.Objects
         public override void Start()
         {
             base.Start();
-            watchCountdownId = TimerManager.Create( WATCH_TIME, this );
-            reachCountdownId = TimerManager.Create( REACH_TIME, this );
+          //  watchCountdownId = TimerManager.Create( WATCH_TIME, this );
+           // reachCountdownId = TimerManager.Create( REACH_TIME, this );
         }
 
         public override void DrawGizmos()
@@ -53,8 +53,8 @@ namespace ColdCry.Objects
             }
             if (GameManager.DrawAIDestination) {
                 Gizmos.color = Color.blue;
-                if (currentTarget != null) {
-                    Gizmos.DrawLine( transform.position, currentTarget.position );
+                if (AIBehaviour.CurrentTarget != null) {
+                    Gizmos.DrawLine( transform.position, AIBehaviour.CurrentTarget.position );
                 }
             }
         }
