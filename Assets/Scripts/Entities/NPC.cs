@@ -33,42 +33,42 @@ namespace ColdCry.Objects
 
         public override void OnMove(float moveSpeed, float x)
         {
-            throw new System.NotImplementedException();
+            //throw new System.NotImplementedException();
         }
 
         public override void OnJump(float jumpPower)
         {
-            throw new System.NotImplementedException();
+            //throw new System.NotImplementedException();
         }
 
         public override void OnFallen(float speedWhenFalling)
         {
-            throw new System.NotImplementedException();
+     //       throw new System.NotImplementedException();
         }
 
         public override void OnDamageTook(Attack attack)
         {
-            throw new System.NotImplementedException();
+   //         throw new System.NotImplementedException();
         }
 
         public override void OnRegenerate()
         {
-            throw new System.NotImplementedException();
+     //       throw new System.NotImplementedException();
         }
 
         public override void OnPushedOff(float pushPower, Vector3 direction, float disableTime)
         {
-            throw new System.NotImplementedException();
+           // throw new System.NotImplementedException();
         }
 
         public override void OnBeingHealed(float healedHp)
         {
-            throw new System.NotImplementedException();
+          //  throw new System.NotImplementedException();
         }
 
         public override void DrawGizmos()
         {
-            throw new System.NotImplementedException();
+          //  throw new System.NotImplementedException();
         }
         #endregion
 

@@ -64,7 +64,14 @@ namespace ColdCry.Utility.Time
         {
             if (seconds < 0 || minutes < 0 || hours < 0)
                 throw new SystemException( "Neither parameter cannot be less than 0!" );
-            Instance.time = seconds + minutes * MINUTE_UNIT + hours * HOUR_UNIT;
+            float newTime = seconds + minutes * MINUTE_UNIT + hours * HOUR_UNIT;
+            Instance.time = newTime;
+            foreach (ICountdown countdown in Instance.notEndedCountdowns.Values) {
+                // set also time of all these shits
+                // pomysł to stworzyć fasadę, na której każdy z nas będzie
+                // operować na zewnątrz przy użyciu uproszczonych metod
+                // natomiast tutaj w środku będzie się wszystko dziać
+            }
         }
 
         /// <summary>
@@ -152,7 +159,7 @@ namespace ColdCry.Utility.Time
         public static bool Restart(long id, float time)
         {
             if (GetCountdown( id, out ICountdown countdown )) {
-                countdown.Restart(time);
+                countdown.Restart( time );
                 return true;
             }
             return false;
@@ -161,7 +168,7 @@ namespace ColdCry.Utility.Time
         public static bool Restart(long id, float time, int repeats)
         {
             if (GetCountdown( id, out ICountdown countdown )) {
-                if ( IsScheduled(countdown) ) {
+                if (IsScheduled( countdown )) {
                     ScheduledCountdown scheduledCountdown = countdown as ScheduledCountdown;
                     scheduledCountdown.Restart( time, repeats );
                 }
@@ -254,7 +261,7 @@ namespace ColdCry.Utility.Time
         public static void RestartEnded()
         {
             foreach (ICountdown countdown in Instance.endedCountdowns.Values) {
-                countdown.Restart( );
+                countdown.Restart();
             }
         }
 
@@ -268,6 +275,11 @@ namespace ColdCry.Utility.Time
             if (Instance.endedCountdowns.Remove( id ))
                 return true;
             return Instance.notEndedCountdowns.Remove( id );
+        }
+
+        public static bool Destroy(ICountdown countdown)
+        {
+            return countdown.Destroy();
         }
 
         /*
@@ -381,6 +393,7 @@ namespace ColdCry.Utility.Time
                 int hours = ( (int) Instance.time % DAY_UNIT ) / HOUR_UNIT;
                 return ( ( hours < 10 ) ? "0" : "" ) + hours.ToString() + ":" + InMinutesSeconds;
             }
+
         }
 
 
@@ -415,10 +428,22 @@ namespace ColdCry.Utility.Time
               }
           }*/
 
+        private class CountdownOperator
+        {
+            public CountdownOperator(ICountdown countdown)
+            {
+                Countdown = countdown;
+            }
+
+            public ICountdown Countdown { get; set; }
+        }
+
         public class Countdown : ICountdown
         {
-            private bool pause = false;
-            private float timeWhenPaused = 0f;
+            protected bool pause = false;
+            protected bool started = false;
+            protected float timeWhenPaused = 0f;
+            //private CountdownOperator CountdownOperator;
 
             protected Countdown()
             {
@@ -429,15 +454,13 @@ namespace ColdCry.Utility.Time
             {
                 ID = id;
                 Time = time;
-                StartTime = Instance.time;
-                EndTime = Instance.time + Time;
                 OnEndAction = onEndAction;
             }
 
             public static Countdown GetInstance(float time = 1f, Action<float> onEndAction = null)
             {
                 if (Instance == null) {
-                    throw new MissingEssentialGameObject( "Cannot create time without active TimerManager object on scene" );
+                    throw new MissingEssentialGameObject( "Cannot create countdown without active TimerManager object on scene" );
                 }
                 if (time < 0)
                     throw new SystemException( "Countdown time cannot be less than 0!" );
@@ -446,21 +469,31 @@ namespace ColdCry.Utility.Time
                 return countdown;
             }
 
-            public virtual void Start()
+            public virtual bool Start()
             {
                 if (Paused) {
                     StartTime += Instance.time - timeWhenPaused;
                     EndTime += Instance.time - timeWhenPaused;
-                } else {
+                    pause = false;
+                    timeWhenPaused = 0;
+                    if (!Instance.notEndedCountdowns.ContainsKey( ID )) {
+                        Instance.notEndedCountdowns.Add( ID, this );
+                        Instance.endedCountdowns.Remove( ID );
+                    }
+                    return true;
+                } else if (!started) {
                     StartTime = Instance.time;
                     EndTime = Instance.time + Time;
+                    pause = false;
+                    timeWhenPaused = 0;
+                    started = true;
+                    if (!Instance.notEndedCountdowns.ContainsKey( ID )) {
+                        Instance.notEndedCountdowns.Add( ID, this );
+                        Instance.endedCountdowns.Remove( ID );
+                    }
+                    return true;
                 }
-                pause = false;
-                timeWhenPaused = 0;
-                if (!Instance.notEndedCountdowns.ContainsKey( ID )) {
-                    Instance.notEndedCountdowns.Add( ID, this );
-                    Instance.endedCountdowns.Remove( ID );
-                }
+                return false;
             }
 
             public virtual void Restart()
@@ -472,6 +505,7 @@ namespace ColdCry.Utility.Time
             {
                 Time = time;
                 pause = false;
+                started = true;
                 timeWhenPaused = 0;
                 StartTime = Instance.time;
                 EndTime = Instance.time + Time;
@@ -492,6 +526,7 @@ namespace ColdCry.Utility.Time
             public virtual void Stop()
             {
                 pause = false;
+                started = false;
                 timeWhenPaused = 0;
                 Instance.notEndedCountdowns.Remove( ID );
                 if (!Instance.endedCountdowns.ContainsKey( ID )) {
@@ -529,21 +564,46 @@ namespace ColdCry.Utility.Time
                 Observers.Remove( observer );
             }
 
+            public bool Destroy()
+            {
+                if (Instance.endedCountdowns.Remove( ID ))
+                    return true;
+                return Instance.notEndedCountdowns.Remove( ID );
+            }
+
+            public virtual object Clone()
+            {
+                Countdown clone = new Countdown( NextID(), Time, OnEndAction ) {
+                    pause = pause,
+                    started = started,
+                    timeWhenPaused = timeWhenPaused,
+                    StartTime = StartTime,
+                    EndTime = EndTime,
+                    Observers = new LinkedList<IObserver<ICountdown>>( Observers )
+                };
+                if (started) {
+                    Instance.notEndedCountdowns.Add( clone.ID, clone );
+                } else {
+                    Instance.endedCountdowns.Add( clone.ID, clone );
+                }
+                return clone;
+            }
+
             public Action<float> OnEndAction { get; set; }
-            public float Remaing => pause ? EndTime - timeWhenPaused : EndTime - Instance.time;
+            public float Remaing => Started ? ( pause ? EndTime - timeWhenPaused : EndTime - Instance.time ) : Time;
             public float Time { get; protected set; }
-            public float StartTime { get; protected set; }
-            public float EndTime { get; protected set; }
+            public float StartTime { get; protected set; } = 0;
+            public float EndTime { get; protected set; } = 0;
             public bool Paused => pause;
+            public bool Started => started;
             public long ID { get; set; }
+            public bool Unused => ( !Instance.notEndedCountdowns.ContainsKey( ID ) && !Instance.endedCountdowns.ContainsKey( ID ) );
             protected LinkedList<IObserver<ICountdown>> Observers { get; set; } = new LinkedList<IObserver<ICountdown>>();
         }
 
 
         public class ScheduledCountdown : Countdown
         {
-            private bool pause = false;
-            private float timeWhenPaused = 0f;
 
             protected ScheduledCountdown(long id, float time, int repeats, Action<float> onEndAction) : base( id, time, onEndAction )
             {
@@ -589,6 +649,14 @@ namespace ColdCry.Utility.Time
                 if (Repeats <= 0)
                     return true;
                 return CurrentRepeat > 0;
+            }
+
+            public override object Clone()
+            {
+                ScheduledCountdown clone =  base.Clone() as ScheduledCountdown;
+                clone.CurrentRepeat = CurrentRepeat;
+                clone.Repeats = Repeats;
+                return clone;
             }
 
             public int Repeats { get; internal set; }

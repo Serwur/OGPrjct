@@ -5,16 +5,16 @@ using ColdCry.AI;
 
 namespace ColdCry.Utility.Patterns.Memory
 {
-    public class Memorier : IEnumerable, ICollection
+    public class Memorier<T> : IEnumerable, ICollection
     {
-        private LinkedListNode<MemoryPart> current;
-        private IMemoriable memoriable;
+        private LinkedListNode<T> current;
+        private IMemoriable<T> memoriable;
 
-        public Memorier(IMemoriable memoriable) : this( memoriable, 25, 25 )
+        public Memorier(IMemoriable<T> memoriable) : this( memoriable, 25, 25 )
         {
         }
 
-        public Memorier(IMemoriable memoriable,int maxUndo, int maxRedo)
+        public Memorier(IMemoriable<T> memoriable,int maxUndo, int maxRedo)
         {
             this.memoriable = memoriable;
             MaxUndo = maxUndo;
@@ -30,7 +30,7 @@ namespace ColdCry.Utility.Patterns.Memory
             int size = Count - index;
             int counter = 0;
 
-            IEnumerator<MemoryPart> it = Memory.GetEnumerator();
+            IEnumerator<T> it = Memory.GetEnumerator();
 
             while (counter != index) {
                 it.MoveNext();
@@ -46,10 +46,8 @@ namespace ColdCry.Utility.Patterns.Memory
 
         public IEnumerator GetEnumerator()
         {
-            foreach (MemoryPart memories in Memory) {
-                foreach (KeyValuePair<string, object> field in memories) {
-                    yield return field;
-                }
+            foreach (T memories in Memory) {
+                yield return memories;
             }
         }
 
@@ -83,8 +81,8 @@ namespace ColdCry.Utility.Patterns.Memory
         public int CountRedo { get { return Current == null ? 0 : Collections.CountFrom( Memory, Current ); ; } }
         public int MaxUndo { get; private set; }
         public int MaxRedo { get; private set; }
-        public MemoryPart CurrentSave { get; private set; }
-        private LinkedListNode<MemoryPart> Current
+        public T CurrentSave { get; private set; }
+        private LinkedListNode<T> Current
         {
             get => current;
             set {
@@ -92,9 +90,8 @@ namespace ColdCry.Utility.Patterns.Memory
                 CurrentSave = current.Value;
             }
         }
-        public LinkedList<MemoryPart> Memory { get; private set; } = new LinkedList<MemoryPart>();
-        public IMemoriable Memoriable { get => memoriable; set => memoriable = value; }
-        public IMemoriable Memoriable1 { get => memoriable; set => memoriable = value; }
+        public LinkedList<T> Memory { get; private set; } = new LinkedList<T>();
+        public IMemoriable<T> Memoriable { get => memoriable; set => memoriable = value; }
         public bool IsSynchronized => throw new NotImplementedException();
         public object SyncRoot => throw new NotImplementedException();
     }

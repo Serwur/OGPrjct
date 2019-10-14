@@ -24,7 +24,7 @@ namespace ColdCry.Core
 
         public void Start()
         {
-            targetToFollow = GameManager.Character.transform;
+            targetToFollow = GameManager.Player.transform;
         }
 
         public void Update()
@@ -42,12 +42,12 @@ namespace ColdCry.Core
 
         public static void FollowPlayer()
         {
-            FollowTarget( GameManager.Character.transform );
+            FollowTarget( GameManager.Player.transform );
         }
 
         public static void FollowPlayer(float speedTargetChange)
         {
-            FollowTarget( GameManager.Character.transform, speedTargetChange );
+            FollowTarget( GameManager.Player.transform, speedTargetChange );
         }
 
         public static void FollowTarget(Transform transform)

@@ -5,11 +5,15 @@ using ColdCry.Utility;
 using ColdCry.Utility.Time;
 using System.Collections.Generic;
 using UnityEngine;
+using static ColdCry.Utility.Time.TimerManager;
 
 namespace ColdCry.Objects
 {
     [RequireComponent( typeof( Rigidbody ) )]
-    public abstract class Entity : MonoBehaviour, IHitPointsObservable, ISourcePointsObservable
+    public abstract class Entity : MonoBehaviour,
+        IHitPointsObservable,
+        ISourcePointsObservable,
+        IObserver<ICountdown>
     {
         [Header( "Attributes" )]
         [SerializeField] private Attribute hitPoints;
@@ -59,12 +63,12 @@ namespace ColdCry.Objects
         private List<ISourcePointsObserver> sourcePointsObservers;
         private Rigidbody rb;
         private BoxCollider coll;
-        private ContactArea contactArea;
-        private Vector2 lookDirection = Vector2.right;
-        private float lastMinFallSpeed = float.MaxValue;
-        private MovementStatus movementStatus = MovementStatus.WALKING;
+        [SerializeField] private ContactArea contactArea;
+        [SerializeField] private Vector2 lookDirection = Vector2.right;
+        [SerializeField] private float lastMinFallSpeed = float.MaxValue;
+        [SerializeField] private MovementStatus movementStatus = MovementStatus.WALKING;
 
-        protected long moveCountdownId;
+        protected ICountdown moveCountdown;
         #endregion
 
         #region Unity API
@@ -94,7 +98,8 @@ namespace ColdCry.Objects
             JumpPower.Current = JumpPower.Max;
             Damage.Current = Damage.Max;
 
-            moveCountdownId = TimerManager.Create( this );
+            moveCountdown = Countdown.GetInstance();
+            moveCountdown.OnEndAction = (overtime) => { canMove = true; };
         }
 
         public virtual void FixedUpdate()
@@ -136,9 +141,9 @@ namespace ColdCry.Objects
         public void Move(Vector2 destination)
         {
             if (MovementStatus == MovementStatus.WALKING)
-                Move( moveSpeed.Current, transform.position.x - destination.x );
+                Move( moveSpeed.Current, destination );
             else if (MovementStatus == MovementStatus.JUMPING)
-                Move( flySpeed.Current, transform.position.x - destination.x );
+                Move( flySpeed.Current, destination );
         }
 
         public void Move(float moveSpeed, Vector2 destination)
@@ -149,27 +154,27 @@ namespace ColdCry.Objects
         public void Move(Entity entity)
         {
             if (MovementStatus == MovementStatus.WALKING)
-                Move( moveSpeed.Current, transform.position.x - entity.transform.position.x );
+                Move( moveSpeed.Current, entity );
             else if (MovementStatus == MovementStatus.JUMPING)
-                Move( flySpeed.Current, transform.position.x - entity.transform.position.x );
+                Move( flySpeed.Current, entity );
         }
 
         public void Move(float moveSpeed, Entity entity)
         {
-            Move( moveSpeed, transform.position.x - entity.transform.position.x );
+            Move( moveSpeed, entity.transform.position.x - transform.position.x );
         }
 
         public void Move(Transform _transform)
         {
             if (MovementStatus == MovementStatus.WALKING)
-                Move( moveSpeed.Current, transform.position.x - _transform.position.x );
+                Move( moveSpeed.Current, _transform );
             else if (MovementStatus == MovementStatus.JUMPING)
-                Move( flySpeed.Current, transform.position.x - _transform.position.x );
+                Move( flySpeed.Current, _transform );
         }
 
         public void Move(float moveSpeed, Transform _transform)
         {
-            Move( moveSpeed, transform.position.x - _transform.position.x );
+            Move( moveSpeed,  _transform.position.x - transform.position.x );
         }
 
         public void Move(float moveSpeed, float x)
@@ -185,11 +190,13 @@ namespace ColdCry.Objects
 
         public void Jump(float jumpPower)
         {
-            Rb.velocity = new Vector2( Rb.velocity.x, jumpPower );
-            LastMinFallSpeed = 0;
-            MovementStatus = MovementStatus.JUMPING;
-            IsInAir = true;
-            OnJump( jumpPower );
+            if (jumpPower > 0) {
+                Rb.velocity = new Vector2( Rb.velocity.x, jumpPower );
+                LastMinFallSpeed = 0;
+                MovementStatus = MovementStatus.JUMPING;
+                IsInAir = true;
+                OnJump( jumpPower );
+            }
         }
 
         /// <summary>
@@ -269,10 +276,9 @@ namespace ColdCry.Objects
             // JEŻELI PUSH DISABLE TIME > 0 I JEDNOSTKA NIE BLOKUJE TO UNIEAKTYWNIA RUCH
             if (pushDisableTime > 0 && !blocked) {
                 CanMove = false;
-                TimerManager.GetRemaing( moveCountdownId, out float seconds );
-                if (seconds < pushDisableTime) {
+                if (moveCountdown.Remaing < pushDisableTime) {
                     // USTAWIA TIMER PO KTÓRYM JEDNOSTKA ODZYSKUJE MOŻLIWOŚĆ RUCHU
-                    TimerManager.Restart( moveCountdownId, pushDisableTime );
+                    moveCountdown.Restart( pushDisableTime );
                 }
             }
             // NADAJE PRĘDKOŚĆ
@@ -381,7 +387,7 @@ namespace ColdCry.Objects
 
         public virtual void OnContactAreaEnter(ContactArea contactArea)
         {
-            foreach (AIMovementBehaviour aiFollower in AiFollowers) {
+            foreach (AIMovementBehaviour aiFollower in Collections.ToArray( AiFollowers )) {
                 AIMovementResponse response = aiFollower.TrackTarget( this, false );
                 switch (response) {
                     case AIMovementResponse.NO_CONTACT_AREA:
@@ -391,34 +397,32 @@ namespace ColdCry.Objects
                 }
             }
         }
+
         public virtual void OnContactAreaExit(ContactArea contactArea)
         {
 
         }
 
-        public virtual void OnCountdownEnd(long id, float overtime)
-        {
-            if (id == moveCountdownId) {
-                CanMove = true;
-            }
-        }
-
-        public void AddHitPointsObserver(IHitPointsObserver observer)
+        public virtual void AddHitPointsObserver(IHitPointsObserver observer)
         {
 
         }
 
-        public void RemoveHitPointsObserver(IHitPointsObserver observer)
+        public virtual void RemoveHitPointsObserver(IHitPointsObserver observer)
         {
 
         }
 
-        public void AddSourcePointsObserver(ISourcePointsObserver observer)
+        public virtual void AddSourcePointsObserver(ISourcePointsObserver observer)
+        {
+        }
+
+        public virtual void RemoveSourcePointsObserver(ISourcePointsObserver observer)
         {
 
         }
 
-        public void RemoveSourcePointsObserver(ISourcePointsObserver observer)
+        public virtual void Notify(ICountdown notifier)
         {
 
         }

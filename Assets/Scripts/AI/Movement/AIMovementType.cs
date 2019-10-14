@@ -2,6 +2,6 @@
 {
     public enum AITargetType
     {
-        NONE, STEADY, MOVEABLE
+        NONE, DUMMY, MOVEABLE
     }
 }

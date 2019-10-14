@@ -1,16 +1,18 @@
 ﻿using ColdCry.Core;
 using ColdCry.Objects;
 using ColdCry.Utility;
+using ColdCry.Utility.Time;
 using UnityEngine;
+using static ColdCry.Utility.Time.TimerManager;
 
 namespace ColdCry
 {
-    public class Weapon : MonoBehaviour, IOnCountdownEnd
+    public class Weapon : MonoBehaviour
     {
         private Character character;
         private Attack attack;
         private Collider coll;
-        private long collisionOffDelayCountdown;
+        private ICountdown collisionOffDelayCountdown;
 
         public void Awake()
         {
@@ -20,7 +22,11 @@ namespace ColdCry
         public void Start()
         {
             character = (Character) GameManager.GetEntityByName( "Player" );
-            collisionOffDelayCountdown = TimerManager.Create( this );
+            collisionOffDelayCountdown = Countdown.GetInstance();
+            collisionOffDelayCountdown.OnEndAction = (overtime) => {
+                coll.enabled = false;
+                attack = null;
+            };
         }
 
         public void OnTriggerEnter(Collider other)
@@ -39,7 +45,7 @@ namespace ColdCry
         {
             this.attack = attack;
             coll.enabled = true;
-            TimerManager.Restart( collisionOffDelayCountdown, disableDelay );
+            collisionOffDelayCountdown.Restart( disableDelay );
         }
 
         public void Disable(float delay = 0)
@@ -48,14 +54,8 @@ namespace ColdCry
             if (delay == 0) {
                 coll.enabled = false;
             } else {
-                TimerManager.Restart( collisionOffDelayCountdown, delay );
+                collisionOffDelayCountdown.Restart( delay );
             }
-        }
-
-        public void OnCountdownEnd(long id, float overtime)
-        {
-            coll.enabled = false;
-            attack = null;
         }
     }
 }

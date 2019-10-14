@@ -1174,10 +1174,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d00a3fbaf7da2141b98760e13469fab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitPoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  sourcePoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  moveSpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  jumpPower:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  damage:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
   isInviolability: 0
@@ -1185,18 +1213,19 @@ MonoBehaviour:
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
+  minDamagableFallSpeed: 30
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &237256845
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1600,10 +1629,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d00a3fbaf7da2141b98760e13469fab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitPoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  sourcePoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  moveSpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  jumpPower:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  damage:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
   isInviolability: 0
@@ -1611,18 +1668,19 @@ MonoBehaviour:
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
+  minDamagableFallSpeed: 30
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &389829475
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2945,10 +3003,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d00a3fbaf7da2141b98760e13469fab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitPoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  sourcePoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  moveSpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  jumpPower:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  damage:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
   isInviolability: 0
@@ -2956,18 +3042,19 @@ MonoBehaviour:
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
+  minDamagableFallSpeed: 30
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &668542577
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3340,10 +3427,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d00a3fbaf7da2141b98760e13469fab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitPoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  sourcePoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  moveSpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  jumpPower:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  damage:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
   isInviolability: 0
@@ -3351,18 +3466,19 @@ MonoBehaviour:
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
+  minDamagableFallSpeed: 30
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &766342578
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3528,10 +3644,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d00a3fbaf7da2141b98760e13469fab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitPoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  sourcePoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  moveSpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  jumpPower:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  damage:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
   isInviolability: 0
@@ -3539,18 +3683,19 @@ MonoBehaviour:
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
+  minDamagableFallSpeed: 30
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
-  state: 0
-  movingState: 0
-  logStatusChange: 1
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &790311756
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3897,10 +4042,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d00a3fbaf7da2141b98760e13469fab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitPoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  sourcePoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  moveSpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  jumpPower:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  damage:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
   isInviolability: 0
@@ -3908,18 +4081,19 @@ MonoBehaviour:
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
+  minDamagableFallSpeed: 30
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &840994754
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4762,10 +4936,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d00a3fbaf7da2141b98760e13469fab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitPoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  sourcePoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  moveSpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  jumpPower:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  damage:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
   isInviolability: 0
@@ -4773,18 +4975,19 @@ MonoBehaviour:
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
+  minDamagableFallSpeed: 30
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &980447538
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5392,10 +5595,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d00a3fbaf7da2141b98760e13469fab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitPoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  sourcePoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  moveSpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  jumpPower:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  damage:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
   isInviolability: 0
@@ -5403,18 +5634,19 @@ MonoBehaviour:
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
+  minDamagableFallSpeed: 30
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &1037148609
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5485,6 +5717,7 @@ GameObject:
   - component: {fileID: 1091532695}
   - component: {fileID: 1091532694}
   - component: {fileID: 1091532693}
+  - component: {fileID: 1091532697}
   - component: {fileID: 1091532692}
   - component: {fileID: 1091532691}
   - component: {fileID: 1091532696}
@@ -5537,10 +5770,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d00a3fbaf7da2141b98760e13469fab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitPoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  sourcePoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  moveSpeed:
+    basic: 8
+    current: 8
+    max: 8
+    canExceedMax: 0
+  jumpPower:
+    basic: 25
+    current: 25
+    max: 25
+    canExceedMax: 0
+  damage:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 12
+    current: 12
+    max: 12
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
   isInviolability: 0
@@ -5548,18 +5809,19 @@ MonoBehaviour:
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
+  minDamagableFallSpeed: 30
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
-  state: 0
-  movingState: 0
-  logStatusChange: 1
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &1091532693
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5630,9 +5892,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eae5c963336d46647af51e3516c3773b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  state: 0
-  movingState: 0
-  logs: 1
+--- !u!114 &1091532697
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1091532689}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d06fb6b445ebf41458f32e61efb91d19, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pathRefindRepeats: 1
+  pathRefindInterval: 0.75
+  logger:
+    logging: 1
 --- !u!1 &1128911717
 GameObject:
   m_ObjectHideFlags: 0
@@ -6562,10 +6837,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d00a3fbaf7da2141b98760e13469fab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitPoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  sourcePoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  moveSpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  jumpPower:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  damage:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
   isInviolability: 0
@@ -6573,18 +6876,19 @@ MonoBehaviour:
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
+  minDamagableFallSpeed: 30
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &1226763771
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7695,10 +7999,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d00a3fbaf7da2141b98760e13469fab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitPoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  sourcePoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  moveSpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  jumpPower:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  damage:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
   isInviolability: 0
@@ -7706,18 +8038,19 @@ MonoBehaviour:
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
+  minDamagableFallSpeed: 30
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &1368282724
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -8894,10 +9227,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d00a3fbaf7da2141b98760e13469fab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitPoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  sourcePoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  moveSpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  jumpPower:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  damage:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
   isInviolability: 0
@@ -8905,18 +9266,19 @@ MonoBehaviour:
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
+  minDamagableFallSpeed: 30
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &1568389164
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -9141,10 +9503,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d00a3fbaf7da2141b98760e13469fab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitPoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  sourcePoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  moveSpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  jumpPower:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  damage:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
   isInviolability: 0
@@ -9152,18 +9542,19 @@ MonoBehaviour:
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
+  minDamagableFallSpeed: 30
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &1582667454
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -9285,10 +9676,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d00a3fbaf7da2141b98760e13469fab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitPoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  sourcePoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  moveSpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  jumpPower:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  damage:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
   isInviolability: 0
@@ -9296,18 +9715,19 @@ MonoBehaviour:
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
+  minDamagableFallSpeed: 30
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &1590233195
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -10566,10 +10986,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d00a3fbaf7da2141b98760e13469fab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitPoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  sourcePoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  moveSpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  jumpPower:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  damage:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
   isInviolability: 0
@@ -10577,18 +11025,19 @@ MonoBehaviour:
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
+  minDamagableFallSpeed: 30
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &1849537560
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -10769,10 +11218,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d00a3fbaf7da2141b98760e13469fab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitPoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  sourcePoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  moveSpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  jumpPower:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  damage:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
   isInviolability: 0
@@ -10780,18 +11257,19 @@ MonoBehaviour:
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
+  minDamagableFallSpeed: 30
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &1886493621
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -10957,10 +11435,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d00a3fbaf7da2141b98760e13469fab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitPoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  sourcePoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  moveSpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  jumpPower:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  damage:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
   isInviolability: 0
@@ -10968,18 +11474,19 @@ MonoBehaviour:
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
+  minDamagableFallSpeed: 30
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &1915000149
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -11295,10 +11802,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d00a3fbaf7da2141b98760e13469fab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitPoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  sourcePoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  moveSpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  jumpPower:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  damage:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
   isInviolability: 0
@@ -11306,18 +11841,19 @@ MonoBehaviour:
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
+  minDamagableFallSpeed: 30
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &1958992140
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -11733,10 +12269,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d00a3fbaf7da2141b98760e13469fab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitPoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  sourcePoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  moveSpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  jumpPower:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  damage:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
   isInviolability: 0
@@ -11744,18 +12308,19 @@ MonoBehaviour:
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
+  minDamagableFallSpeed: 30
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
   contactArea: {fileID: 0}
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &2064548827
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -12349,8 +12914,43 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5464372047447311031, guid: ff65f7d603e277d4cbf835f790dccc72,
         type: 3}
+      propertyPath: moveSpeed.basic
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 5464372047447311031, guid: ff65f7d603e277d4cbf835f790dccc72,
+        type: 3}
+      propertyPath: flySpeed.basic
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 5464372047447311031, guid: ff65f7d603e277d4cbf835f790dccc72,
+        type: 3}
       propertyPath: jumpPower.basic
-      value: 19.5
+      value: 35
+      objectReference: {fileID: 0}
+    - target: {fileID: 5464372047447311031, guid: ff65f7d603e277d4cbf835f790dccc72,
+        type: 3}
+      propertyPath: hitPoints.basic
+      value: 555
+      objectReference: {fileID: 0}
+    - target: {fileID: 5464372047447311031, guid: ff65f7d603e277d4cbf835f790dccc72,
+        type: 3}
+      propertyPath: hitPoints.current
+      value: 555
+      objectReference: {fileID: 0}
+    - target: {fileID: 5464372047447311031, guid: ff65f7d603e277d4cbf835f790dccc72,
+        type: 3}
+      propertyPath: flySpeed.current
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 5464372047447311031, guid: ff65f7d603e277d4cbf835f790dccc72,
+        type: 3}
+      propertyPath: flySpeed.max
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 5464372047447311031, guid: ff65f7d603e277d4cbf835f790dccc72,
+        type: 3}
+      propertyPath: hitPoints.max
+      value: 555
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 5464372047202170792, guid: ff65f7d603e277d4cbf835f790dccc72, type: 3}

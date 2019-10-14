@@ -1,8 +1,8 @@
 ﻿namespace ColdCry.Utility.Patterns.Memory
 {
-    public interface IMemoriable
+    public interface IMemoriable<T>
     {
-        MemoryPart SaveMemory();
-        void LoadMemory(MemoryPart data);
+        T SaveMemory();
+        void LoadMemory(T data);
     }
 }

@@ -1,8 +1,11 @@
 ﻿using ColdCry.Core;
 using ColdCry.Utility;
+using ColdCry.Utility.Time;
 using Inputs;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using static ColdCry.Utility.Time.TimerManager;
 
 namespace ColdCry.Objects
 {
@@ -46,11 +49,11 @@ namespace ColdCry.Objects
         private PInput input;
         private Weapon weapon;
 
-        #region Countdowns IDs
-        private long simpleAttackCountdown;
-        private long flyAttackCountdown;
-        private long backwardAttackCountdown;
-        private long comboBreakCountdown;
+        #region Countdowns
+        private ICountdown simpleAttackCountdown;
+        private ICountdown flyAttackCountdown;
+        private ICountdown backwardAttackCountdown;
+        private ICountdown comboBreakCountdown;
         #endregion
         #endregion
 
@@ -71,10 +74,12 @@ namespace ColdCry.Objects
         public override void Start()
         {
             base.Start();
-            simpleAttackCountdown = TimerManager.Start( SIMPLE_ATTACK_TIME, this );
-            flyAttackCountdown = TimerManager.Start( FLY_ATTACK_TIME, this );
-            backwardAttackCountdown = TimerManager.Start( BACKWARD_ATTACK_TIME, this );
-            comboBreakCountdown = TimerManager.Start( COMBO_BREAK_TIME, this );
+            void countdownsAction(float overtime)
+            { CanMove = true; }
+            simpleAttackCountdown = Countdown.GetInstance( SIMPLE_ATTACK_TIME, countdownsAction );
+            flyAttackCountdown = Countdown.GetInstance( FLY_ATTACK_TIME, countdownsAction );
+            backwardAttackCountdown = Countdown.GetInstance( BACKWARD_ATTACK_TIME, countdownsAction );
+           // comboBreakCountdown = TimerManager.Start( COMBO_BREAK_TIME, this );
 
             /*Combo combo1 = new Combo( this, "Szakalaka",
                 new ButtonCode[] { ButtonCode.Y, ButtonCode.A, ButtonCode.X, ButtonCode.B },
@@ -160,14 +165,14 @@ namespace ColdCry.Objects
         public void SimpleAtack()
         {
             // Jeżeli zakończył się timer odliczający czas od możliwego kolejnego ataku
-            if (TimerManager.HasEnded( simpleAttackCountdown )) {
+            if (simpleAttackCountdown.HasEnded()) {
                 // W innym wypadku jest on wykonany, ale jeżeli jesteśmy w aktualnie w locie
                 // to atak jest wykonany w miejscu
                 Vector3 attackDirection = new Vector3( SIMPLE_ATTACK_MOVE / 1.3f * LookDirection.x, Rb.velocity.y );
                 if (IsTouchingGround())
                     Rb.velocity = attackDirection;
                 // Przypisujemy ostatni klawisz ze zwykłego ataku oraz resetujemy timer
-                TimerManager.Restart( simpleAttackCountdown );
+                simpleAttackCountdown.Restart();
                 weapon.SetNextAttackInfo(
                     new Attack( Damage.Max,
                     (int) LookDirection.x,
@@ -187,8 +192,8 @@ namespace ColdCry.Objects
         /// </summary>
         public void FlyAttack()
         {
-            if (TimerManager.HasEnded( flyAttackCountdown )) {
-                TimerManager.Restart( flyAttackCountdown );
+            if (flyAttackCountdown.HasEnded()) {
+                flyAttackCountdown.Restart();
                 Rb.velocity = new Vector3( Rb.velocity.x, FLY_ATTACK_MOVE );
                 weapon.SetNextAttackInfo(
                     new Attack( Damage.Current,
@@ -205,8 +210,8 @@ namespace ColdCry.Objects
         /// </summary>
         public void BackwardAttack()
         {
-            if (TimerManager.HasEnded( backwardAttackCountdown )) {
-                TimerManager.Restart( backwardAttackCountdown );
+            if (backwardAttackCountdown.HasEnded()) {
+                backwardAttackCountdown.Restart();
                 LookDirection *= -1;
                 Rb.velocity = new Vector3( SIMPLE_ATTACK_MOVE * 2 * LookDirection.x, Rb.velocity.y );
                 CanMove = false;
@@ -241,10 +246,10 @@ namespace ColdCry.Objects
         /// For timer when one from countdowns ends.
         /// </summary>
         /// <param name="id">Countdown id</param>
-        public override void OnCountdownEnd(long id, float overtime)
+       /* public override void OnCountdownEnd(long id, float overtime)
         {
             base.OnCountdownEnd( id, overtime );
-            if (moveCountdownId != id) {
+            if (moveCountdown != id) {
                 if (id == comboBreakCountdown && currentCombination.Count >= 3) {
                     CheckCombos();
                     currentCombination.Clear();
@@ -254,7 +259,7 @@ namespace ColdCry.Objects
                     CanMove = true;
                 }
             }
-        }
+        }*/
         #endregion
 
         #region Buttons
@@ -274,7 +279,7 @@ namespace ColdCry.Objects
         {
             if (!IsDead) {
                 if (!IsPaused) {
-                    TimerManager.Restart( comboBreakCountdown );
+                   // TimerManager.Restart( comboBreakCountdown );
                     switch (code) {
                         case ButtonCode.A:
                             if (CanMove) {

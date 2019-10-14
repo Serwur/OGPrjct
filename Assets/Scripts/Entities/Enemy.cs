@@ -53,7 +53,7 @@ namespace ColdCry.Objects
             }
             if (GameManager.DrawAIDestination) {
                 Gizmos.color = Color.blue;
-                if (AIBehaviour.CurrentTarget != null) {
+                if ( AIBehaviour != null && AIBehaviour.CurrentTarget != null) {
                     Gizmos.DrawLine( transform.position, AIBehaviour.CurrentTarget.position );
                 }
             }
@@ -227,10 +227,9 @@ namespace ColdCry.Objects
 
         public override void OnDie()
         {
-            base.Die();
             //TimerManager.Destroy( refindPathCountdownId );
-            TimerManager.Destroy( watchCountdownId );
-            TimerManager.Destroy( reachCountdownId );
+            //TimerManager.Destroy( watchCountdownId );
+            //TimerManager.Destroy( reachCountdownId );
             rangeToKeepThisState = 0;
             rangeToNextState = 0;
         }
@@ -239,10 +238,10 @@ namespace ColdCry.Objects
         {
             base.ResetUnit();
           //  TimerManager.Destroy( refindPathCountdownId );
-            TimerManager.Destroy( watchCountdownId );
-            TimerManager.Destroy( reachCountdownId );
-            watchCountdownId = TimerManager.Create( WATCH_TIME, this );
-            reachCountdownId = TimerManager.Create( REACH_TIME, this );
+            //TimerManager.Destroy( watchCountdownId );
+            //TimerManager.Destroy( reachCountdownId );
+           // watchCountdownId = TimerManager.Create( WATCH_TIME, this );
+         //   reachCountdownId = TimerManager.Create( REACH_TIME, this );
           //  refindPathCountdownId = TimerManager.Create( this );
         //    SetSleepState( "unit has been reseted" );
             checkPeriod = 0;
@@ -274,31 +273,7 @@ namespace ColdCry.Objects
         /// <returns><code>TRUE</code> if player is in range, otherwise <code>FALSE</code></returns>
         public virtual bool IsPlayerInRange(float range)
         {
-            return Vector2.Distance( GameManager.Character.transform.position, transform.position ) <= range;
-        }
-
-        public override void OnCountdownEnd(long id, float overtime)
-        {
-            base.OnCountdownEnd( id, overtime );
-            /*    if (id == refindPathCountdownId) {
-                    if (!FollowTarget( followedEntity )) {
-                        TimerManager.Reset( refindPathCountdownId );
-                    }
-                } else if (id == watchCountdownId && State == AIState.WATCH) {
-                    if (IsPlayerInRange( SLEEP_RANGE )) {
-                        TimerManager.Reset( watchCountdownId );
-                    } else {
-                        TimerManager.Stop( refindPathCountdownId );
-                        SetSleepState( "player wasn't in sleep range while enemy had WATCH state when timer has ended" );
-                    }
-                } else if (id == reachCountdownId && ( State == AIState.REACH || State == AIState.FOLLOW )) {
-                    if (IsPlayerInRange( WATCH_RANGE )) {
-                        TimerManager.Reset( reachCountdownId );
-                    } else {
-                        TimerManager.Stop( refindPathCountdownId );
-                        SetWatchState( "player wasn't in sleep range while enemy had REACH state when timer has ended" );
-                    }
-                }*/
+            return Vector2.Distance( GameManager.Player.transform.position, transform.position ) <= range;
         }
 
         /// <summary>

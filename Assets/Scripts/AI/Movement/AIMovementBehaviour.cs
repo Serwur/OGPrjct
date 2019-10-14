@@ -1,23 +1,32 @@
-﻿using ColdCry.Objects;
+﻿using ColdCry.AI.Movement;
+using ColdCry.Core;
+using ColdCry.Objects;
 using ColdCry.Utility;
 using ColdCry.Utility.Patterns.Memory;
+using ColdCry.Utility.Time;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using static ColdCry.Utility.Time.TimerManager;
 
 namespace ColdCry.AI
 {
     [RequireComponent( typeof( Entity ) )]
     public class AIMovementBehaviour :
         MonoBehaviour,
-        IOnCountdownEnd,
-        IObservable<AIMovementState>,
-        IMemoriable
+        Utility.IObservable<AIMovementState>,
+        IMemoriable<MemoryPart>
     {
         private static readonly float JUMP_Y_OFFSET = 1.2f;
         private static readonly float JUMP_TIME = 0.75f;
         private static readonly int POSITION_CHECK_PERIOD = 5;
 
-        [SerializeField] private float refindInterval = 0.75f;
+        [Header( "Refinder" )]
+        [SerializeField] [Range( 1, 500 )] private int pathRefindRepeats = 10;
+        [SerializeField] [Range( 0.01f, float.MaxValue )] private float pathRefindInterval = 0.75f;
+
+        [Header( "Utility" )]
+        [SerializeField] private Utility.Logger logger;
 
         #region Unity API
         public void Awake()
@@ -35,16 +44,49 @@ namespace ColdCry.AI
                 Debug.LogWarning( name + " is without late state listener" );
             }*/
 
-            Memory = new Memorier( this );
+            Memory = new Memorier<MemoryPart>( this );
+            logger = Utility.Logger.GetInstance( gameObject );
         }
 
         public void Start()
         {
-            RefindPathCountdownId = TimerManager.CreateSchedule( refindInterval , this, 10 );
+            //RefindPathCountdownId = TimerManager.CreateSchedule( refindInterval , this, 10 );
+            RefindCountdown = ScheduledCountdown.GetInstance(
+                pathRefindInterval,
+                pathRefindRepeats,
+                (overtime) => {
+                    switch (FindPathToMovable( FollowedEntity, true )) {
+                        case AIMovementResponse.TARGET_NULL:
+                        case AIMovementResponse.MISSING_ENTITY_COMPONENT:
+                            ClearPath();
+                            ClearDummy();
+                            ClearCurrentTarget();
+                            break;
+                        case AIMovementResponse.NO_CONTACT_AREA:
+                        case AIMovementResponse.NO_PATH_TO_TARGET:
+                            break;
+                        case AIMovementResponse.PATH_FOUND:
+                        case AIMovementResponse.TARGET_IN_SAME_AREA:
+                            RefindCountdown.Stop();
+                            break;
+                    }
+                } );
         }
 
-        public void FixedUpdate()
+        public void Update()
         {
+            // mouse test
+            if (Input.GetKeyDown( KeyCode.Mouse0 )) {
+                Vector3 pos = Camera.main.ScreenToWorldPoint( Input.mousePosition );
+                logger.Log( ReachPosition( pos ) );
+            } else if (Input.GetKeyDown( KeyCode.Mouse2 )) {
+                Vector3 pos = Camera.main.ScreenToWorldPoint( Input.mousePosition );
+                logger.Log( ReachPosition( pos ) );
+                StartPathRefind();
+            } else if (Input.GetKeyDown( KeyCode.Mouse1 )) {
+                logger.Log( TrackTarget( GameManager.Player ) );
+            }
+
             if (Owner.CanMove && !Paused)
                 switch (MovementState) {
                     case AIMovementState.NONE:
@@ -128,7 +170,7 @@ namespace ColdCry.AI
                 FollowedEntity.RemoveFollower( this );
             }
 
-            EntityToFollowAfterPath = null;
+            EntityToFollow = null;
 
             if (CurrentTarget != null) {
                 Entity entity = CurrentTarget.GetComponent<Entity>();
@@ -146,12 +188,68 @@ namespace ColdCry.AI
             CurrentNode = null;
         }
 
-        private AIMovementResponse FindPath(Entity target, bool keepOldTargetIfNotFound)
+        private AIMovementResponse FindPathToMovable(Entity target, bool keepOldTargetIfNotFound)
         {
             Memory.Save();
 
-            if (TargetType != AITargetType.STEADY && !keepOldTargetIfNotFound) {
+            if (TargetType != AITargetType.DUMMY && !keepOldTargetIfNotFound) {
                 ClearDummy();
+            }
+
+            ClearCurrentTarget();
+            ClearPath();
+
+            // FAIL CASE
+            if (target == null) {
+                if (keepOldTargetIfNotFound) {
+                    Memory.Undo();
+                }
+                ClearDummy();
+                TargetType = AITargetType.NONE;
+                return AIMovementResponse.TARGET_NULL;
+            }
+
+            // FAIL CASE
+            if (Owner.ContactArea == null) {
+                ClearDummy();
+                TargetType = AITargetType.NONE;
+                return AIMovementResponse.NO_CONTACT_AREA;
+            }
+
+            // SUCCESS CASE
+            if (target.ContactArea == Owner.ContactArea) {
+                MovementState = AIMovementState.FOLLOWING;
+                target.AddFollower( this );
+                FollowedEntity = target;
+                CurrentTarget = target.transform;
+                RefindCountdown.Stop();
+                return AIMovementResponse.TARGET_IN_SAME_AREA;
+            }
+
+            AIPathList newPath = AIManager.FindPath( Owner, target );
+            // FAIL CASE
+            if (newPath == null) {
+                ClearDummy();
+                TargetType = AITargetType.NONE;
+                return AIMovementResponse.NO_PATH_TO_TARGET;
+            }
+
+            // SUCCESS CASE
+            CurrentPath = newPath;
+            EntityToFollow = target;
+            FollowedEntity = target;
+            target.AddFollower( this );
+            MovementState = AIMovementState.PATHING;
+            NextNode();
+            RefindCountdown.Stop();
+
+            return AIMovementResponse.PATH_FOUND;
+        }
+
+        private AIMovementResponse FindPathToDummy(Dummy target, bool keepOldTarget)
+        {
+            if (keepOldTarget) {
+                Memory.Save();
             }
 
             ClearCurrentTarget();
@@ -177,25 +275,26 @@ namespace ColdCry.AI
                 target.AddFollower( this );
                 FollowedEntity = target;
                 CurrentTarget = target.transform;
-                TimerManager.Stop( RefindPathCountdownId );
+                RefindCountdown.Stop();
                 return AIMovementResponse.TARGET_IN_SAME_AREA;
             }
 
-            CurrentPath = AIManager.FindPath( Owner, target );
+            AIPathList newPath = AIManager.FindPath( Owner, target );
             // FAIL CASE
-            if (CurrentPath == null) {
+            if (newPath == null) {
                 ClearDummy();
                 TargetType = AITargetType.NONE;
                 return AIMovementResponse.NO_PATH_TO_TARGET;
             }
 
             // SUCCESS CASE
-            EntityToFollowAfterPath = target;
+            CurrentPath = newPath;
+            EntityToFollow = target;
             FollowedEntity = target;
             target.AddFollower( this );
             MovementState = AIMovementState.PATHING;
             NextNode();
-            TimerManager.Stop( RefindPathCountdownId );
+            RefindCountdown.Stop();
 
             return AIMovementResponse.PATH_FOUND;
         }
@@ -207,8 +306,8 @@ namespace ColdCry.AI
             } else {
                 TemplateDummy.transform.position = position;
             }
-            TargetType = AITargetType.STEADY;
-            return FindPath( TemplateDummy, keepOldPath );
+            TargetType = AITargetType.DUMMY;
+            return FindPathToMovable( TemplateDummy, keepOldPath );
         }
 
         public AIMovementResponse ReachPosition(Transform transform, bool keepOldPath = false)
@@ -236,8 +335,14 @@ namespace ColdCry.AI
                 AIManager.ReturnDummy( TemplateDummy );
                 TemplateDummy = null;
             }
-            return FindPath( entity, keepOldPath);
+            return FindPathToMovable( entity, keepOldPath );
         }
+
+
+    /*    public AIMovementResponse TrackTarget(AIReachable aIReachable, bool keepOldPath = false)
+        {
+            return FindPAt
+        }*/
 
         /*
         /// <summary>
@@ -286,20 +391,14 @@ namespace ColdCry.AI
         /// <returns></returns>
         public bool StartPathRefind()
         {
-            TimerManager.Restart( RefindPathCountdownId, RefindInterval );
+            RefindCountdown.Restart();
             return true;
         }
 
-        public void OnCountdownEnd(long id, float overtime)
-        {
-            if (id == RefindPathCountdownId) {
-                AIMovementResponse response = FindPath( FollowedEntity, true );
-                if (response == AIMovementResponse.TARGET_IN_SAME_AREA 
-                    || response == AIMovementResponse.PATH_FOUND) {
-                    TimerManager.Stop( id );
-                }
-            }
-        }
+        /* public bool StartPathRefind(Entity entity)
+         {
+
+         }*/
 
         /// <summary>
         /// Gives next node to follow in AI path
@@ -326,25 +425,28 @@ namespace ColdCry.AI
                 }
             } else {
                 ClearPath();
-                if (EntityToFollowAfterPath.ContactArea != Owner.ContactArea) {
+                if (EntityToFollow.ContactArea != Owner.ContactArea) {
                     StartPathRefind();
+                    /*
                     AIMovementResponse response = FindPath( EntityToFollowAfterPath, true );
                     switch (response) {
                         case AIMovementResponse.TARGET_NULL:
+                        case AIMovementResponse.MISSING_ENTITY_COMPONENT:
+                            ClearCurrentTarget();
+                            ClearDummy();
+                            ClearPath();
                             break;
                         case AIMovementResponse.NO_CONTACT_AREA:
-                            break;
-                        case AIMovementResponse.TARGET_IN_SAME_AREA:
-                            break;
                         case AIMovementResponse.NO_PATH_TO_TARGET:
+                            StartPathRefind();
                             break;
                         case AIMovementResponse.PATH_FOUND:
+                        case AIMovementResponse.TARGET_IN_SAME_AREA:
+                            // no action needed
                             break;
-                        case AIMovementResponse.MISSING_ENTITY_COMPONENT:
-                            break;
-                    }
+                    }*/
                 } else {
-                    CurrentTarget = EntityToFollowAfterPath.transform;
+                    CurrentTarget = EntityToFollow.transform;
                 }
             }
         }
@@ -387,29 +489,28 @@ namespace ColdCry.AI
             Owner.ResetUnit();
         }
 
-        public void Subscribe(IObserver<AIMovementState> observer)
+        public void Subscribe(Utility.IObserver<AIMovementState> observer)
         {
             if (!StateChangeObservers.Contains( observer ))
                 StateChangeObservers.Add( observer );
         }
 
-        public void Unsubscribe(IObserver<AIMovementState> observer)
+        public void Unsubscribe(Utility.IObserver<AIMovementState> observer)
         {
             StateChangeObservers.Remove( observer );
         }
 
         public MemoryPart SaveMemory()
         {
-            MemoryPart part = new MemoryPart {
-                { "TargetType", TargetType },
-                { "MovementState", MovementState },
-                { "TemplateDummy", TemplateDummy },
-                { "FollowedEntity", FollowedEntity },
-                { "EntityToFollowAfterPath", EntityToFollowAfterPath },
-                { "CurrentTarget", CurrentTarget },
-                { "CurrentPath", CurrentPath.Clone() },
-                { "CurrentNode", CurrentNode }
-            };
+            MemoryPart part = new MemoryPart();
+            part.Add( "TargetType", TargetType );
+            part.Add( "MovementState", MovementState );
+            part.Add( "TemplateDummy", TemplateDummy );
+            part.Add( "FollowedEntity", FollowedEntity );
+            part.Add( "EntityToFollowAfterPath", EntityToFollow );
+            part.Add( "CurrentTarget", CurrentTarget );
+            part.Add( "CurrentPath", CurrentPath.Clone() );
+            part.Add( "CurrentNode", CurrentNode );
             return part;
         }
 
@@ -421,27 +522,28 @@ namespace ColdCry.AI
 
         #region Getters and Setters
         public AIPathList CurrentPath { get; private set; } = new AIPathList();
-
         public Entity Owner { get; private set; }
-        public Entity EntityToFollowAfterPath { get; private set; }
+        public Entity EntityToFollow { get; private set; }
         public Entity FollowedEntity { get; private set; }
         public Transform CurrentTarget { get; private set; }
         public Dummy TemplateDummy { get; private set; }
         public ComplexNode CurrentNode { get; private set; }
-        public Memorier Memory { get; private set; }
-        public List<IObserver<AIMovementState>> StateChangeObservers { get; set; } = new List<IObserver<AIMovementState>>();
+        public Memorier<MemoryPart> Memory { get; private set; }
+        public List<Utility.IObserver<AIMovementState>> StateChangeObservers { get; private set; } = new List<Utility.IObserver<AIMovementState>>();
+        public ICountdown RefindCountdown { get; private set; }
 
         public AITargetType TargetType { get; private set; }
         public AIMovementState MovementState { get; private set; }
 
-        public float RefindInterval { get => refindInterval; set => refindInterval = value; }
+        public float RefindInterval { get => pathRefindInterval; set => pathRefindInterval = value; }
         public bool HasPath { get => !CurrentPath.IsFullyEmpty; }
         public bool PathHasEnded { get => CurrentPath.IsEmpty; }
-        public long RefindPathCountdownId { get; set; }
         public bool Paused { get; set; } = false;
         public bool XPositionReached { get; set; } = false;
         public bool PositionReached { get; set; } = false;
         public int PositionCheck { get; set; } = 0;
+        public int PathRefindRepeats { get => pathRefindRepeats; set => pathRefindRepeats = value; }
+        public float PathRefindInterval { get => pathRefindInterval; set => pathRefindInterval = value; }
         #endregion
     }
 }
