@@ -38,6 +38,8 @@ namespace ColdCry.Utility.Time
         private float time = 0f;
         private Dictionary<long, ICountdown> endedCountdowns = new Dictionary<long, ICountdown>();
         private Dictionary<long, ICountdown> notEndedCountdowns = new Dictionary<long, ICountdown>();
+        private Dictionary<long, ICountdown> inNextFrame = new Dictionary<long, ICountdown>();
+        private Dictionary<long, ICountdown> unactive = new Dictionary<long, ICountdown>();
         #endregion
 
         #region Unity API
@@ -314,6 +316,32 @@ namespace ColdCry.Utility.Time
             }
             return false;
         }*/
+
+        /*
+         Dictionary<long, ICountdown> forNextFrame = new Dictionary<long, ICountdown>();
+
+        foreach (ICountdown countdown in inNextFrame.Values) {
+
+            if (countdown.Paused) {
+                forNextFrame.Add( countdown.ID, countdown );
+                continue;
+            }
+
+            if (countdown.HasEnded()) {
+                countdown.OnEnd();
+                if (countdown.ShouldRestart()) {
+                    forNextFrame.Add( countdown.ID, countdown );
+                } else {
+                    unactive.Add( countdown.ID, countdown );
+                }
+            } else {
+                forNextFrame.Add( countdown.ID, countdown );
+            }
+        }
+
+        inNextFrame = forNextFrame;
+
+         * */
         #endregion
 
         #region Private Methods
@@ -323,7 +351,8 @@ namespace ColdCry.Utility.Time
             time += passedTime;
 
             LinkedList<ICountdown> countdownsToRemove = new LinkedList<ICountdown>();
-
+            
+            
             foreach (ICountdown countdown in notEndedCountdowns.Values) {
 
                 if (countdown.Paused)
@@ -428,18 +457,21 @@ namespace ColdCry.Utility.Time
               }
           }*/
 
-        private class CountdownOperator
+        /*
+    private class CountdownOperator
+    {
+        public CountdownOperator(ICountdown countdown)
         {
-            public CountdownOperator(ICountdown countdown)
-            {
-                Countdown = countdown;
-            }
-
-            public ICountdown Countdown { get; set; }
+            Countdown = countdown;
         }
+
+        public ICountdown Countdown { get; set; }
+    }*/
 
         public class Countdown : ICountdown
         {
+            protected bool forceRemove = false;
+            protected bool restarted = false;
             protected bool pause = false;
             protected bool started = false;
             protected float timeWhenPaused = 0f;
@@ -509,7 +541,7 @@ namespace ColdCry.Utility.Time
                 timeWhenPaused = 0;
                 StartTime = Instance.time;
                 EndTime = Instance.time + Time;
-                if (!Instance.notEndedCountdowns.ContainsKey( ID )) {
+                if (restarted && !Instance.notEndedCountdowns.ContainsKey( ID )) {
                     Instance.notEndedCountdowns.Add( ID, this );
                     Instance.endedCountdowns.Remove( ID );
                 }
@@ -566,6 +598,7 @@ namespace ColdCry.Utility.Time
 
             public bool Destroy()
             {
+                UnityEngine.Debug.Log( "called: " + ID );
                 if (Instance.endedCountdowns.Remove( ID ))
                     return true;
                 return Instance.notEndedCountdowns.Remove( ID );
@@ -653,7 +686,7 @@ namespace ColdCry.Utility.Time
 
             public override object Clone()
             {
-                ScheduledCountdown clone =  base.Clone() as ScheduledCountdown;
+                ScheduledCountdown clone = base.Clone() as ScheduledCountdown;
                 clone.CurrentRepeat = CurrentRepeat;
                 clone.Repeats = Repeats;
                 return clone;

@@ -1,9 +1,5 @@
 ﻿using ColdCry.Utility;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace ColdCry.AI.Movement
@@ -11,7 +7,7 @@ namespace ColdCry.AI.Movement
     public class AIReachable : MonoBehaviour
     {
         [SerializeField] private ContactArea contactArea;
-        
+
         public bool AddAIFollower(AIMovementBehaviour follower)
         {
             return Followers.Add( follower );
@@ -22,7 +18,8 @@ namespace ColdCry.AI.Movement
             return Followers.Remove( follower );
         }
 
-     /*   private void NotifyAIFollower()
+        /*
+        private void NotifyAIFollower()
         {
             foreach (AIMovementBehaviour follower in Collections.ToArray( Followers )) {
                 AIMovementResponse response = follower.TrackTarget( this, false );
@@ -35,6 +32,7 @@ namespace ColdCry.AI.Movement
             }
         }*/
 
+        public ContactArea ContactArea { get => contactArea; set => contactArea = value; }
         private HashSet<AIMovementBehaviour> Followers { get; set; }
     }
 }

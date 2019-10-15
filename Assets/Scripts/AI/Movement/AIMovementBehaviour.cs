@@ -1,10 +1,7 @@
-﻿using ColdCry.AI.Movement;
-using ColdCry.Core;
+﻿using ColdCry.Core;
 using ColdCry.Objects;
-using ColdCry.Utility;
 using ColdCry.Utility.Patterns.Memory;
 using ColdCry.Utility.Time;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using static ColdCry.Utility.Time.TimerManager;
@@ -28,22 +25,12 @@ namespace ColdCry.AI
         [Header( "Utility" )]
         [SerializeField] private Utility.Logger logger;
 
+        private bool awaken = false;
+
         #region Unity API
         public void Awake()
         {
             Owner = GetComponent<Entity>();
-
-            /*
-            StateListener = GetComponent<IStateAIListener>();
-            if (StateListener == null) {
-                Debug.LogWarning( name + " is without state listener" );
-            }
-
-            LateStateListener = GetComponent<ILateStateAIListener>();
-            if (LateStateListener == null) {
-                Debug.LogWarning( name + " is without late state listener" );
-            }*/
-
             Memory = new Memorier<MemoryPart>( this );
             logger = Utility.Logger.GetInstance( gameObject );
         }
@@ -55,15 +42,15 @@ namespace ColdCry.AI
                 pathRefindInterval,
                 pathRefindRepeats,
                 (overtime) => {
-                    switch (FindPathToMovable( FollowedEntity, true )) {
+                    switch (FindPath( FollowedEntity, true )) {
                         case AIMovementResponse.TARGET_NULL:
                         case AIMovementResponse.MISSING_ENTITY_COMPONENT:
                             ClearPath();
-                            ClearDummy();
                             ClearCurrentTarget();
                             break;
                         case AIMovementResponse.NO_CONTACT_AREA:
                         case AIMovementResponse.NO_PATH_TO_TARGET:
+                            MovementState = AIMovementState.WAITING;
                             break;
                         case AIMovementResponse.PATH_FOUND:
                         case AIMovementResponse.TARGET_IN_SAME_AREA:
@@ -71,6 +58,7 @@ namespace ColdCry.AI
                             break;
                     }
                 } );
+            TemplateDummy = AIManager.GetDummy();
         }
 
         public void Update()
@@ -78,11 +66,8 @@ namespace ColdCry.AI
             // mouse test
             if (Input.GetKeyDown( KeyCode.Mouse0 )) {
                 Vector3 pos = Camera.main.ScreenToWorldPoint( Input.mousePosition );
+                if ( TemplateDummy != null)
                 logger.Log( ReachPosition( pos ) );
-            } else if (Input.GetKeyDown( KeyCode.Mouse2 )) {
-                Vector3 pos = Camera.main.ScreenToWorldPoint( Input.mousePosition );
-                logger.Log( ReachPosition( pos ) );
-                StartPathRefind();
             } else if (Input.GetKeyDown( KeyCode.Mouse1 )) {
                 logger.Log( TrackTarget( GameManager.Player ) );
             }
@@ -103,11 +88,37 @@ namespace ColdCry.AI
                         break;
                 }
         }
+
+        public void OnEnable()
+        {
+            if (awaken)
+                TemplateDummy = AIManager.GetDummy();
+            awaken = true;
+        }
+
+        public void OnDisable()
+        {
+            if (TemplateDummy != null)
+                AIManager.ReturnDummy( TemplateDummy );
+            Stop();
+            Owner.ResetUnit();
+        }
+
+        public void OnDestroy()
+        {
+            if (TemplateDummy != null)
+                AIManager.ReturnDummy( TemplateDummy );
+            Stop();
+            Owner.ResetUnit();
+        }
         #endregion
 
         #region StateUpdates
         private void PathUpdate()
         {
+            if (CurrentTarget == null)
+                return;
+
             PositionCheck++;
             if (PositionCheck >= POSITION_CHECK_PERIOD) {
                 PositionCheck = 0;
@@ -130,6 +141,9 @@ namespace ColdCry.AI
         private void FollowUpdate()
         {
             Owner.Move( FollowedEntity );
+            if (TargetType == AITargetType.DUMMY && Vector2.Distance( FollowedEntity.transform.position, transform.position ) < 0.2f) {
+                Stop();
+            }
         }
         #endregion
 
@@ -149,19 +163,10 @@ namespace ColdCry.AI
         public void Stop()
         {
             ClearCurrentTarget();
-            ClearDummy();
             ClearPath();
             MovementState = AIMovementState.NONE;
             TargetType = AITargetType.NONE;
             Paused = false;
-        }
-
-        private void ClearDummy()
-        {
-            if (TemplateDummy != null) {
-                AIManager.ReturnDummy( TemplateDummy );
-                TemplateDummy = null;
-            }
         }
 
         private void ClearCurrentTarget()
@@ -188,14 +193,9 @@ namespace ColdCry.AI
             CurrentNode = null;
         }
 
-        private AIMovementResponse FindPathToMovable(Entity target, bool keepOldTargetIfNotFound)
+        private AIMovementResponse FindPath(Entity target, bool keepOldTargetIfNotFound)
         {
             Memory.Save();
-
-            if (TargetType != AITargetType.DUMMY && !keepOldTargetIfNotFound) {
-                ClearDummy();
-            }
-
             ClearCurrentTarget();
             ClearPath();
 
@@ -204,14 +204,12 @@ namespace ColdCry.AI
                 if (keepOldTargetIfNotFound) {
                     Memory.Undo();
                 }
-                ClearDummy();
                 TargetType = AITargetType.NONE;
                 return AIMovementResponse.TARGET_NULL;
             }
 
             // FAIL CASE
             if (Owner.ContactArea == null) {
-                ClearDummy();
                 TargetType = AITargetType.NONE;
                 return AIMovementResponse.NO_CONTACT_AREA;
             }
@@ -229,60 +227,6 @@ namespace ColdCry.AI
             AIPathList newPath = AIManager.FindPath( Owner, target );
             // FAIL CASE
             if (newPath == null) {
-                ClearDummy();
-                TargetType = AITargetType.NONE;
-                return AIMovementResponse.NO_PATH_TO_TARGET;
-            }
-
-            // SUCCESS CASE
-            CurrentPath = newPath;
-            EntityToFollow = target;
-            FollowedEntity = target;
-            target.AddFollower( this );
-            MovementState = AIMovementState.PATHING;
-            NextNode();
-            RefindCountdown.Stop();
-
-            return AIMovementResponse.PATH_FOUND;
-        }
-
-        private AIMovementResponse FindPathToDummy(Dummy target, bool keepOldTarget)
-        {
-            if (keepOldTarget) {
-                Memory.Save();
-            }
-
-            ClearCurrentTarget();
-            ClearPath();
-
-            // FAIL CASE
-            if (target == null) {
-                ClearDummy();
-                TargetType = AITargetType.NONE;
-                return AIMovementResponse.TARGET_NULL;
-            }
-
-            // FAIL CASE
-            if (Owner.ContactArea == null) {
-                ClearDummy();
-                TargetType = AITargetType.NONE;
-                return AIMovementResponse.NO_CONTACT_AREA;
-            }
-
-            // SUCCESS CASE
-            if (target.ContactArea == Owner.ContactArea) {
-                MovementState = AIMovementState.FOLLOWING;
-                target.AddFollower( this );
-                FollowedEntity = target;
-                CurrentTarget = target.transform;
-                RefindCountdown.Stop();
-                return AIMovementResponse.TARGET_IN_SAME_AREA;
-            }
-
-            AIPathList newPath = AIManager.FindPath( Owner, target );
-            // FAIL CASE
-            if (newPath == null) {
-                ClearDummy();
                 TargetType = AITargetType.NONE;
                 return AIMovementResponse.NO_PATH_TO_TARGET;
             }
@@ -301,13 +245,9 @@ namespace ColdCry.AI
 
         public AIMovementResponse ReachPosition(Vector2 position, bool keepOldPath = false)
         {
-            if (TemplateDummy == null) {
-                TemplateDummy = AIManager.GetDummy( position );
-            } else {
-                TemplateDummy.transform.position = position;
-            }
+            TemplateDummy.transform.position = position;
             TargetType = AITargetType.DUMMY;
-            return FindPathToMovable( TemplateDummy, keepOldPath );
+            return FindPath( TemplateDummy, keepOldPath );
         }
 
         public AIMovementResponse ReachPosition(Transform transform, bool keepOldPath = false)
@@ -331,18 +271,14 @@ namespace ColdCry.AI
 
         public AIMovementResponse TrackTarget(Entity entity, bool keepOldPath = false)
         {
-            if (TemplateDummy != null) {
-                AIManager.ReturnDummy( TemplateDummy );
-                TemplateDummy = null;
-            }
-            return FindPathToMovable( entity, keepOldPath );
+            return FindPath( entity, keepOldPath );
         }
 
 
-    /*    public AIMovementResponse TrackTarget(AIReachable aIReachable, bool keepOldPath = false)
-        {
-            return FindPAt
-        }*/
+        /*  public AIMovementResponse TrackTarget(AIReachable aIReachable, bool keepOldPath = false)
+          {
+             // return FindPAt
+          }*/
 
         /*
         /// <summary>
@@ -477,17 +413,7 @@ namespace ColdCry.AI
             return ( heigth + JUMP_Y_OFFSET ) <= ( jumpPower * jumpPower / ( 2 * Mathf.Abs( Physics.gravity.y ) ) );
         }
 
-        public void OnDisable()
-        {
-            Stop();
-            Owner.ResetUnit();
-        }
 
-        public void OnDestroy()
-        {
-            Stop();
-            Owner.ResetUnit();
-        }
 
         public void Subscribe(Utility.IObserver<AIMovementState> observer)
         {

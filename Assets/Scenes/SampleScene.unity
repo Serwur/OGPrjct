@@ -5720,7 +5720,6 @@ GameObject:
   - component: {fileID: 1091532697}
   - component: {fileID: 1091532692}
   - component: {fileID: 1091532691}
-  - component: {fileID: 1091532696}
   m_Layer: 10
   m_Name: NPC_ENEMY
   m_TagString: Enemy
@@ -5804,7 +5803,7 @@ MonoBehaviour:
   regenSourcePoints: 0
   isDead: 0
   canMove: 1
-  isInviolability: 0
+  isInviolability: 1
   isPaused: 0
   isBlocking: 0
   isPushImmune: 0
@@ -5880,18 +5879,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1091532689}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &1091532696
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1091532689}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eae5c963336d46647af51e3516c3773b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1091532697
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7505,25 +7492,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1292397456 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5464372047202170794, guid: ff65f7d603e277d4cbf835f790dccc72,
-    type: 3}
-  m_PrefabInstance: {fileID: 5464372047085463094}
-  m_PrefabAsset: {fileID: 0}
---- !u!65 &1292397459
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1292397456}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.9999998, y: 2.2132838, z: 11.427207}
-  m_Center: {x: 0.018532794, y: 0.106677994, z: 1.6413668}
 --- !u!1001 &1295336130
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10355,24 +10323,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 22
   edges: []
---- !u!1 &1701435578 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5464372047447310923, guid: ff65f7d603e277d4cbf835f790dccc72,
-    type: 3}
-  m_PrefabInstance: {fileID: 5464372047085463094}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1701435585
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1701435578}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca08f71fb1efd60438a40a790bb12efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1723552710
 GameObject:
   m_ObjectHideFlags: 0
@@ -12912,48 +12862,7 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5464372047447311031, guid: ff65f7d603e277d4cbf835f790dccc72,
-        type: 3}
-      propertyPath: moveSpeed.basic
-      value: 15
-      objectReference: {fileID: 0}
-    - target: {fileID: 5464372047447311031, guid: ff65f7d603e277d4cbf835f790dccc72,
-        type: 3}
-      propertyPath: flySpeed.basic
-      value: 15
-      objectReference: {fileID: 0}
-    - target: {fileID: 5464372047447311031, guid: ff65f7d603e277d4cbf835f790dccc72,
-        type: 3}
-      propertyPath: jumpPower.basic
-      value: 35
-      objectReference: {fileID: 0}
-    - target: {fileID: 5464372047447311031, guid: ff65f7d603e277d4cbf835f790dccc72,
-        type: 3}
-      propertyPath: hitPoints.basic
-      value: 555
-      objectReference: {fileID: 0}
-    - target: {fileID: 5464372047447311031, guid: ff65f7d603e277d4cbf835f790dccc72,
-        type: 3}
-      propertyPath: hitPoints.current
-      value: 555
-      objectReference: {fileID: 0}
-    - target: {fileID: 5464372047447311031, guid: ff65f7d603e277d4cbf835f790dccc72,
-        type: 3}
-      propertyPath: flySpeed.current
-      value: 15
-      objectReference: {fileID: 0}
-    - target: {fileID: 5464372047447311031, guid: ff65f7d603e277d4cbf835f790dccc72,
-        type: 3}
-      propertyPath: flySpeed.max
-      value: 15
-      objectReference: {fileID: 0}
-    - target: {fileID: 5464372047447311031, guid: ff65f7d603e277d4cbf835f790dccc72,
-        type: 3}
-      propertyPath: hitPoints.max
-      value: 555
-      objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 5464372047202170792, guid: ff65f7d603e277d4cbf835f790dccc72, type: 3}
+    m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ff65f7d603e277d4cbf835f790dccc72, type: 3}
 --- !u!1001 &5924441121314341198
 PrefabInstance:

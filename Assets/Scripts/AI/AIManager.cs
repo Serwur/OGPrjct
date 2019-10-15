@@ -28,6 +28,9 @@ namespace ColdCry.AI
                 throw new System.Exception( "Cannot create more than one AIManager object!" );
             }
             Instance = this;
+
+            dummies = new ObjectPool<Dummy>( dummyAsset, "Dummies" );
+            dummyNodes = new ObjectPool<Node>( prefabNode, 5, true, "DummyNodes" );
         }
 
         public void Start()
@@ -55,8 +58,6 @@ namespace ColdCry.AI
             } else {
                 Debug.LogWarning( "No nodes set on the map" );
             }
-            dummies = new ObjectPool<Dummy>( dummyAsset, "Dummies" );
-            dummyNodes = new ObjectPool<Node>( prefabNode, 5, true, "DummyNodes" );
         }
 
         /// <summary>
@@ -189,6 +190,11 @@ namespace ColdCry.AI
                 }
             }
             return nearestNode;
+        }
+
+        public static Dummy GetDummy()
+        {
+            return Instance.dummies.Get();
         }
 
         /// <summary>

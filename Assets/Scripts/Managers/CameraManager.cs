@@ -6,9 +6,14 @@ namespace ColdCry.Core
     {
         public bool isFollowingTarget = true;
 
+
         private Transform targetToFollow;
         private bool slowTargetChange = false;
         private float speedTargetChange = 0f;
+
+        #region DevSection
+        public bool mouseControl = false;
+        #endregion
 
         private static CameraManager Instance;
         private static readonly Vector3 OFFSET_Z = new Vector3( 0f, 0f, -20f );
@@ -29,7 +34,13 @@ namespace ColdCry.Core
 
         public void Update()
         {
-            if (isFollowingTarget) {
+            if (mouseControl) {
+                if (Input.GetKey( KeyCode.Mouse2 )) {
+                    Vector3 mousePos = Camera.main.ScreenToWorldPoint( Input.mousePosition );
+                    Vector2 deltaMove = mousePos - Camera.main.transform.position;
+                    Camera.main.transform.position = Camera.main.transform.position + new Vector3( deltaMove.x, deltaMove.y ) * 0.2f;
+                }
+            } else if (isFollowingTarget) {
                 transform.position = targetToFollow.position + OFFSET_Z;
             } else if (slowTargetChange) {
                 transform.position = Vector3.LerpUnclamped( transform.position, targetToFollow.position + OFFSET_Z, speedTargetChange * Time.deltaTime );
