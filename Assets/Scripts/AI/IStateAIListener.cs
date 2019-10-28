@@ -2,18 +2,18 @@
 {
     public interface IStateAIListener
     {
-        void SetSleepState(AIMovementStatus oldState);
-        void SetWatchState(AIMovementStatus oldState);
-        void SetReachState(AIMovementStatus oldState);
-        void SetAttackState(AIMovementStatus oldState);
-        void SetFollowState(AIMovementStatus oldState);
-        void OnAnyStateChange(AIMovementStatus oldState, AIMovementStatus newState);
+        void SetSleepState(AIState oldState);
+        void SetWatchState(AIState oldState);
+        void SetReachState(AIState oldState);
+        void SetAttackState(AIState oldState);
+        void SetFollowState(AIState oldState);
+        void OnAnyStateChange(AIState oldState, AIState newState);
 
         void SleepUpdate();
         void WatchUpdate();
         void ReachUpdate();
         void FollowUpdate();
         void AttackUpdate();
-        void OnAnyStateUpdate(AIMovementStatus currentState);
+        void OnAnyStateUpdate(AIState currentState);
     }
 }

@@ -1,15 +1,22 @@
 ﻿using ColdCry.Utility;
+using System;
 using System.Collections.Generic;
 
 namespace ColdCry.AI
 {
 
-    public class AIPathList
+    public class AIPathList : ICloneable
     {
+        private static readonly AIPathList RD_EMPTY;
 
         private LinkedList<ComplexNode> cnList = new LinkedList<ComplexNode>();
         private LinkedList<ComplexNode> cnHistoryList = new LinkedList<ComplexNode>();
-        private ComplexNode currentCn = null;
+        private ComplexNode cnCurrent = null;
+
+        static AIPathList()
+        {
+            RD_EMPTY = new AIPathList();
+        }
 
         /// <summary>
         /// Pushes given <see cref="ComplexNode"/> to begin of the list
@@ -43,7 +50,7 @@ namespace ColdCry.AI
                 cn = Collections.RemoveFirst( cnHistoryList );
                 cnList.AddFirst( cn );
             }
-            currentCn = cn;
+            cnCurrent = cn;
             return cn;
         }
 
@@ -58,8 +65,18 @@ namespace ColdCry.AI
                 cn = Collections.RemoveFirst( cnList );
                 cnHistoryList.AddFirst( cn );
             }
-            currentCn = cn;
+            cnCurrent = cn;
             return cn;
+        }
+
+        public ComplexNode ToFirst()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public ComplexNode ToLast()
+        {
+            throw new System.NotImplementedException();
         }
 
         /// <summary>
@@ -141,7 +158,7 @@ namespace ColdCry.AI
         {
             cnList.Clear();
             cnHistoryList.Clear();
-            currentCn = null;
+            cnCurrent = null;
         }
 
         /// <summary>
@@ -162,6 +179,16 @@ namespace ColdCry.AI
             return path;
         }
 
+        public object Clone()
+        {
+            AIPathList clone = new AIPathList {
+                cnList = cnList,
+                cnHistoryList = cnHistoryList,
+                cnCurrent = cnCurrent
+            };
+            return clone;
+        }
+
         /// <summary>
         /// <code>TRUE</code> if list is empty, otherwise <code>FALSE</code>
         /// </summary>
@@ -174,10 +201,37 @@ namespace ColdCry.AI
         /// <code>TRUE</code> if list and history are empty, otherwise <code>FALSE</code>
         /// </summary>
         public bool IsFullyEmpty { get => IsEmpty && IsHistoryEmpty; }
+        public Node CurrentNode { get => Current?.Node; }
+        public Node FirstNode { get => First?.Node; }
+        public Node LastNode { get => Last?.Node; }
         /// <summary>
-        /// Gives current ComplexNode
+        /// Current <see cref="ComplexNode">ComplexNode</see> from path
         /// </summary>
-        public ComplexNode Current { get => currentCn; }
+        public ComplexNode Current { get => cnCurrent; }
+        /// <summary>
+        /// First <see cref="ComplexNode">ComplexNode</see> from path
+        /// </summary>
+        public ComplexNode First
+        {
+            get {
+                if (IsHistoryEmpty) {
+                    return cnList.First?.Value;
+                }
+                return cnHistoryList.First?.Value;
+            }
+        }
+        /// <summary>
+        /// Last <see cref="ComplexNode">ComplexNode</see> from path
+        /// </summary>
+        public ComplexNode Last
+        {
+            get {
+                if (!IsHistoryEmpty) {
+                    return cnHistoryList.Last?.Value;
+                }
+                return cnList.Last?.Value;
+            }
+        }
         /// <summary>
         /// Amount of nodes in list that left
         /// </summary>
@@ -186,6 +240,8 @@ namespace ColdCry.AI
         /// Amount of nodes in history
         /// </summary>
         public int NodesInHistory { get => cnHistoryList.Count; }
+
+        public static AIPathList Empty { get => RD_EMPTY; }
     }
 
 }

@@ -1,4 +1,5 @@
-﻿using ColdCry.Editors;
+﻿using ColdCry.AI.Movement;
+using ColdCry.Editors;
 using ColdCry.Objects;
 using ColdCry.Utility;
 using System.Collections.Generic;
@@ -10,14 +11,14 @@ namespace ColdCry.AI
     public class AIManager : MonoBehaviour
     {
         public Node prefabNode;
-        public Dummy dummyAsset;
+        public Reachable reachablePrefab;
 
         private static AIManager Instance;
 
         private Dictionary<long, Node> staticNodes = new Dictionary<long, Node>();
         private LinkedList<ContactArea> contactAreas = new LinkedList<ContactArea>();
-        private ObjectPool<Dummy> dummies;
         private ObjectPool<Node> dummyNodes;
+        private ObjectPool<Reachable> reachableTemplates;
 
         [SerializeField] private bool logStatCalls = false;
         private int findPathCalls = 0;
@@ -28,6 +29,9 @@ namespace ColdCry.AI
                 throw new System.Exception( "Cannot create more than one AIManager object!" );
             }
             Instance = this;
+
+            reachableTemplates = new ObjectPool<Reachable>( reachablePrefab, "TemplateAIReachables" );
+            dummyNodes = new ObjectPool<Node>( prefabNode, 5, true, "DummyNodes" );
         }
 
         public void Start()
@@ -55,8 +59,6 @@ namespace ColdCry.AI
             } else {
                 Debug.LogWarning( "No nodes set on the map" );
             }
-            dummies = new ObjectPool<Dummy>( dummyAsset, "Dummies" );
-            dummyNodes = new ObjectPool<Node>( prefabNode, 5, true, "DummyNodes" );
         }
 
         /// <summary>
@@ -65,25 +67,25 @@ namespace ColdCry.AI
         /// <param name="ai">AI as <see cref="Entity"/></param>
         /// <param name="position">Position on map as <see cref="Vector2"/></param>
         /// <returns>The shortest path to given <paramref name="position"/></returns>
-        public static AIPathList FindPath(Entity ai, Vector2 position)
+        public static AIPathList FindPath(Reachable ai, Vector2 position)
         {
-            Dummy dummy = GetDummy( position );
-            AIPathList aIPathList = FindPath( ai, dummy );
-            dummy.gameObject.SetActive( false );
+            Reachable reachable = GetReachable( position );
+            AIPathList aIPathList = FindPath( ai, reachable );
+            ReturnReachable( reachable );
             return aIPathList;
         }
 
-        public static AIPathList FindPath(Entity ai, Entity target)
+        public static AIPathList FindPath(Reachable ai, Reachable target)
         {
             Instance.findPathCalls++;
             if (Instance.logStatCalls) {
                 Debug.Log( "FindPath calls count: " + Instance.findPathCalls );
             }
             // SPRAWDZAMY CZY ZNALEZLISMY JAKIEKOLWIEK NODE'Y
-            List<Node> aiNodes = GetContactNodes( ai );
+            HashSet<Node> aiNodes = GetContactNodes( ai );
             if (aiNodes == null || aiNodes.Count == 0)
                 return null;
-            List<Node> targetNodes = GetContactNodes( target );
+            HashSet<Node> targetNodes = GetContactNodes( target );
             if (targetNodes == null || targetNodes.Count == 0)
                 return null;
             // W TAKIM RAZIE LECIMY DALEJ, TWORZYMY TERAZ TYMCZASOWE NODY NA POZYCJACH
@@ -94,7 +96,7 @@ namespace ColdCry.AI
             Node end = GetNearestNode( targetNodes, target.transform.position );
             // TWORZYMY POZORNEGO NODE'A
             //Node start = Instantiate( Instance.prefabNode, ai.transform.position, ai.transform.rotation );
-            Node start = Instance.dummyNodes.GetPooledObject( ai.transform.position );
+            Node start = Instance.dummyNodes.Get( ai.transform.position );
             // OBLICZAMY HEURESTYKE DLA PIERWSZEGO NODE'A
             start.CalcHeurestic( end );
             // DODAJEMY KRAWĘDZIE MIĘDZY NOWYM NODE'EM A NAJBLIŻSZYMI
@@ -155,12 +157,12 @@ namespace ColdCry.AI
             return false;
         }
 
-        public static List<Node> GetContactNodes(Entity entity)
+        public static HashSet<Node> GetContactNodes(Reachable reachable)
         {
-            return GetContactNodes( entity.ContactArea );
+            return GetContactNodes( reachable.ContactArea );
         }
 
-        public static List<Node> GetContactNodes(ContactArea area)
+        public static HashSet<Node> GetContactNodes(ContactArea area)
         {
             if (area == null)
                 return null;
@@ -191,14 +193,19 @@ namespace ColdCry.AI
             return nearestNode;
         }
 
-        /// <summary>
-        /// Spawns dummy object
-        /// </summary>
-        /// <param name="position">Position to spawn dummy</param>
-        /// <returns>New dummy object</returns>
-        public static Dummy GetDummy(Vector2 position)
+        public static Reachable GetReachable()
         {
-            return Instance.dummies.GetPooledObject( position );
+            return Instance.reachableTemplates.Get();
+        }
+
+        public static Reachable GetReachable(Vector2 position)
+        {
+            return Instance.reachableTemplates.Get( position );
+        }
+
+        public static void ReturnReachable(Reachable reachable)
+        {
+            Instance.reachableTemplates.Return( reachable );
         }
 
         private static Node GetMinNode(List<Node> nodes)

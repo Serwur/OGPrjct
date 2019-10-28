@@ -272,8 +272,8 @@ GameObject:
   - component: {fileID: 5464372047202170795}
   - component: {fileID: 5464372047202170774}
   - component: {fileID: 5464372047202170793}
-  - component: {fileID: 5464372047202170792}
   - component: {fileID: 152392097}
+  - component: {fileID: 1292397459}
   m_Layer: 0
   m_Name: Sword
   m_TagString: Untagged
@@ -340,20 +340,6 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!136 &5464372047202170792
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5464372047202170794}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  m_Radius: 0.5
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &152392097
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -366,7 +352,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00a1a95ccbc5fff4ab87c8ea78b5460e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 1
+--- !u!65 &1292397459
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5464372047202170794}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.9999998, y: 2.2132838, z: 11.427207}
+  m_Center: {x: 0.018532794, y: 0.106677994, z: 1.6413668}
 --- !u!1 &5464372047411415131
 GameObject:
   m_ObjectHideFlags: 0
@@ -459,6 +457,8 @@ GameObject:
   - component: {fileID: 5464372047447311028}
   - component: {fileID: 5464372047447311030}
   - component: {fileID: 5306884423328185731}
+  - component: {fileID: 1701435585}
+  - component: {fileID: 1187231869}
   m_Layer: 11
   m_Name: Player
   m_TagString: Player
@@ -496,38 +496,46 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitPoints:
-    basic: 25
-    current: 0
-    max: 0
+    basic: 555
+    current: 555
+    max: 555
+    canExceedMax: 0
   sourcePoints:
     basic: 0
     current: 0
     max: 0
-  armor:
+    canExceedMax: 0
+  moveSpeed:
+    basic: 15
+    current: 15
+    max: 0
+    canExceedMax: 0
+  jumpPower:
+    basic: 18
+    current: 0
+    max: 0
+    canExceedMax: 0
+  damage:
     basic: 0
     current: 0
     max: 0
-  moveSpeed:
-    basic: 11
-    current: 0
-    max: 0
-  jumpPower:
-    basic: 45
-    current: 0
-    max: 0
-  damage:
-    basic: 1
-    current: 0
-    max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 15
+    current: 15
+    max: 15
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
   isDead: 0
   canMove: 1
-  isInviolability: 0
+  isDamageImmune: 1
   isPaused: 0
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
+  minDamagableFallSpeed: 30
   dialogueLists:
   - {fileID: 11400000, guid: b8f4373dfcd3e224dbd9f2069039ba26, type: 2}
   groundLayers:
@@ -536,6 +544,9 @@ MonoBehaviour:
   anotherCollider: 0
   colliderChild: Player_Body_Model
   startPosition: {x: 0, y: 0, z: 0}
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!114 &5464372047447311029
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -553,6 +564,7 @@ MonoBehaviour:
   alternativeKeyboard: {fileID: 11400000, guid: 65e88f0319e0e29418654d36c8e2f64e,
     type: 2}
   inputEnabled: 1
+  useKeyboardAndJoy: 1
   LSx: 0.15
   LSy: 0.15
   RSx: 0.15
@@ -576,7 +588,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 120
-  m_CollisionDetection: 1
+  m_CollisionDetection: 2
 --- !u!95 &5464372047447311030
 Animator:
   serializedVersion: 3
@@ -609,3 +621,28 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.3014073, y: 1, z: 1}
   m_Center: {x: 0.00011508167, y: 0, z: 0}
+--- !u!114 &1701435585
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5464372047447310923}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca08f71fb1efd60438a40a790bb12efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1187231869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5464372047447310923}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76cdab0fbcbf32e4aa507f3a6a6a8d3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  contactArea: {fileID: 0}

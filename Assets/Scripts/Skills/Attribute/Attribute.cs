@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using ColdCry.Utility.Patterns.Builder;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -11,24 +13,24 @@ using UnityEngine;
 namespace ColdCry
 {
     [System.Serializable]
-    public class Attribute
+    public class Attribute : ICloneable
     {
         /// <summary>
         /// Bazowa statystyka bez żadnych modyfikatorów
         /// </summary>
-        [SerializeField] public float Basic { get; set; } = 0;
+        [SerializeField] private float basic = 0f;
         /// <summary>
         /// Aktualna staystyka uwzględniając modyfikatory. Nie może przekroczyć maksymalnej statystyki.
         /// </summary>
-        [SerializeField] public float Current { get; set; } = 0;
+        [SerializeField] private float current = 0f;
         /// <summary>
         /// Maksymalna statystyka uwzględniając modyfikatory
         /// </summary>
-        [SerializeField] public float Max { get; set; } = 0;
+        [SerializeField] private float max = 0f;
         /// <summary>
         /// Jeżeli równe "true" to pole current może przekroczyć wartość maksymalną
         /// </summary>
-        [SerializeField] public bool CanExceedMax { get; set; } = false;
+        [SerializeField] private bool canExceedMax = false;
 
         /// <summary>
         /// Uwzględnia tylko maksymalny modyfikator tymczasowy, dotyczy to negatywnych jak i pozytywnych
@@ -73,10 +75,10 @@ namespace ColdCry
         {
             if (modifier.GetType() == typeof( TemplateModifier )) {
                 templateModifers.AddLast( (TemplateModifier) modifier );
-                Debug.Log( "MyAttribute::AddModifier::(Added template modifier " + modifier.modifierName + " for " + ( (TemplateModifier) modifier ).time + " seconds)" );
+                Debug.Log( "MyAttribute::AddModifier::(Added template modifier " + modifier.Name + " for " + ( (TemplateModifier) modifier ).time + " seconds)" );
             } else {
                 permamentModifers.AddLast( (PermamentModifier) modifier );
-                Debug.Log( "MyAttribute::AddModifier::(Added permament modifier: " + modifier.modifierName + ")" );
+                Debug.Log( "MyAttribute::AddModifier::(Added permament modifier: " + modifier.Name + ")" );
             }
             UpdateAttribute();
         }
@@ -111,13 +113,36 @@ namespace ColdCry
 
                   }
                   else*/
-                Max *= modifier.GetModify();
+                //Max *= 
             }
             foreach (PermamentModifier modifier in permamentModifers) {
-                Max *= modifier.GetModify();
+                //Max *= modifier.GetModify();
             }
             if (Current > Max)
                 Current = Max;
+        }
+
+        public object Clone()
+        {
+            Attribute clone = new Attribute {
+                basic = basic,
+                current = current,
+                max = max
+            };
+
+            foreach (TemplateModifier modifier in templateModifers) {
+                TemplateModifier modClone = modifier.Clone() as TemplateModifier;
+                clone.templateModifers.AddLast( modClone );
+            }
+
+            
+
+            foreach (PermamentModifier modifier in permamentModifers) {
+                PermamentModifier modClone = modifier.Clone() as PermamentModifier;
+                clone.permamentModifers.AddLast( modClone );
+            }
+
+            return clone;
         }
 
         /* GetMaxModifier
@@ -126,5 +151,62 @@ namespace ColdCry
             return null;
         }
         */
+
+        public float Basic { get => basic; set => basic = value; }
+        public float Current { get => current; set => current = value; }
+        public float Max { get => max; set => max = value; }
+        public bool CanExceedMax { get => canExceedMax; set => canExceedMax = value; }
+
+        public class Builder : IBuilder<Attribute>
+        {
+            private float basic = 0f;
+            private float current = 0f;
+            private float max = 0f;
+            private ICollection<TemplateModifier> tempMods;
+            private ICollection<PermamentModifier> permMods;
+
+            private Builder()
+            {}
+
+            public static Builder Get()
+            {
+                return new Builder();
+            }
+
+            public Builder TempMods(ICollection<TemplateModifier> modifiers)
+            {
+                return this;
+            }
+
+            public Builder PermMods(ICollection<PermamentModifier> modifiers)
+            {
+                return this;
+            }
+
+            public Builder Current(float current)
+            {
+                return this;
+            }
+
+            public Builder Max(float max)
+            {
+                return this;
+            }
+
+            public Builder Basic(float basic)
+            {
+                return this;
+            }
+
+            public Attribute Build()
+            {
+                if ( tempMods == null ) {
+                    tempMods = new LinkedList<TemplateModifier>();
+                } else {
+
+                }
+                throw new NotImplementedException();
+            }
+        }
     }
 }

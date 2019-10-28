@@ -5,6 +5,12 @@ namespace ColdCry.Utility
 {
     public static class Math
     {
+
+        public static float Distance(float a, float b)
+        {
+            return Mathf.Abs( a - b );
+        }
+
         /// <summary>
         /// Rounds the value to number of digits given by <b>precision</b>
         /// </summary>

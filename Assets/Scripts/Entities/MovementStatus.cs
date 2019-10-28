@@ -1,6 +1,6 @@
 ﻿namespace ColdCry.AI
 {
-    public enum AIMovementStatus
+    public enum MovementStatus
     {
         WALKING, JUMPING, SWIMMING
     }

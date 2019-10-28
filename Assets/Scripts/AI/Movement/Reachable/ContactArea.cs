@@ -1,4 +1,5 @@
-﻿using ColdCry.Objects;
+﻿using ColdCry.AI.Movement;
+using ColdCry.Objects;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,8 +11,8 @@ namespace ColdCry.AI
         public LayerMask nodeLayers;
 
         private BoxCollider coll;
-        private LinkedList<Entity> entitiesIn = new LinkedList<Entity>();
-        private List<Node> nodesIn = new List<Node>();
+        private LinkedList<Reachable> reachablesInArea = new LinkedList<Reachable>();
+        private HashSet<Node> nodesIn = new HashSet<Node>();
 
         #region Unity API
         public void Awake()
@@ -31,20 +32,20 @@ namespace ColdCry.AI
 
         public void OnTriggerEnter(Collider other)
         {
-            Entity entity = other.GetComponent<Entity>();
-            if (entity != null) {
-                AddEntity( entity );
-                entity.OnContactAreaEnter( this );
+            Reachable reachable = other.GetComponent<Reachable>();
+            if (reachable != null) {
+                AddReachable( reachable );
+                reachable.NoticeContactAreaEnter( this );
             }
         }
 
         public void OnTriggerExit(Collider other)
         {
-            Entity entity = other.GetComponent<Entity>();
-            if (entity != null) {
-                RemoveEntity( entity );
-                entity.OnContactAreaExit( this );
-            }
+            Reachable reachable = other.GetComponent<Reachable>();
+            if ( reachable != null ) {
+                reachable.NoticeContactAreaExit( this );
+                RemoveReachable( reachable );
+            }         
         }
         #endregion
 
@@ -53,35 +54,31 @@ namespace ColdCry.AI
         /// Adds entity to contact entities list and adds reference to
         /// this contact area in entity
         /// </summary>
-        /// <param name="entity">Entity to add</param>
-        public void AddEntity(Entity entity)
+        /// <param name="reachable">AIReachable to add</param>
+        public void AddReachable(Reachable reachable)
         {
-            entity.ContactArea = this;
-            entitiesIn.AddLast( entity );
+            reachablesInArea.AddLast( reachable );
         }
 
         /// <summary>
         /// Removes given entity from contant entities list and removes
         /// reference of contact area from entity
         /// </summary>
-        /// <param name="entity">Entity to remove</param>
+        /// <param name="reachable">AIReachable to remove</param>
         /// <returns>True if entity was removed, false otherwise</code></returns>
-        public bool RemoveEntity(Entity entity)
+        public bool RemoveReachable(Reachable reachable)
         {
-            if (entity.ContactArea == this) {
-                entity.ContactArea = null;
-            }
-            return entitiesIn.Remove( entity );
+            return reachablesInArea.Remove( reachable );
         }
 
         /// <summary>
         /// Checks if given entity is in contact area
         /// </summary>
-        /// <param name="entity">Entity to check</param>
+        /// <param name="entity">AIReachable to check</param>
         /// <returns>True if entity is in contact area, false otherwise</code></returns>
-        public bool Contains(Entity entity)
+        public bool Contains(Reachable entity)
         {
-            return entitiesIn.Contains( entity );
+            return reachablesInArea.Contains( entity );
         }
 
         /// <summary>
@@ -127,7 +124,7 @@ namespace ColdCry.AI
         #endregion
 
         #region Getters And Setters
-        public List<Node> Nodes { get => nodesIn; }
+        public HashSet<Node> Nodes { get => nodesIn; }
         #endregion
     }
 }

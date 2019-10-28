@@ -4,7 +4,7 @@
     /// Class is used for AI's path finding with information about <see cref="AIAction"/>
     /// that must be done when AI reaches specifed <see cref="Node"/>
     /// </summary>
-    public class ComplexNode
+    public class ComplexNode 
     {
         public ComplexNode(Node node, AIAction action)
         {

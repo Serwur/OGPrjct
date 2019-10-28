@@ -210,6 +210,39 @@ namespace ColdCry.Utility
             return GetValues<T>().Count();
         }
 
+        // To change, need to implement own linked list
+        public static LinkedList<T> RemoveFrom<T>(LinkedList<T> linkedList, LinkedListNode<T> from)
+        {
+            LinkedList<T> result = new LinkedList<T>();
+            LinkedListNode<T> current = linkedList.First;
+            while (current != null && current != from) {
+                result.AddLast( current );
+                current = current.Next;
+            }
+            return result;
+        }
+
+        public static LinkedList<T> RemoveTo<T>(LinkedList<T> linkedList, LinkedListNode<T> to)
+        {
+            LinkedList<T> result = new LinkedList<T>(linkedList);
+            LinkedListNode<T> current = linkedList.First;
+            while (current != null && current != to) {
+                current = current.Next;
+                result.RemoveFirst();
+            }
+            return result;
+        }
+
+        public static int CountFrom<T>(LinkedList<T> list, LinkedListNode<T> node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static int CountTo<T>(LinkedList<T> list, LinkedListNode<T> node)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }
 

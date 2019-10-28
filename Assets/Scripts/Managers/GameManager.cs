@@ -14,7 +14,7 @@ namespace ColdCry.Core
         private static GameManager Instance;
 
         private LinkedList<Entity> entities = new LinkedList<Entity>();
-        private Character character;
+        private Character player;
 
         [SerializeField] private bool drawEnemyRange = true;
         [SerializeField] private bool drawAIDestination = true;
@@ -29,6 +29,13 @@ namespace ColdCry.Core
             Instance = this;
         }
 
+        private void Start()
+        {
+            if ( CameraManager.Exists() ) {
+                CameraManager.FollowPlayer();
+            }
+        }
+
         /// <summary>
         /// Adds an entity to the list. It should be called whenever a new entity is created on scene.
         /// </summary>
@@ -37,7 +44,7 @@ namespace ColdCry.Core
         {
             Instance.entities.AddLast( entity );
             if (entity.GetType() == typeof( Character )) {
-                Instance.character = (Character) entity;
+                Instance.player = (Character) entity;
             }
         }
 
@@ -96,7 +103,7 @@ namespace ColdCry.Core
             return entities;
         }
 
-        public static Character Character { get => Instance.character; }
+        public static Character Player { get => Instance.player; }
         public static bool DrawEnemyRange { get => Instance != null && Instance.drawEnemyRange; }
         public static bool DrawAIDestination { get => Instance != null && Instance.drawAIDestination; }
         public static bool DrawNodeConnections { get => Instance != null && Instance.drawNodeConnections; }
