@@ -222,9 +222,15 @@ namespace ColdCry.Utility
             return result;
         }
 
-        public static LinkedList<T> RemoveTo<T>(LinkedList<T> linkedList, LinkedListNode<T> node)
+        public static LinkedList<T> RemoveTo<T>(LinkedList<T> linkedList, LinkedListNode<T> to)
         {
-            throw new NotImplementedException();
+            LinkedList<T> result = new LinkedList<T>(linkedList);
+            LinkedListNode<T> current = linkedList.First;
+            while (current != null && current != to) {
+                current = current.Next;
+                result.RemoveFirst();
+            }
+            return result;
         }
 
         public static int CountFrom<T>(LinkedList<T> list, LinkedListNode<T> node)

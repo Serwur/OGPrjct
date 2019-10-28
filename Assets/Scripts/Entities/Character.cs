@@ -39,7 +39,10 @@ namespace ColdCry.Objects
         public static readonly float FLY_ATTACK_DISABLE_TIME = FLY_ATTACK_TIME + 0.25f;
         #endregion
 
+
+
         #region Private Fields
+        [SerializeField] [Range(0.01f, 100f)] private float secondJumpMult = 0.75f;
         private bool doubleJumped = false;
 
         private GameObject mainSkill;
@@ -98,13 +101,13 @@ namespace ColdCry.Objects
         {
             if (!IsDead) {
                 base.FixedUpdate();
-                animator.SetFloat( "speedY", Rb.velocity.y );
+                animator.SetFloat( "speedY", RigidBody.velocity.y );
             }
         }
         #endregion
 
         #region Public Methods
-        public override void OnMove(float moveSpeed, float x)
+        public override void OnMove(float moveSpeed, Vector2 direction)
         {
             animator.SetBool( "isRunning", true );
         }
@@ -168,9 +171,9 @@ namespace ColdCry.Objects
             if (simpleAttackCountdown.HasEnded()) {
                 // W innym wypadku jest on wykonany, ale jeżeli jesteśmy w aktualnie w locie
                 // to atak jest wykonany w miejscu
-                Vector3 attackDirection = new Vector3( SIMPLE_ATTACK_MOVE / 1.3f * LookDirection.x, Rb.velocity.y );
+                Vector3 attackDirection = new Vector3( SIMPLE_ATTACK_MOVE / 1.3f * LookDirection.x, RigidBody.velocity.y );
                 if (IsTouchingGround())
-                    Rb.velocity = attackDirection;
+                    RigidBody.velocity = attackDirection;
                 // Przypisujemy ostatni klawisz ze zwykłego ataku oraz resetujemy timer
                 simpleAttackCountdown.Restart();
                 weapon.SetNextAttackInfo(
@@ -194,7 +197,7 @@ namespace ColdCry.Objects
         {
             if (flyAttackCountdown.HasEnded()) {
                 flyAttackCountdown.Restart();
-                Rb.velocity = new Vector3( Rb.velocity.x, FLY_ATTACK_MOVE );
+                RigidBody.velocity = new Vector3( RigidBody.velocity.x, FLY_ATTACK_MOVE );
                 weapon.SetNextAttackInfo(
                     new Attack( Damage.Current,
                     new Vector2( 0, 1 ),
@@ -213,7 +216,7 @@ namespace ColdCry.Objects
             if (backwardAttackCountdown.HasEnded()) {
                 backwardAttackCountdown.Restart();
                 LookDirection *= -1;
-                Rb.velocity = new Vector3( SIMPLE_ATTACK_MOVE * 2 * LookDirection.x, Rb.velocity.y );
+                RigidBody.velocity = new Vector3( SIMPLE_ATTACK_MOVE * 2 * LookDirection.x, RigidBody.velocity.y );
                 CanMove = false;
                 transform.rotation = Quaternion.LookRotation( new Vector3( 0, 0, LookDirection.x ), transform.up );
                 weapon.SetNextAttackInfo(
@@ -288,7 +291,7 @@ namespace ColdCry.Objects
                                     Jump( JumpPower.Max );
                                 } else if (!doubleJumped) {
                                     doubleJumped = true;
-                                    Jump( JumpPower.Max * 0.7f );
+                                    Jump( JumpPower.Max * secondJumpMult );
                                 }
                             }
                             currentCombination.AddLast( code );

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using ColdCry.AI;
 
 namespace ColdCry.Utility.Patterns.Memory
 {
@@ -9,12 +8,14 @@ namespace ColdCry.Utility.Patterns.Memory
     {
         private LinkedListNode<T> current;
         private IMemoriable<T> memoriable;
+        private bool maxRedo = true;
+        private bool maxUndo = false;
 
         public Memorier(IMemoriable<T> memoriable) : this( memoriable, 25, 25 )
         {
         }
 
-        public Memorier(IMemoriable<T> memoriable,int maxUndo, int maxRedo)
+        public Memorier(IMemoriable<T> memoriable, int maxUndo, int maxRedo)
         {
             this.memoriable = memoriable;
             MaxUndo = maxUndo;
@@ -53,26 +54,38 @@ namespace ColdCry.Utility.Patterns.Memory
 
         public void Save()
         {
-            if (Current != null) {
-                Memory = Collections.RemoveFrom( Memory, Current );
+            if (Current != Memory.First) {
+                Memory = Collections.RemoveTo( Memory, Current );
             }
-            Memory.AddLast( memoriable.SaveMemory() );
-            Current = Memory.Last;
+            Memory.AddFirst( memoriable.SaveMemory() );
+            Current = Memory.First;
+            maxRedo = true;
+            maxUndo = false;
         }
 
         public void Undo()
         {
-            if (Current != null && Current.Previous != null) {
-                Current = Current.Previous;
+            if (Current != null && maxUndo == false) {
+                maxRedo = false;
                 memoriable.LoadMemory( Current.Value );
+                if (Current.Next == null) {
+                    maxUndo = true;
+                } else {
+                    Current = Current.Next;
+                }
             }
         }
 
         public void Redo()
         {
-            if (Current != null && Current.Next != null) {
-                Current = Current.Next;
+            if (Current != null && maxRedo == false) {
+                maxUndo = false;
                 memoriable.LoadMemory( Current.Value );
+                if (Current.Previous == null) {
+                    maxRedo = true;
+                } else {
+                    Current = Current.Previous;
+                }
             }
         }
 

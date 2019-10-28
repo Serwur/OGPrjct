@@ -23,10 +23,10 @@ namespace ColdCry
         {
             character = (Character) GameManager.GetEntityByName( "Player" );
             collisionOffDelayCountdown = Countdown.GetInstance();
-            collisionOffDelayCountdown.OnEndAction = (overtime) => {
+            collisionOffDelayCountdown.SetAction ( (overtime) => {
                 coll.enabled = false;
                 attack = null;
-            };
+            });
         }
 
         public void OnTriggerEnter(Collider other)

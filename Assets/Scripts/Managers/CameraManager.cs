@@ -27,11 +27,6 @@ namespace ColdCry.Core
             Instance = this;
         }
 
-        public void Start()
-        {
-            targetToFollow = GameManager.Player.transform;
-        }
-
         public void Update()
         {
             if (mouseControl) {
@@ -49,6 +44,11 @@ namespace ColdCry.Core
                     isFollowingTarget = true;
                 }
             }
+        }
+
+        public static bool Exists()
+        {
+            return Instance != null;
         }
 
         public static void FollowPlayer()

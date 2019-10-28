@@ -2,6 +2,6 @@
 {
     public enum AIMovementState
     {
-        NONE, WAITING, PATHING, FOLLOWING, REFINDING
+        NONE, WAITING, PATHING, FOLLOWING, REFINDING, REACHED
     }
 }

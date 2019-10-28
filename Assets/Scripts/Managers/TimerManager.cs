@@ -36,10 +36,12 @@ namespace ColdCry.Utility.Time
 
         #region Private Fields
         private float time = 0f;
-        private Dictionary<long, ICountdown> endedCountdowns = new Dictionary<long, ICountdown>();
-        private Dictionary<long, ICountdown> notEndedCountdowns = new Dictionary<long, ICountdown>();
-        private Dictionary<long, ICountdown> inNextFrame = new Dictionary<long, ICountdown>();
-        private Dictionary<long, ICountdown> unactive = new Dictionary<long, ICountdown>();
+        private bool isTicking = false;
+        // private Dictionary<long, ICountdown> inNextFrame = new Dictionary<long, ICountdown>();
+        // private Dictionary<long, ICountdown> unactive = new Dictionary<long, ICountdown>();
+
+        private Dictionary<long, CountdownOperator> toCheckInNextFrame = new Dictionary<long, CountdownOperator>();
+        private Dictionary<long, CountdownOperator> ended = new Dictionary<long, CountdownOperator>();
         #endregion
 
         #region Unity API
@@ -65,14 +67,18 @@ namespace ColdCry.Utility.Time
         public static void SetTime(int seconds, int minutes = 0, int hours = 0)
         {
             if (seconds < 0 || minutes < 0 || hours < 0)
-                throw new SystemException( "Neither parameter cannot be less than 0!" );
+                throw new ArgumentException( "Neither parameter cannot be less than 0!" );
+
             float newTime = seconds + minutes * MINUTE_UNIT + hours * HOUR_UNIT;
+            float difference = Instance.time - newTime;
             Instance.time = newTime;
-            foreach (ICountdown countdown in Instance.notEndedCountdowns.Values) {
-                // set also time of all these shits
-                // pomysł to stworzyć fasadę, na której każdy z nas będzie
-                // operować na zewnątrz przy użyciu uproszczonych metod
-                // natomiast tutaj w środku będzie się wszystko dziać
+
+            foreach (CountdownOperator @operator in Instance.toCheckInNextFrame.Values) {
+                @operator.StartTime += difference;
+                @operator.EndTime += difference;
+                if (@operator.Paused) {
+                    @operator.PauseTime += difference;
+                }
             }
         }
 
@@ -83,14 +89,14 @@ namespace ColdCry.Utility.Time
         /// <param name="listener">Listener to listen call back when time ends</param>
         /// <param name="removeWhenEnds">If <code><b>True</b></code> time will be removed when ends</param>
         /// <returns></returns>
-        public static ICountdown Create(float time = 1f, Action<float> onEndAction = null)
+        public static ICountdown Create(float time = 1f, Action<float> action = null)
         {
-            return Countdown.GetInstance( time, onEndAction );
+            return Countdown.GetInstance( time, action );
         }
 
-        public static ICountdown CreateSchedule(float interval = 1f, int repeats = -1, Action<float> onEndAction = null)
+        public static ICountdown CreateSchedule(float interval = 1f, int repeats = -1, Action<float> action = null)
         {
-            return ScheduledCountdown.GetInstance( interval, repeats, onEndAction );
+            return ScheduledCountdown.GetInstance( interval, repeats, action );
         }
 
         /// <summary>
@@ -102,17 +108,17 @@ namespace ColdCry.Utility.Time
         /// <param name="listener">Listener to listen call back when time ends</param>
         /// <param name="removeWhenEnds">If <code><b>True</b></code> time will be removed when ends</param>
         /// <returns>id of new time</returns>
-        public static ICountdown Start(float time = 1f, Action<float> onEndAction = null)
+        public static ICountdown Start(float time = 1f, Action<float> action = null)
         {
-            ICountdown countdown = Create( time, onEndAction );
-            countdown.Start();
+            ICountdown countdown = Create( time, action );
+            countdown.Restart();
             return countdown;
         }
 
-        public static ICountdown StartSchedule(float interval = 1f, int repeats = -1, Action<float> onEndAction = null)
+        public static ICountdown StartSchedule(float interval = 1f, int repeats = -1, Action<float> action = null)
         {
-            ICountdown countdown = CreateSchedule( interval, repeats, onEndAction );
-            countdown.Start();
+            ICountdown countdown = CreateSchedule( interval, repeats, action );
+            countdown.Restart();
             return countdown;
         }
 
@@ -131,16 +137,16 @@ namespace ColdCry.Utility.Time
         /// <summary>
         /// Returns remaing time of time in seconds as <b>float</b> value
         /// </summary>
-        /// <param name="time">Id of time</param>
+        /// <param name="id">Id of time</param>
         /// <param name="seconds">Out parameter to get remaing time</param>
         /// <returns><code><b>True</b></code> if given time exists, otherwise <code><b>false</b></code></returns>
         public static bool GetRemaing(long id, out float seconds)
         {
-            if (GetCountdown( id, out ICountdown time )) {
-                seconds = time.Remaing;
+            if (GetCountdown( id, out CountdownOperator cntOperator )) {
+                seconds = cntOperator.Remaing;
                 return true;
             }
-            seconds = float.MinValue;
+            seconds = -1f;
             return false;
         }
 
@@ -149,30 +155,32 @@ namespace ColdCry.Utility.Time
         /// </summary>
         /// <param name="id">ID of time</param>
         /// <returns><b>True</b> if time has been reseted (it means that time exists), otherwise it returns <b>false</b></returns>
+        [Obsolete( "Use same method on Countdown object instead" )]
         public static bool Restart(long id)
         {
-            if (GetCountdown( id, out ICountdown countdown )) {
-                countdown.Restart();
+            if (GetCountdown( id, out CountdownOperator cntOperator )) {
+                cntOperator.Restart();
                 return true;
             }
             return false;
         }
 
+        [Obsolete( "Use same method on Countdown object instead" )]
         public static bool Restart(long id, float time)
         {
-            if (GetCountdown( id, out ICountdown countdown )) {
-                countdown.Restart( time );
+            if (GetCountdown( id, out CountdownOperator cntOperator )) {
+                cntOperator.Restart( time );
                 return true;
             }
             return false;
         }
 
+        [Obsolete( "Use same method on Countdown object instead" )]
         public static bool Restart(long id, float time, int repeats)
         {
-            if (GetCountdown( id, out ICountdown countdown )) {
-                if (IsScheduled( countdown )) {
-                    ScheduledCountdown scheduledCountdown = countdown as ScheduledCountdown;
-                    scheduledCountdown.Restart( time, repeats );
+            if (GetCountdown( id, out CountdownOperator cntOperator )) {
+                if (IsScheduled( cntOperator )) {
+                    ( cntOperator as ScheduledCountdownOperator ).Restart( time, repeats );
                 }
                 return true;
             }
@@ -184,10 +192,11 @@ namespace ColdCry.Utility.Time
         /// </summary>
         /// <param name="id">id of time</param>
         /// <returns><b>True</b> if time has ended, otherwise returns <b>false</b></returns>
+        [Obsolete( "Use same method on Countdown object instead" )]
         public static bool HasEnded(long id)
         {
-            if (GetCountdown( id, out ICountdown time )) {
-                return time.HasEnded();
+            if (GetCountdown( id, out CountdownOperator cntOperator )) {
+                return cntOperator.HasEnded();
             }
             return false;
         }
@@ -199,15 +208,15 @@ namespace ColdCry.Utility.Time
         /// <returns><b>True</b> if time is scheduled, otherwise returns <b>false</b></returns>
         public static bool IsScheduled(long id)
         {
-            if (GetCountdown( id, out ICountdown time )) {
-                return time.GetType() == typeof( ScheduledCountdown );
+            if (GetCountdown( id, out CountdownOperator cntOperator )) {
+                return cntOperator is ScheduledCountdownOperator;
             }
             return false;
         }
 
-        public static bool IsScheduled(ICountdown time)
+        public static bool IsScheduled(ICountdown countdown)
         {
-            return time.GetType() == typeof( ScheduledCountdown );
+            return countdown is ScheduledCountdown;
         }
 
         /// <summary>
@@ -217,8 +226,8 @@ namespace ColdCry.Utility.Time
         /// <returns><b>True</b> if time has been found, otherwise <b>false</b></returns>
         public static bool Pause(long id)
         {
-            if (GetCountdownNotEnded( id, out ICountdown countdown )) {
-                countdown.Pause();
+            if (GetCountdownNotEnded( id, out CountdownOperator cntOperator )) {
+                cntOperator.Pause();
                 return true;
             }
             return false;
@@ -231,8 +240,8 @@ namespace ColdCry.Utility.Time
         /// <returns><b>True</b> if time exists, otherwise it returns <b>false</b></returns>
         public static bool Stop(long id)
         {
-            if (GetCountdownNotEnded( id, out ICountdown countdown )) {
-                countdown.Stop();
+            if (GetCountdownNotEnded( id, out CountdownOperator cntOperator )) {
+                cntOperator.Stop();
                 return true;
             }
             return false;
@@ -243,16 +252,16 @@ namespace ColdCry.Utility.Time
         /// </summary>
         public static void RestartAll()
         {
-            RestartNotEnded();
-            RestartEnded();
+            RestartActive();
+            RestartUnactive();
         }
 
         /// <summary>
         /// Reset time times of all not ended countdowns.
         /// </summary>
-        public static void RestartNotEnded()
+        public static void RestartActive()
         {
-            foreach (ICountdown countdown in Instance.notEndedCountdowns.Values) {
+            foreach (CountdownOperator countdown in Instance.toCheckInNextFrame.Values) {
                 countdown.Restart();
             }
         }
@@ -260,28 +269,11 @@ namespace ColdCry.Utility.Time
         /// <summary>
         /// Reset time times of all ended countdowns.
         /// </summary>
-        public static void RestartEnded()
+        public static void RestartUnactive()
         {
-            foreach (ICountdown countdown in Instance.endedCountdowns.Values) {
+            foreach (CountdownOperator countdown in Instance.ended.Values) {
                 countdown.Restart();
             }
-        }
-
-        /// <summary>
-        /// Remove time of given id.
-        /// </summary>
-        /// <param name="id">id of time</param>
-        /// <returns><b>True</b> if time was removed (it means time exists) otherwise returns <b>false</b>.</returns>
-        public static bool Destroy(long id)
-        {
-            if (Instance.endedCountdowns.Remove( id ))
-                return true;
-            return Instance.notEndedCountdowns.Remove( id );
-        }
-
-        public static bool Destroy(ICountdown countdown)
-        {
-            return countdown.Destroy();
         }
 
         /*
@@ -318,28 +310,7 @@ namespace ColdCry.Utility.Time
         }*/
 
         /*
-         Dictionary<long, ICountdown> forNextFrame = new Dictionary<long, ICountdown>();
 
-        foreach (ICountdown countdown in inNextFrame.Values) {
-
-            if (countdown.Paused) {
-                forNextFrame.Add( countdown.ID, countdown );
-                continue;
-            }
-
-            if (countdown.HasEnded()) {
-                countdown.OnEnd();
-                if (countdown.ShouldRestart()) {
-                    forNextFrame.Add( countdown.ID, countdown );
-                } else {
-                    unactive.Add( countdown.ID, countdown );
-                }
-            } else {
-                forNextFrame.Add( countdown.ID, countdown );
-            }
-        }
-
-        inNextFrame = forNextFrame;
 
          * */
         #endregion
@@ -349,28 +320,33 @@ namespace ColdCry.Utility.Time
         private void Tick(float passedTime)
         {
             time += passedTime;
+            isTicking = true;
 
-            LinkedList<ICountdown> countdownsToRemove = new LinkedList<ICountdown>();
-            
-            
-            foreach (ICountdown countdown in notEndedCountdowns.Values) {
+            LinkedList<CountdownOperator> endInThisFrame = new LinkedList<CountdownOperator>();
 
-                if (countdown.Paused)
-                    continue;
+            foreach (CountdownOperator countdown in toCheckInNextFrame.Values) {
 
-                if (countdown.HasEnded()) {
-                    countdown.OnEnd();
-                    if (!countdown.ShouldRestart()) {
-                        countdownsToRemove.AddLast( countdown );
-                    }
+                if (!countdown.Paused && countdown.ShouldEndTick()) {
+                    endInThisFrame.AddLast( countdown );
                 }
             }
 
-            foreach (ICountdown time in countdownsToRemove) {
-                notEndedCountdowns.Remove( time.ID );
-                if (!endedCountdowns.ContainsKey( time.ID ))
-                    endedCountdowns.Add( time.ID, time );
+            foreach (CountdownOperator countdown in endInThisFrame) {
+                countdown.OnEndBehaviour();
+                if (countdown.ShouldRestart() == false) {
+                    toCheckInNextFrame.Remove( countdown.ID );
+                    ended.Add( countdown.ID, countdown );
+                } else {
+                    countdown.RestartWhenShould();
+                }
             }
+
+            isTicking = false;
+        }
+
+        private static bool IsScheduled(CountdownOperator cntOperator)
+        {
+            return cntOperator is ScheduledCountdownOperator;
         }
 
         /// <summary>
@@ -378,17 +354,21 @@ namespace ColdCry.Utility.Time
         /// </summary>
         /// <param name="id">id of time to get</param>
         /// <returns>Countdown with given id</returns>
-        private static bool GetCountdown(long id, out ICountdown time)
+        private static bool GetCountdown(long id, out CountdownOperator cntOperator)
         {
-            if (Instance.notEndedCountdowns.TryGetValue( id, out time )) {
+            if (Instance.ended.TryGetValue( id, out cntOperator ) ||
+                Instance.toCheckInNextFrame.TryGetValue( id, out cntOperator )) {
                 return true;
             }
-            return Instance.endedCountdowns.TryGetValue( id, out time );
+            return false;
         }
 
-        private static bool GetCountdownNotEnded(long id, out ICountdown time)
+        private static bool GetCountdownNotEnded(long id, out CountdownOperator cntOperator)
         {
-            return Instance.notEndedCountdowns.TryGetValue( id, out time );
+            if (Instance.ended.TryGetValue( id, out cntOperator )) {
+                return true;
+            }
+            return false;
         }
         #endregion
 
@@ -437,8 +417,8 @@ namespace ColdCry.Utility.Time
         public static float Seconds => Instance.time;
         public static float Minutes => Instance.time / MINUTE_UNIT;
         public static float Hours => Instance.time / HOUR_UNIT;
-        public static int CountNotEndedCountdowns => Instance.notEndedCountdowns.Count;
-        public static int CountEndedCountdowns => Instance.endedCountdowns.Count;
+        public static int EndedCount => Instance.ended.Count;
+        public static int CheckInNextFrameCount => Instance.toCheckInNextFrame.Count;
         #endregion
 
         /// <summary>
@@ -457,75 +437,34 @@ namespace ColdCry.Utility.Time
               }
           }*/
 
-        /*
-    private class CountdownOperator
-    {
-        public CountdownOperator(ICountdown countdown)
+
+        internal class CountdownOperator : ICloneable
         {
-            Countdown = countdown;
-        }
+            protected LinkedList<IObserver<ICountdown>> Observers { get; set; } = new LinkedList<IObserver<ICountdown>>();
+            public ICountdown Countdown { get; set; }
+            public Action<float> Action { get; set; }
+            public long ID { get; protected set; }
+            public float Remaing => Started ? ( Paused ? EndTime - PauseTime : EndTime - Instance.time ) : Time;
+            public float Time { get; set; } = 0f;
+            public float StartTime { get; set; } = 0f;
+            public float EndTime { get; set; } = 0f;
+            public float PauseTime { get; set; } = 0f;
+            public float StopTime { get; set; } = 0f;
+            public bool Started { get; set; } = false;
+            public bool Paused { get; set; } = false;
+            public bool Stopped { get; set; } = false;
+            public bool Obsolete { get; set; } = false;
+            public bool ForceRestart { get; set; } = false;
 
-        public ICountdown Countdown { get; set; }
-    }*/
+            protected CountdownOperator()
+            { }
 
-        public class Countdown : ICountdown
-        {
-            protected bool forceRemove = false;
-            protected bool restarted = false;
-            protected bool pause = false;
-            protected bool started = false;
-            protected float timeWhenPaused = 0f;
-            //private CountdownOperator CountdownOperator;
-
-            protected Countdown()
+            public CountdownOperator(Countdown countdown, float time, Action<float> action, long ID)
             {
-
-            }
-
-            protected Countdown(long id, float time, Action<float> onEndAction)
-            {
-                ID = id;
+                Countdown = countdown;
                 Time = time;
-                OnEndAction = onEndAction;
-            }
-
-            public static Countdown GetInstance(float time = 1f, Action<float> onEndAction = null)
-            {
-                if (Instance == null) {
-                    throw new MissingEssentialGameObject( "Cannot create countdown without active TimerManager object on scene" );
-                }
-                if (time < 0)
-                    throw new SystemException( "Countdown time cannot be less than 0!" );
-                Countdown countdown = new Countdown( NextID(), time, onEndAction );
-                Instance.endedCountdowns.Add( countdown.ID, countdown );
-                return countdown;
-            }
-
-            public virtual bool Start()
-            {
-                if (Paused) {
-                    StartTime += Instance.time - timeWhenPaused;
-                    EndTime += Instance.time - timeWhenPaused;
-                    pause = false;
-                    timeWhenPaused = 0;
-                    if (!Instance.notEndedCountdowns.ContainsKey( ID )) {
-                        Instance.notEndedCountdowns.Add( ID, this );
-                        Instance.endedCountdowns.Remove( ID );
-                    }
-                    return true;
-                } else if (!started) {
-                    StartTime = Instance.time;
-                    EndTime = Instance.time + Time;
-                    pause = false;
-                    timeWhenPaused = 0;
-                    started = true;
-                    if (!Instance.notEndedCountdowns.ContainsKey( ID )) {
-                        Instance.notEndedCountdowns.Add( ID, this );
-                        Instance.endedCountdowns.Remove( ID );
-                    }
-                    return true;
-                }
-                return false;
+                Action = action;
+                this.ID = ID;
             }
 
             public virtual void Restart()
@@ -535,165 +474,418 @@ namespace ColdCry.Utility.Time
 
             public virtual void Restart(float time)
             {
+                if (Started == false) {
+                    Instance.ended.Remove( ID );
+                    Instance.toCheckInNextFrame.Add( ID, this );
+                }
                 Time = time;
-                pause = false;
-                started = true;
-                timeWhenPaused = 0;
+                Paused = false;
+                Started = true;
+                Stopped = false;
                 StartTime = Instance.time;
                 EndTime = Instance.time + Time;
-                if (restarted && !Instance.notEndedCountdowns.ContainsKey( ID )) {
-                    Instance.notEndedCountdowns.Add( ID, this );
-                    Instance.endedCountdowns.Remove( ID );
-                }
+                ForceRestart = true;
             }
 
-            public virtual void Pause()
+            public virtual float Pause()
             {
-                if (Instance.notEndedCountdowns.ContainsKey( ID ) && !pause) {
-                    timeWhenPaused = Instance.time;
-                    pause = true;
+                if (Started && !Paused) {
+                    PauseTime = Instance.time;
+                    Paused = true;
+                    return Instance.time;
                 }
+                return float.MinValue;
             }
 
-            public virtual void Stop()
+            public virtual float Unpause()
             {
-                pause = false;
-                started = false;
-                timeWhenPaused = 0;
-                Instance.notEndedCountdowns.Remove( ID );
-                if (!Instance.endedCountdowns.ContainsKey( ID )) {
-                    Instance.endedCountdowns.Add( ID, this );
+                if (Started && Paused) {
+                    Paused = false;
+                    return Instance.time;
                 }
+                return float.MinValue;
             }
 
-            public virtual bool HasEnded()
+            public virtual float Stop()
             {
-                return EndTime <= Instance.time;
+                if (Started) {
+                    StopTime = Instance.time;
+                    Stopped = true;
+                    Paused = false;
+                    Started = false;
+                    ForceRestart = false;
+                    // Jeżeli nie ticka to znaczy, że metoda została wywołana
+                    // poza OnEndAction, musimy ręcznie usunąć countdown by nie
+                    // został sprawdzony w następnej pętli
+                    if (Instance.isTicking == false) {
+                        Instance.toCheckInNextFrame.Remove( ID );
+                        if (Instance.ended.ContainsKey( ID ) == false)
+                            Instance.ended.Add( ID, this );
+                    }
+                    return StopTime;
+                }
+                return -1f;
             }
 
-            public virtual void OnEnd()
+            public virtual void Destroy()
             {
-                if (OnEndAction != null) {
-                    OnEndAction.Invoke( Mathf.Abs( EndTime - Instance.time ) );
-                }
-                foreach (IObserver<ICountdown> observer in Observers) {
-                    observer.Notify( this );
-                }
+                Instance.toCheckInNextFrame.Remove( ID );
+                Instance.ended.Remove( ID );
+                Stopped = false;
+                Paused = false;
+                Started = false;
+                Time = -1;
+                EndTime = -1;
+                StartTime = -1;
+                PauseTime = -1;
+                StopTime = -1;
+                Obsolete = true;
             }
 
             public virtual bool ShouldRestart()
             {
-                return EndTime > Instance.time;
+                return ForceRestart;
             }
 
-            public virtual void Subscribe(IObserver<ICountdown> observer)
+            public virtual bool HasEnded()
+            {
+                return Stopped || EndTime <= Instance.time;
+            }
+
+            public virtual bool ShouldEndTick()
+            {
+                return EndTime <= Instance.time;
+            }
+
+            public virtual void OnEndBehaviour()
+            {
+                if (Action != null) {
+                    Action.Invoke( Mathf.Abs( EndTime - Instance.time ) );
+                }
+
+                foreach (IObserver<ICountdown> observer in Observers) {
+                    observer.Notify( Countdown );
+                }
+            }
+
+            public virtual void RestartWhenShould()
+            {
+                ForceRestart = false;
+            }
+
+            public void Subscribe(IObserver<ICountdown> observer)
             {
                 Observers.AddLast( observer );
             }
 
-            public virtual void Unsubscribe(IObserver<ICountdown> observer)
+            public void Unsubscribe(IObserver<ICountdown> observer)
             {
                 Observers.Remove( observer );
             }
 
-            public bool Destroy()
-            {
-                UnityEngine.Debug.Log( "called: " + ID );
-                if (Instance.endedCountdowns.Remove( ID ))
-                    return true;
-                return Instance.notEndedCountdowns.Remove( ID );
-            }
-
             public virtual object Clone()
             {
-                Countdown clone = new Countdown( NextID(), Time, OnEndAction ) {
-                    pause = pause,
-                    started = started,
-                    timeWhenPaused = timeWhenPaused,
+                CountdownOperator clone = new CountdownOperator {
                     StartTime = StartTime,
                     EndTime = EndTime,
-                    Observers = new LinkedList<IObserver<ICountdown>>( Observers )
+                    Time = Time,
+                    Stopped = Stopped,
+                    Paused = Paused,
+                    Started = Started,
+                    StopTime = StopTime,
+                    PauseTime = PauseTime,
+                    Action = Action,
+                    ID = NextID()
                 };
-                if (started) {
-                    Instance.notEndedCountdowns.Add( clone.ID, clone );
-                } else {
-                    Instance.endedCountdowns.Add( clone.ID, clone );
-                }
                 return clone;
             }
-
-            public Action<float> OnEndAction { get; set; }
-            public float Remaing => Started ? ( pause ? EndTime - timeWhenPaused : EndTime - Instance.time ) : Time;
-            public float Time { get; protected set; }
-            public float StartTime { get; protected set; } = 0;
-            public float EndTime { get; protected set; } = 0;
-            public bool Paused => pause;
-            public bool Started => started;
-            public long ID { get; set; }
-            public bool Unused => ( !Instance.notEndedCountdowns.ContainsKey( ID ) && !Instance.endedCountdowns.ContainsKey( ID ) );
-            protected LinkedList<IObserver<ICountdown>> Observers { get; set; } = new LinkedList<IObserver<ICountdown>>();
         }
 
-
-        public class ScheduledCountdown : Countdown
+        internal class ScheduledCountdownOperator : CountdownOperator
         {
+            public int Repeats { get; set; }
+            public int CurrentRepeat { get; set; }
 
-            protected ScheduledCountdown(long id, float time, int repeats, Action<float> onEndAction) : base( id, time, onEndAction )
+            public ScheduledCountdownOperator(Countdown countdown, float time, int repeats, Action<float> action, long ID) : base( countdown, time, action, ID )
             {
                 Repeats = repeats;
             }
 
-            public static ScheduledCountdown GetInstance(float time = 1f, int repeats = 0, Action<float> onEndAction = null)
+            public override void Restart()
+            {
+                //Debug.Log( "Restart() Current repeat: " + CurrentRepeat );
+                Restart( Time, Repeats );
+            }
+
+            public override void Restart(float time)
+            {
+               // Debug.Log( "Restart(float time) Current repeat: " + CurrentRepeat );
+                Restart( time, Repeats );
+            }
+
+            public void Restart(float time, int repeats)
+            {
+                //Debug.Log( "Restart(float time, int repeats) Current repeat: " + CurrentRepeat );
+                ChangeRepeats( repeats );
+                base.Restart( time );
+            }
+
+            public override void RestartWhenShould()
+            {
+                ForceRestart = false;
+                StartTime = Instance.time;
+                EndTime = Instance.time + Time;
+            }
+
+            public override void OnEndBehaviour()
+            {
+                CurrentRepeat--;
+                if (Repeats < 0 || CurrentRepeat > 0 ) {
+                    ForceRestart = true;
+                }
+                base.OnEndBehaviour();
+            }
+
+            public override bool HasEnded()
+            {
+                return Stopped || !Started || CurrentRepeat == 0;
+            }
+
+            /*
+            public override bool ShouldRestart()
+            {
+                if (Repeats < 0 || CurrentRepeat > 0) {
+                    return true;
+                }
+                return base.ShouldRestart();
+            }*/
+
+            public override object Clone()
+            {
+                ScheduledCountdownOperator clone = base.Clone() as ScheduledCountdownOperator;
+                clone.Repeats = Repeats;
+                clone.CurrentRepeat = CurrentRepeat;
+                return clone;
+            }
+
+            public void ChangeRepeats(int repeats)
+            {
+                CurrentRepeat = repeats;
+                Repeats = repeats;
+            }
+
+            public void AddRepeat()
+            {
+                CurrentRepeat++;
+                if (CurrentRepeat > Repeats) {
+                    Repeats = CurrentRepeat;
+                }
+            }
+
+            public void SubRepeat()
+            {
+                CurrentRepeat--;
+            }
+        }
+
+        internal class Countdown : ICountdown
+        {
+            protected static readonly string OBSOLETE_EXCEPTION_MESSAGE =
+                 "Countdown is Obsolete, it should be nulled or replaced by other value. " +
+                 "Only method Clone() is allowed to use.";
+            protected CountdownOperator @operator;
+
+            protected Countdown()
+            { }
+
+            public static Countdown GetInstance(float time = 1f, Action<float> action = null)
+            {
+                if (Instance == null) {
+                    throw new MissingEssentialGameObject( "Cannot create countdown without active TimerManager object on scene" );
+                }
+                if (time < 0)
+                    throw new ArgumentException( "Countdown time cannot be less than 0!" );
+
+                Countdown countdown = new Countdown();
+                countdown.@operator = new CountdownOperator( countdown, time, action, NextID() );
+                Instance.ended.Add( countdown.@operator.ID, countdown.@operator );
+                return countdown;
+            }
+
+            public virtual void Restart()
+            {
+                if (Obsolete)
+                    throw new InvalidOperationException( OBSOLETE_EXCEPTION_MESSAGE );
+                @operator.Restart();
+            }
+
+            public virtual void Restart(float time)
+            {
+                if (Obsolete)
+                    throw new InvalidOperationException( OBSOLETE_EXCEPTION_MESSAGE );
+                @operator.Restart( time );
+            }
+
+            public virtual float Pause()
+            {
+                if (Obsolete)
+                    throw new InvalidOperationException( OBSOLETE_EXCEPTION_MESSAGE );
+                return @operator.Pause();
+            }
+
+            public float Unpause()
+            {
+                if (Obsolete)
+                    throw new InvalidOperationException( OBSOLETE_EXCEPTION_MESSAGE );
+                return @operator.Unpause();
+            }
+
+            public virtual float Stop()
+            {
+                if (Obsolete)
+                    throw new InvalidOperationException( OBSOLETE_EXCEPTION_MESSAGE );
+                return @operator.Stop();
+            }
+
+            public virtual bool HasEnded()
+            {
+                if (Obsolete)
+                    throw new InvalidOperationException( OBSOLETE_EXCEPTION_MESSAGE );
+                return @operator.HasEnded();
+            }
+
+            public virtual void Subscribe(IObserver<ICountdown> observer)
+            {
+                if (Obsolete)
+                    throw new InvalidOperationException( OBSOLETE_EXCEPTION_MESSAGE );
+                @operator.Subscribe( observer );
+            }
+
+            public virtual void Unsubscribe(IObserver<ICountdown> observer)
+            {
+                if (Obsolete)
+                    throw new InvalidOperationException( OBSOLETE_EXCEPTION_MESSAGE );
+                @operator.Unsubscribe( observer );
+            }
+
+            public void Destroy()
+            {
+                if (Obsolete)
+                    throw new InvalidOperationException( OBSOLETE_EXCEPTION_MESSAGE );
+                @operator.Destroy();
+            }
+
+            public void SetAction(Action<float> action)
+            {
+                @operator.Action = action;
+            }
+
+            public virtual object Clone()
+            {
+                CountdownOperator cloneOperator = @operator.Clone() as CountdownOperator;
+                Countdown clone = new Countdown {
+                    @operator = cloneOperator
+                };
+                cloneOperator.Countdown = clone;
+                return clone;
+            }
+
+            public Action<float> Action => @operator.Action;
+            public long ID => @operator.ID;
+            public float Remaing => @operator.Remaing;
+            public float Time => @operator.Time;
+            public float StartTime => @operator.StopTime;
+            public float EndTime => @operator.EndTime;
+            public float PauseTime => @operator.PauseTime;
+            public float StopTime => @operator.StopTime;
+            public bool Started => @operator.Started;
+            public bool Paused => @operator.Paused;
+            public bool Stopped => @operator.Stopped;
+            public bool Obsolete => @operator.Obsolete;
+        }
+
+        internal class ScheduledCountdown : Countdown
+        {
+            protected ScheduledCountdown() { }
+
+            public static ScheduledCountdown GetInstance(float time = 1f, int repeats = 0, Action<float> action = null)
             {
                 if (Instance == null) {
                     throw new MissingEssentialGameObject( "Cannot create time without active TimerManager object on scene" );
                 }
-                if (time < 0)
-                    throw new SystemException( "Countdown time cannot be less than 0!" );
-                ScheduledCountdown countdown = new ScheduledCountdown( NextID(), time, repeats, onEndAction );
-                Instance.endedCountdowns.Add( countdown.ID, countdown );
+
+                if (time < 0) {
+                    throw new ArgumentException( "Countdown time cannot be less than 0!" );
+                }
+
+                ScheduledCountdown countdown = new ScheduledCountdown();
+                countdown.@operator = new ScheduledCountdownOperator( countdown, time, repeats, action, NextID() );
+                Instance.ended.Add( countdown.@operator.ID, countdown.@operator );
                 return countdown;
             }
 
             public override void Restart()
             {
-                Restart( Time );
+                if (Obsolete)
+                    throw new InvalidOperationException( OBSOLETE_EXCEPTION_MESSAGE );
+                ( @operator as ScheduledCountdownOperator ).Restart( Time, Repeats );
             }
 
             public override void Restart(float time)
             {
-                Restart( time, -1 );
+                if (Obsolete)
+                    throw new InvalidOperationException( OBSOLETE_EXCEPTION_MESSAGE );
+                ( @operator as ScheduledCountdownOperator ).Restart( time, Repeats );
             }
 
             public void Restart(float time, int repeats)
             {
-                CurrentRepeat = Repeats;
-                base.Restart( time );
+                if (Obsolete)
+                    throw new InvalidOperationException( OBSOLETE_EXCEPTION_MESSAGE );
+                ( @operator as ScheduledCountdownOperator ).Restart( time, repeats );
             }
 
-            public override void OnEnd()
+            /// <summary>
+            /// Adds one repeat to current countdown
+            /// </summary>
+            public void AddRepeat()
             {
-                base.OnEnd();
-                CurrentRepeat--;
+                if (Obsolete)
+                    throw new InvalidOperationException( OBSOLETE_EXCEPTION_MESSAGE );
+                ( @operator as ScheduledCountdownOperator ).AddRepeat();
             }
 
-            public override bool ShouldRestart()
+            /// <summary>
+            /// Remove one repeat to current countdown
+            /// </summary>
+            public void SubRepeat()
             {
-                if (Repeats <= 0)
-                    return true;
-                return CurrentRepeat > 0;
+                if (Obsolete)
+                    throw new InvalidOperationException( OBSOLETE_EXCEPTION_MESSAGE );
+                ( @operator as ScheduledCountdownOperator ).SubRepeat();
+            }
+
+            /// <summary>
+            /// Change number of repeats
+            /// </summary>
+            /// <param name="repeats"></param>
+            public void ChangeRepeat(int repeats)
+            {
+                if (Obsolete)
+                    throw new InvalidOperationException( OBSOLETE_EXCEPTION_MESSAGE );
+                ( @operator as ScheduledCountdownOperator ).ChangeRepeats( repeats );
             }
 
             public override object Clone()
             {
                 ScheduledCountdown clone = base.Clone() as ScheduledCountdown;
-                clone.CurrentRepeat = CurrentRepeat;
-                clone.Repeats = Repeats;
+                ( clone.@operator as ScheduledCountdownOperator ).CurrentRepeat = CurrentRepeat;
+                ( clone.@operator as ScheduledCountdownOperator ).Repeats = Repeats;
                 return clone;
             }
 
-            public int Repeats { get; internal set; }
-            public int CurrentRepeat { get; private set; }
+            public int Repeats { get => ( @operator as ScheduledCountdownOperator ).Repeats; }
+            public int CurrentRepeat { get => ( @operator as ScheduledCountdownOperator ).CurrentRepeat; }
         }
     }
 }

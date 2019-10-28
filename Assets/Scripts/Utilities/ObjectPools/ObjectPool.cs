@@ -21,8 +21,12 @@ namespace ColdCry.Utility
                 throw new System.ArgumentException( "Size cannot be 0 or less" );
             }
 
-            this.Prefab = prefab;
-            this.CanGrow = canGrow;
+            if ( prefab == null ) {
+                throw new System.ArgumentException( "Prefab cannot be null" );
+            }
+
+            Prefab = prefab;
+            CanGrow = canGrow;
 
             PooledObjects = new List<T>( size );
 
@@ -53,8 +57,12 @@ namespace ColdCry.Utility
                 throw new System.ArgumentException( "Size cannot be 0 or less" );
             }
 
-            this.Prefab = prefab;
-            this.CanGrow = canGrow;
+            if (prefab == null) {
+                throw new System.ArgumentException( "Prefab cannot be null" );
+            }
+
+            Prefab = prefab;
+            CanGrow = canGrow;
 
             PooledObjects = new List<T>( size );
 

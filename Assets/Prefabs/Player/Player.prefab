@@ -458,6 +458,7 @@ GameObject:
   - component: {fileID: 5464372047447311030}
   - component: {fileID: 5306884423328185731}
   - component: {fileID: 1701435585}
+  - component: {fileID: 1187231869}
   m_Layer: 11
   m_Name: Player
   m_TagString: Player
@@ -506,11 +507,11 @@ MonoBehaviour:
     canExceedMax: 0
   moveSpeed:
     basic: 15
-    current: 0
+    current: 15
     max: 0
     canExceedMax: 0
   jumpPower:
-    basic: 35
+    basic: 18
     current: 0
     max: 0
     canExceedMax: 0
@@ -528,22 +529,21 @@ MonoBehaviour:
   regenSourcePoints: 0
   isDead: 0
   canMove: 1
-  isInviolability: 0
+  isDamageImmune: 1
   isPaused: 0
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
   isInAir: 0
+  minDamagableFallSpeed: 30
   dialogueLists:
   - {fileID: 11400000, guid: b8f4373dfcd3e224dbd9f2069039ba26, type: 2}
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  minDamagableFallSpeed: 30
   anotherCollider: 0
   colliderChild: Player_Body_Model
   startPosition: {x: 0, y: 0, z: 0}
-  contactArea: {fileID: 0}
   lookDirection: {x: 1, y: 0}
   lastMinFallSpeed: 3.4028235e+38
   movementStatus: 0
@@ -588,7 +588,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 120
-  m_CollisionDetection: 1
+  m_CollisionDetection: 2
 --- !u!95 &5464372047447311030
 Animator:
   serializedVersion: 3
@@ -633,3 +633,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca08f71fb1efd60438a40a790bb12efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1187231869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5464372047447310923}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76cdab0fbcbf32e4aa507f3a6a6a8d3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  contactArea: {fileID: 0}

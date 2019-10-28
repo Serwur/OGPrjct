@@ -2,7 +2,7 @@
 {
     public enum MovementStatus
     {
-        WALKING, FLYING, JUMPING, SWIMMING
+        WALKING, JUMPING, SWIMMING
     }
 
 }

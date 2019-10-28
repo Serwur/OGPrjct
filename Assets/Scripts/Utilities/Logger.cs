@@ -8,23 +8,23 @@ namespace ColdCry.Utility
     {
         [SerializeField] private bool logging = true;
         private ILogger logger = Debug.unityLogger;
-        private Type type;
+        private object @object;
         private GameObject gameObject;
 
         private Logger()
         { }
 
-        public static Logger GetInstance(Type type)
+        public static Logger GetInstance(object @object)
         {
             return new Logger {
-                type = type
+                @object = @object
             };
         }
 
         public static Logger GetInstance(GameObject gameObject)
         {
             return new Logger {
-                type = gameObject.GetType(),
+                @object = gameObject,
                 gameObject = gameObject
             };
         }
@@ -46,7 +46,7 @@ namespace ColdCry.Utility
 
         private string Format(string text)
         {
-            string message = type != null ? type.ToString() + ", " : "";
+            string message = @object != null ? @object.ToString() + ", " : "";
             message += gameObject != null ? gameObject.name + ": " : "";
             message += text;
             return message;

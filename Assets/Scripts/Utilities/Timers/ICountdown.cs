@@ -2,25 +2,28 @@
 
 namespace ColdCry.Utility.Time
 {
-    public interface ICountdown : IObservable<ICountdown>, IUniqueable<long>, ICloneable
+    public interface ICountdown : IObservable<ICountdown>, ICloneable
     {
-        bool Start(); // startuje timer, wyłącza pauze
         void Restart();
         void Restart(float time); // restartuje timer z nowym nastawionym czasem
-        void Pause();
-        void Stop();
+        float Pause();
+        float Unpause();
+        float Stop();
         bool HasEnded(); // czy koniec?
-        void OnEnd(); // akcja po zakonczeniu
-        bool ShouldRestart();
-        bool Destroy();
+        void Destroy();
+        void SetAction(Action<float> action);
 
-        Action<float> OnEndAction { get; set; }
+        Action<float> Action { get; }
+        long ID { get; }
         float Remaing { get; }
         float Time { get; }
         float StartTime { get; }
         float EndTime { get; }
+        float PauseTime { get; }
+        float StopTime { get; }
         bool Started { get; }
         bool Paused { get; } // czy pauza
-        bool Unused { get; }
+        bool Stopped { get; }
+        bool Obsolete { get; }
     }
 }

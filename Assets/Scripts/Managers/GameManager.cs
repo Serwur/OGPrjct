@@ -29,9 +29,11 @@ namespace ColdCry.Core
             Instance = this;
         }
 
-        private void Update()
+        private void Start()
         {
-
+            if ( CameraManager.Exists() ) {
+                CameraManager.FollowPlayer();
+            }
         }
 
         /// <summary>

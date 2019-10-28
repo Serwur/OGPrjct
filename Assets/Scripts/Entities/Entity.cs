@@ -1,4 +1,5 @@
 ﻿using ColdCry.AI;
+using ColdCry.AI.Movement;
 using ColdCry.Core;
 using ColdCry.Notifers;
 using ColdCry.Utility;
@@ -10,10 +11,12 @@ using static ColdCry.Utility.Time.TimerManager;
 namespace ColdCry.Objects
 {
     [RequireComponent( typeof( Rigidbody ) )]
+    [RequireComponent( typeof( Reachable ) )]
     public abstract class Entity : MonoBehaviour,
         IHitPointsObservable,
         ISourcePointsObservable,
-        IObserver<ICountdown>
+        IObserver<ICountdown>,
+        IContactable
     {
         [Header( "Attributes" )]
         [SerializeField] private Attribute hitPoints;
@@ -28,26 +31,26 @@ namespace ColdCry.Objects
         [SerializeField] private float regenSourcePoints = 0f;
 
         [Header( "Multiplayers" )]
-        [Range( 0.01f, 10f )] private float damageTakenMult = 1f;
-        [Range( 0.01f, 10f )] private float fallDamageMult = 1f;
+        [Range( 0f, 100f )] private float damageTakenMult = 1f;
+        [Range( 0f, 100f )] private float fallDamageMult = 1f;
 
         [Header( "Utility" )]
         [SerializeField] private bool isDead = false;
         [SerializeField] private bool canMove = true;
-        [SerializeField] private bool isInviolability = false;
+        [SerializeField] private bool isDamageImmune = false;
         [SerializeField] private bool isPaused = false;
         [SerializeField] private bool isBlocking = false;
         [SerializeField] private bool isPushImmune = false;
         [SerializeField] private bool isFallDamagable = true;
         [SerializeField] private bool isInAir = false;
+        [SerializeField] private float minDamagableFallSpeed = 30f;
 
         [Header( "Dialogs" )]
         [SerializeField] private DialogueList[] dialogueLists;
 
         [Header( "Others" )]
         public LayerMask groundLayers;
-        [Range( 0.05f, 1.5f )] private float pathRefindTimer = 0.6f;
-        [SerializeField] private float minDamagableFallSpeed = 30f;
+
 
         #region Dev Fields
         [Header( "Dev Tools" )]
@@ -58,12 +61,10 @@ namespace ColdCry.Objects
         #endregion
 
         #region Protected Fields
-        private HashSet<AIMovementBehaviour> aiFollowers = new HashSet<AIMovementBehaviour>();
         private List<IHitPointsObserver> hitPointsObservers;
         private List<ISourcePointsObserver> sourcePointsObservers;
-        private Rigidbody rb;
+        private Rigidbody rigidBody;
         private BoxCollider coll;
-        [SerializeField] private ContactArea contactArea;
         [SerializeField] private Vector2 lookDirection = Vector2.right;
         [SerializeField] private float lastMinFallSpeed = float.MaxValue;
         [SerializeField] private MovementStatus movementStatus = MovementStatus.WALKING;
@@ -74,17 +75,21 @@ namespace ColdCry.Objects
         #region Unity API
         public virtual void Awake()
         {
-            Rb = GetComponent<Rigidbody>();
-            Rb.freezeRotation = true;
+            // Reachable init
+            Reachable = GetComponent<Reachable>();
+            // Rigidbody init
+            RigidBody = GetComponent<Rigidbody>();
+            RigidBody.freezeRotation = true;
             startPosition = transform.position;
             HitPointsObservers = new List<IHitPointsObserver>( 1 );
             SourcePointsObservers = new List<ISourcePointsObserver>( 1 );
 
+            // Other collider init
             // DEV TOOL TO DELETE IN FUTURE
             if (!anotherCollider) {
-                Coll = GetComponent<BoxCollider>();
+                Collider = GetComponent<BoxCollider>();
             } else {
-                Coll = transform.Find( colliderChild ).GetComponent<BoxCollider>();
+                Collider = transform.Find( colliderChild ).GetComponent<BoxCollider>();
             }
         }
 
@@ -97,15 +102,16 @@ namespace ColdCry.Objects
             MoveSpeed.Current = MoveSpeed.Max;
             JumpPower.Current = JumpPower.Max;
             Damage.Current = Damage.Max;
+            FlySpeed.Current = FlySpeed.Max;
 
             moveCountdown = Countdown.GetInstance();
-            moveCountdown.OnEndAction = (overtime) => { canMove = true; };
+            moveCountdown.SetAction( (overtime) => { canMove = true; } );
         }
 
         public virtual void FixedUpdate()
         {
-            if (LastMinFallSpeed > Rb.velocity.y) {
-                LastMinFallSpeed = Rb.velocity.y;
+            if (LastMinFallSpeed > RigidBody.velocity.y) {
+                LastMinFallSpeed = RigidBody.velocity.y;
             }
         }
 
@@ -113,14 +119,6 @@ namespace ColdCry.Objects
         {
             if (IsTouchingGround()) {
                 Fallen( LastMinFallSpeed * -1 );
-            }
-        }
-
-        public void OnDestroy()
-        {
-            // Remove this entity from contact area coz it not exists anymore
-            if (ContactArea != null) {
-                ContactArea.RemoveEntity( this );
             }
         }
         #endregion
@@ -174,24 +172,24 @@ namespace ColdCry.Objects
 
         public void Move(float moveSpeed, Transform _transform)
         {
-            Move( moveSpeed,  _transform.position.x - transform.position.x );
+            Move( moveSpeed, _transform.position.x - transform.position.x );
         }
 
         public void Move(float moveSpeed, float x)
         {
             if (CanMove && moveSpeed > 0) {
                 LookDirection = x > 0 ? Vector2.right : Vector2.left;
-                Rb.velocity = new Vector3( 0, Rb.velocity.y );
-                transform.Translate( new Vector3( x * moveSpeed * Time.deltaTime, 0 ), Space.World );
+                RigidBody.velocity = new Vector3( 0, RigidBody.velocity.y );
+                transform.Translate( new Vector3( LookDirection.x * moveSpeed * Time.deltaTime, 0 ), Space.World );
                 transform.rotation = Quaternion.LookRotation( new Vector3( 0, 0, LookDirection.x ), transform.up );
-                OnMove( moveSpeed, x );
+                OnMove( moveSpeed, LookDirection );
             }
         }
 
         public void Jump(float jumpPower)
         {
             if (jumpPower > 0) {
-                Rb.velocity = new Vector2( Rb.velocity.x, jumpPower );
+                RigidBody.velocity = new Vector2( RigidBody.velocity.x, jumpPower );
                 LastMinFallSpeed = 0;
                 MovementStatus = MovementStatus.JUMPING;
                 IsInAir = true;
@@ -215,7 +213,7 @@ namespace ColdCry.Objects
             }
             // JEŻELI JEDNOSTKA JEST NIETYKALNA, ZABLOKOWAŁA ATAK
             // ORAZ ZADAWANE OBRAŻENIA SĄ WIĘKSZE NIŻ 0 TO TRACI PUNKTY ŻYCIA
-            if (!( IsInviolability || blocked ) && attack.Damage > 0f) {
+            if (!( IsDamageImmune || blocked ) && attack.Damage > 0f) {
                 if (attack.PercenteDamage) {
                     HitPoints.Current -= HitPoints.Max * attack.Damage;
                 } else {
@@ -251,9 +249,9 @@ namespace ColdCry.Objects
         /// </summary>
         public void Die()
         {
-            Rb.freezeRotation = false;
-            Rb.AddForce( new Vector3( UnityEngine.Random.Range( -14, 14 ), UnityEngine.Random.Range( -5, 25 ) ), ForceMode.VelocityChange );
-            Rb.AddTorque( new Vector3( UnityEngine.Random.Range( 15, 35 ), UnityEngine.Random.Range( -25, 25 ), UnityEngine.Random.Range( -25, 25 ) ), ForceMode.VelocityChange );
+            RigidBody.freezeRotation = false;
+            RigidBody.AddForce( new Vector3( UnityEngine.Random.Range( -14, 14 ), UnityEngine.Random.Range( -5, 25 ) ), ForceMode.VelocityChange );
+            RigidBody.AddTorque( new Vector3( UnityEngine.Random.Range( 15, 35 ), UnityEngine.Random.Range( -25, 25 ), UnityEngine.Random.Range( -25, 25 ) ), ForceMode.VelocityChange );
             IsDead = true;
             OnDie();
         }
@@ -282,7 +280,7 @@ namespace ColdCry.Objects
                 }
             }
             // NADAJE PRĘDKOŚĆ
-            Rb.velocity = direction * pushPower;
+            RigidBody.velocity = direction * pushPower;
             OnPushedOff( pushPower, direction, pushDisableTime );
         }
 
@@ -351,9 +349,9 @@ namespace ColdCry.Objects
         /// <returns>TRUE if character is touching ground, otherwise FALSE</returns>
         public virtual bool IsTouchingGround()
         {
-            return Physics.CheckBox( new Vector3( Coll.bounds.center.x, Coll.bounds.min.y, Coll.bounds.center.z ),
-                new Vector3( Coll.bounds.extents.x * 0.85f, Coll.bounds.extents.y * 0.1f, Coll.bounds.extents.z * 0.85f ),
-                Coll.transform.rotation, groundLayers );
+            return Physics.CheckBox( new Vector3( Collider.bounds.center.x, Collider.bounds.min.y, Collider.bounds.center.z ),
+                new Vector3( Collider.bounds.extents.x * 0.85f, Collider.bounds.extents.y * 0.1f, Collider.bounds.extents.z * 0.85f ),
+                Collider.transform.rotation, groundLayers );
         }
 
         /// <summary>
@@ -362,40 +360,22 @@ namespace ColdCry.Objects
         /// </summary>
         public virtual void ResetUnit()
         {
-            Rb.velocity = Vector3.zero;
+            RigidBody.velocity = Vector3.zero;
             transform.position = startPosition;
             IsBlocking = false;
             CanMove = true;
-            IsInviolability = false;
+            IsDamageImmune = false;
             LastMinFallSpeed = 0;
             IsDead = false;
-            Rb.freezeRotation = true;
-            Rb.angularVelocity = Vector3.zero;
+            RigidBody.freezeRotation = true;
+            RigidBody.angularVelocity = Vector3.zero;
             transform.rotation = Quaternion.Euler( Vector3.zero );
             HitPoints.Current = HitPoints.Max;
         }
 
-        public bool AddFollower(AIMovementBehaviour follower)
-        {
-            return AiFollowers.Add( follower );
-        }
-
-        public bool RemoveFollower(AIMovementBehaviour follower)
-        {
-            return AiFollowers.Remove( follower );
-        }
-
         public virtual void OnContactAreaEnter(ContactArea contactArea)
         {
-            foreach (AIMovementBehaviour aiFollower in Collections.ToArray( AiFollowers )) {
-                AIMovementResponse response = aiFollower.TrackTarget( this, false );
-                switch (response) {
-                    case AIMovementResponse.NO_CONTACT_AREA:
-                    case AIMovementResponse.NO_PATH_TO_TARGET:
-                        aiFollower.StartPathRefind();
-                        break;
-                }
-            }
+
         }
 
         public virtual void OnContactAreaExit(ContactArea contactArea)
@@ -429,7 +409,7 @@ namespace ColdCry.Objects
         #endregion
 
         #region Abstract
-        public abstract void OnMove(float moveSpeed, float x);
+        public abstract void OnMove(float moveSpeed, Vector2 direction);
         public abstract void OnJump(float jumpPower);
         public abstract void OnFallen(float speedWhenFalling);
         public abstract void OnDamageTook(Attack attack);
@@ -441,37 +421,37 @@ namespace ColdCry.Objects
         #endregion
 
         #region Setter And Getters
+        public Reachable Reachable { get; private set; }
         public Vector3 LookRotation { get => new Vector3( LookDirection.x, 0 ); }
+        public Vector2 LookDirection { get => lookDirection; set => lookDirection = value; }
         public Attribute HitPoints { get => hitPoints; set => hitPoints = value; }
         public Attribute SourcePoints { get => sourcePoints; set => sourcePoints = value; }
         public Attribute MoveSpeed { get => moveSpeed; set => moveSpeed = value; }
         public Attribute JumpPower { get => jumpPower; set => jumpPower = value; }
         public Attribute Damage { get => damage; set => damage = value; }
         public Attribute FlySpeed { get => flySpeed; set => flySpeed = value; }
+        public DialogueList[] DialogueLists { get => dialogueLists; set => dialogueLists = value; }
+        public List<IHitPointsObserver> HitPointsObservers { get => hitPointsObservers; set => hitPointsObservers = value; }
+        public List<ISourcePointsObserver> SourcePointsObservers { get => sourcePointsObservers; set => sourcePointsObservers = value; }
+        public Rigidbody RigidBody { get => rigidBody; private set => rigidBody = value; }
+        public BoxCollider Collider { get => coll; private set => coll = value; }
+        public MovementStatus MovementStatus { get => movementStatus; set => movementStatus = value; }
+
         public float RegenHitPoints { get => regenHitPoints; set => regenHitPoints = value; }
         public float RegenSourcePoints { get => regenSourcePoints; set => regenSourcePoints = value; }
         public float DamageTakenMult { get => damageTakenMult; set => damageTakenMult = value; }
         public float FallDamageMult { get => fallDamageMult; set => fallDamageMult = value; }
+        public float MinDamagableFallSpeed { get => minDamagableFallSpeed; set => minDamagableFallSpeed = value; }
+        public float LastMinFallSpeed { get => lastMinFallSpeed; set => lastMinFallSpeed = value; }
+
         public bool IsDead { get => isDead; set => isDead = value; }
         public bool CanMove { get => canMove; set => canMove = value; }
-        public bool IsInviolability { get => isInviolability; set => isInviolability = value; }
+        public bool IsDamageImmune { get => isDamageImmune; set => isDamageImmune = value; }
         public bool IsPaused { get => isPaused; set => isPaused = value; }
         public bool IsBlocking { get => isBlocking; set => isBlocking = value; }
         public bool IsPushImmune { get => isPushImmune; set => isPushImmune = value; }
         public bool IsFallDamagable { get => isFallDamagable; set => isFallDamagable = value; }
-        public float PathRefindTimer { get => pathRefindTimer; set => pathRefindTimer = value; }
-        public float MinDamagableFallSpeed { get => minDamagableFallSpeed; set => minDamagableFallSpeed = value; }
-        public DialogueList[] DialogueLists { get => dialogueLists; set => dialogueLists = value; }
         public bool IsInAir { get => isInAir; set => isInAir = value; }
-        public HashSet<AIMovementBehaviour> AiFollowers { get => aiFollowers; set => aiFollowers = value; }
-        public List<IHitPointsObserver> HitPointsObservers { get => hitPointsObservers; set => hitPointsObservers = value; }
-        public List<ISourcePointsObserver> SourcePointsObservers { get => sourcePointsObservers; set => sourcePointsObservers = value; }
-        public Rigidbody Rb { get => rb; set => rb = value; }
-        public BoxCollider Coll { get => coll; set => coll = value; }
-        public ContactArea ContactArea { get => contactArea; set => contactArea = value; }
-        public Vector2 LookDirection { get => lookDirection; set => lookDirection = value; }
-        public float LastMinFallSpeed { get => lastMinFallSpeed; set => lastMinFallSpeed = value; }
-        public MovementStatus MovementStatus { get => movementStatus; set => movementStatus = value; }
         #endregion
     }
 }

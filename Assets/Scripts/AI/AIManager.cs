@@ -1,4 +1,5 @@
-﻿using ColdCry.Editors;
+﻿using ColdCry.AI.Movement;
+using ColdCry.Editors;
 using ColdCry.Objects;
 using ColdCry.Utility;
 using System.Collections.Generic;
@@ -10,14 +11,14 @@ namespace ColdCry.AI
     public class AIManager : MonoBehaviour
     {
         public Node prefabNode;
-        public Dummy dummyAsset;
+        public Reachable reachablePrefab;
 
         private static AIManager Instance;
 
         private Dictionary<long, Node> staticNodes = new Dictionary<long, Node>();
         private LinkedList<ContactArea> contactAreas = new LinkedList<ContactArea>();
-        private ObjectPool<Dummy> dummies;
         private ObjectPool<Node> dummyNodes;
+        private ObjectPool<Reachable> reachableTemplates;
 
         [SerializeField] private bool logStatCalls = false;
         private int findPathCalls = 0;
@@ -29,7 +30,7 @@ namespace ColdCry.AI
             }
             Instance = this;
 
-            dummies = new ObjectPool<Dummy>( dummyAsset, "Dummies" );
+            reachableTemplates = new ObjectPool<Reachable>( reachablePrefab, "TemplateAIReachables" );
             dummyNodes = new ObjectPool<Node>( prefabNode, 5, true, "DummyNodes" );
         }
 
@@ -66,25 +67,25 @@ namespace ColdCry.AI
         /// <param name="ai">AI as <see cref="Entity"/></param>
         /// <param name="position">Position on map as <see cref="Vector2"/></param>
         /// <returns>The shortest path to given <paramref name="position"/></returns>
-        public static AIPathList FindPath(Entity ai, Vector2 position)
+        public static AIPathList FindPath(Reachable ai, Vector2 position)
         {
-            Dummy dummy = GetDummy( position );
-            AIPathList aIPathList = FindPath( ai, dummy );
-            dummy.gameObject.SetActive( false );
+            Reachable reachable = GetReachable( position );
+            AIPathList aIPathList = FindPath( ai, reachable );
+            ReturnReachable( reachable );
             return aIPathList;
         }
 
-        public static AIPathList FindPath(Entity ai, Entity target)
+        public static AIPathList FindPath(Reachable ai, Reachable target)
         {
             Instance.findPathCalls++;
             if (Instance.logStatCalls) {
                 Debug.Log( "FindPath calls count: " + Instance.findPathCalls );
             }
             // SPRAWDZAMY CZY ZNALEZLISMY JAKIEKOLWIEK NODE'Y
-            List<Node> aiNodes = GetContactNodes( ai );
+            HashSet<Node> aiNodes = GetContactNodes( ai );
             if (aiNodes == null || aiNodes.Count == 0)
                 return null;
-            List<Node> targetNodes = GetContactNodes( target );
+            HashSet<Node> targetNodes = GetContactNodes( target );
             if (targetNodes == null || targetNodes.Count == 0)
                 return null;
             // W TAKIM RAZIE LECIMY DALEJ, TWORZYMY TERAZ TYMCZASOWE NODY NA POZYCJACH
@@ -156,12 +157,12 @@ namespace ColdCry.AI
             return false;
         }
 
-        public static List<Node> GetContactNodes(Entity entity)
+        public static HashSet<Node> GetContactNodes(Reachable reachable)
         {
-            return GetContactNodes( entity.ContactArea );
+            return GetContactNodes( reachable.ContactArea );
         }
 
-        public static List<Node> GetContactNodes(ContactArea area)
+        public static HashSet<Node> GetContactNodes(ContactArea area)
         {
             if (area == null)
                 return null;
@@ -192,24 +193,19 @@ namespace ColdCry.AI
             return nearestNode;
         }
 
-        public static Dummy GetDummy()
+        public static Reachable GetReachable()
         {
-            return Instance.dummies.Get();
+            return Instance.reachableTemplates.Get();
         }
 
-        /// <summary>
-        /// Spawns dummy object
-        /// </summary>
-        /// <param name="position">Position to spawn dummy</param>
-        /// <returns>New dummy object</returns>
-        public static Dummy GetDummy(Vector2 position)
+        public static Reachable GetReachable(Vector2 position)
         {
-            return Instance.dummies.Get( position );
+            return Instance.reachableTemplates.Get( position );
         }
 
-        public static void ReturnDummy(Dummy dummy)
+        public static void ReturnReachable(Reachable reachable)
         {
-            Instance.dummies.Return(dummy);
+            Instance.reachableTemplates.Return( reachable );
         }
 
         private static Node GetMinNode(List<Node> nodes)

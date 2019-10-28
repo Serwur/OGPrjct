@@ -1,4 +1,5 @@
 using ColdCry.AI;
+using ColdCry.AI.Movement;
 using ColdCry.Utility;
 using UnityEngine;
 
@@ -31,7 +32,7 @@ namespace ColdCry.Objects
         #region Abstract
 
 
-        public override void OnMove(float moveSpeed, float x)
+        public override void OnMove(float moveSpeed, Vector2 direction)
         {
             //throw new System.NotImplementedException();
         }

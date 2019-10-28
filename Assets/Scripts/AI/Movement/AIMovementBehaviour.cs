@@ -2,34 +2,57 @@
 using ColdCry.Objects;
 using ColdCry.Utility.Patterns.Memory;
 using ColdCry.Utility.Time;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using static ColdCry.Utility.Time.TimerManager;
 
-namespace ColdCry.AI
+namespace ColdCry.AI.Movement
 {
+    [RequireComponent( typeof( Reachable ) )]
     [RequireComponent( typeof( Entity ) )]
     public class AIMovementBehaviour :
         MonoBehaviour,
         Utility.IObservable<AIMovementState>,
-        IMemoriable<MemoryPart>
+        IMemoriable<MemoryPart>,
+        IContactable
     {
         private static readonly float JUMP_Y_OFFSET = 1.2f;
         private static readonly float JUMP_TIME = 0.75f;
         private static readonly int POSITION_CHECK_PERIOD = 5;
 
+        [Header( "Custom Behaviour" )]
+        [SerializeField] private bool waitForTargetWhenNotInCA = false;
+        [SerializeField] private bool keepOldTargetIfNotFound = false;
+
+        [SerializeField] private float distForNextNode = 0.45f;
+        [SerializeField] private float distToStopFollow = 0.33f;
+
+        [Header( "Stuck: not reached node" )]
+        [SerializeField] private float nrn_timeToUnstuck = 1.3f;
+        [SerializeField] private float nrn_distanceToUnstuck = 0.4f;
+
         [Header( "Refinder" )]
+        [SerializeField] private bool refindWhenNotFound = true;
+        [SerializeField] private bool refindWhenTargetNotInCA = true;
+        [SerializeField] private bool refindWhenOwnerNotInCA = true;
+
         [SerializeField] [Range( 1, 500 )] private int pathRefindRepeats = 10;
         [SerializeField] [Range( 0.01f, float.MaxValue )] private float pathRefindInterval = 0.75f;
 
         [Header( "Utility" )]
+        [SerializeField] private AIMovementState movementState;
         [SerializeField] private Utility.Logger logger;
+        [SerializeField] private bool drawGizmos = true;
+        [SerializeField] private bool testingMode = false;
 
         private bool awaken = false;
+        private bool refindOnNextNode = false;
 
         #region Unity API
         public void Awake()
         {
+            ReachableOwner = GetComponent<Reachable>();
             Owner = GetComponent<Entity>();
             Memory = new Memorier<MemoryPart>( this );
             logger = Utility.Logger.GetInstance( gameObject );
@@ -37,48 +60,63 @@ namespace ColdCry.AI
 
         public void Start()
         {
-            //RefindPathCountdownId = TimerManager.CreateSchedule( refindInterval , this, 10 );
             RefindCountdown = ScheduledCountdown.GetInstance(
                 pathRefindInterval,
                 pathRefindRepeats,
                 (overtime) => {
-                    switch (FindPath( FollowedEntity, true )) {
-                        case AIMovementResponse.TARGET_NULL:
-                        case AIMovementResponse.MISSING_ENTITY_COMPONENT:
-                            ClearPath();
-                            ClearCurrentTarget();
-                            break;
-                        case AIMovementResponse.NO_CONTACT_AREA:
-                        case AIMovementResponse.NO_PATH_TO_TARGET:
-                            MovementState = AIMovementState.WAITING;
-                            break;
-                        case AIMovementResponse.PATH_FOUND:
-                        case AIMovementResponse.TARGET_IN_SAME_AREA:
-                            RefindCountdown.Stop();
-                            break;
-                    }
+                    AIMovementResponse response = ResponseRefindBehaviour( RefindPath() );
+                    logger.Log( "Refind response: " + response + ", repeats left: " + ( RefindCountdown as ScheduledCountdown ).CurrentRepeat );
                 } );
-            TemplateDummy = AIManager.GetDummy();
+
+            NotReachedNodeCountdown_Stuck = Countdown.GetInstance(
+                nrn_timeToUnstuck,
+                (overtime) => {
+                   if ( MovementState == AIMovementState.PATHING ) {
+                        // implement timer to get variables to be able to check them later
+                        // additionally implemented to get Action parameter without variable
+                   }
+                }
+                );
+
+            OwnReachable = AIManager.GetReachable();
         }
 
         public void Update()
         {
             // mouse test
-            if (Input.GetKeyDown( KeyCode.Mouse0 )) {
-                Vector3 pos = Camera.main.ScreenToWorldPoint( Input.mousePosition );
-                if ( TemplateDummy != null)
-                logger.Log( ReachPosition( pos ) );
-            } else if (Input.GetKeyDown( KeyCode.Mouse1 )) {
-                logger.Log( TrackTarget( GameManager.Player ) );
+            if (testingMode) {
+                if (Input.GetKeyDown( KeyCode.Mouse0 )) {
+                    Vector3 pos = Camera.main.ScreenToWorldPoint( Input.mousePosition + new Vector3( 0, 0, 5f ) );
+                    /*float cos = Mathf.Cos( Mathf.Deg2Rad * Camera.main.fieldOfView );
+                    if (cos != 0f) {
+                        pos /= cos;
+                        logger.Log( pos );
+                        ReachPosition( pos );
+                    }*/
+                    ReachPosition( pos );
+                } else if (Input.GetKeyDown( KeyCode.Mouse1 )) {
+                    logger.Log( FollowTarget( GameManager.Player.GetComponent<Reachable>() ) );
+                } else if (Input.GetKey( KeyCode.Mouse2 )) {
+                    Ray ray = Camera.main.ScreenPointToRay( Input.mousePosition );
+                    if (Physics.Raycast( ray, out RaycastHit hit )) {
+                        Reachable reachable = hit.collider.GetComponent<Reachable>();
+                        if (reachable != null) {
+                            logger.Log( FollowTarget( reachable ) );
+                        } else {
+                            Stop();
+                        }
+                    }
+                }
             }
 
             if (Owner.CanMove && !Paused)
                 switch (MovementState) {
                     case AIMovementState.NONE:
-                        // TODO
                         break;
                     case AIMovementState.WAITING:
-                        // TODO
+                        // just wait and do nothing
+                        break;
+                    case AIMovementState.REFINDING:
                         break;
                     case AIMovementState.PATHING:
                         PathUpdate();
@@ -86,28 +124,32 @@ namespace ColdCry.AI
                     case AIMovementState.FOLLOWING:
                         FollowUpdate();
                         break;
+                    case AIMovementState.REACHED:
+                        ReachedUpdate();
+                        // wait till target will be out of range
+                        break;
                 }
         }
 
         public void OnEnable()
         {
             if (awaken)
-                TemplateDummy = AIManager.GetDummy();
+                OwnReachable = AIManager.GetReachable();
             awaken = true;
         }
 
         public void OnDisable()
         {
-            if (TemplateDummy != null)
-                AIManager.ReturnDummy( TemplateDummy );
+            if (OwnReachable != null)
+                AIManager.ReturnReachable( OwnReachable );
             Stop();
             Owner.ResetUnit();
         }
 
         public void OnDestroy()
         {
-            if (TemplateDummy != null)
-                AIManager.ReturnDummy( TemplateDummy );
+            if (OwnReachable != null)
+                AIManager.ReturnReachable( OwnReachable );
             Stop();
             Owner.ResetUnit();
         }
@@ -116,33 +158,56 @@ namespace ColdCry.AI
         #region StateUpdates
         private void PathUpdate()
         {
-            if (CurrentTarget == null)
-                return;
-
-            PositionCheck++;
-            if (PositionCheck >= POSITION_CHECK_PERIOD) {
-                PositionCheck = 0;
-                if (Vector2.Distance( CurrentTarget.position, transform.position ) <= 0.5f) {
-                    NextNode();
-                    return;
+            if (Target.Current != null) {
+                PositionCheck++;
+                if (PositionCheck >= POSITION_CHECK_PERIOD) {
+                    PositionCheck = 0;
+                    if (Vector2.Distance( Target.Current.position, transform.position ) <= distForNextNode) {
+                        NextNode();
+                        return;
+                    }
                 }
-            }
 
-            // when entity in in air and x position has been reached we can't move him,
-            // otherwise we move him anyway
-            if (Owner.IsInAir) {
-                if (!XPositionReached)
-                    Owner.Move( CurrentTarget );
-            } else {
-                Owner.Move( CurrentTarget );
+                // when entity in in air and x position has been reached we can't move him,
+                // otherwise we move him anyway
+                if (Owner.IsInAir) {
+                    if (Mathf.Abs( Target.Current.position.x - transform.position.x ) >= distForNextNode) {
+                        Owner.Move( Target.Current );
+                    }
+                } else {
+                    Owner.Move( Target.Current );
+                }
             }
         }
 
         private void FollowUpdate()
         {
-            Owner.Move( FollowedEntity );
-            if (TargetType == AITargetType.DUMMY && Vector2.Distance( FollowedEntity.transform.position, transform.position ) < 0.2f) {
-                Stop();
+            if (Target.Current != null) {
+                if (Target.AfterPath.transform != Target.Current) {
+                    AIMovementResponse response = FindPath( Target.AfterPath, true, Target.Type );
+                    ResponseBehaviour( response );
+                    return;
+                }
+                if (Mathf.Abs( Target.Current.position.x - transform.position.x ) <= distToStopFollow) {
+                    switch (Target.Type) {
+                        case AITargetType.STEADY:
+                            Stop();
+                            return;
+                        case AITargetType.MOVABLE:
+                            MovementState = AIMovementState.REACHED;
+                            return;
+                    }
+                }
+                Owner.Move( Target.Current );
+            }
+        }
+
+        private void ReachedUpdate()
+        {
+            if (Target.Current != Target.AfterPath.transform ||
+                Mathf.Abs( Target.AfterPath.transform.position.x - transform.position.x ) >= distToStopFollow) {
+                AIMovementResponse response = RefindPath();
+                ResponseBehaviour( response );
             }
         }
         #endregion
@@ -155,6 +220,7 @@ namespace ColdCry.AI
         public void Pause(bool pause)
         {
             Paused = pause;
+            //RefindCountdown.Pause();
         }
 
         /// <summary>
@@ -162,227 +228,333 @@ namespace ColdCry.AI
         /// </summary>
         public void Stop()
         {
-            ClearCurrentTarget();
-            ClearPath();
-            MovementState = AIMovementState.NONE;
-            TargetType = AITargetType.NONE;
-            Paused = false;
-        }
-
-        private void ClearCurrentTarget()
-        {
-            if (FollowedEntity != null) {
-                FollowedEntity.RemoveFollower( this );
-            }
-
-            EntityToFollow = null;
-
-            if (CurrentTarget != null) {
-                Entity entity = CurrentTarget.GetComponent<Entity>();
-                if (entity != null) {
-                    entity.RemoveFollower( this );
-                }
-            }
-
-            CurrentTarget = null;
-        }
-
-        private void ClearPath()
-        {
-            CurrentPath.Clear();
-            CurrentNode = null;
-        }
-
-        private AIMovementResponse FindPath(Entity target, bool keepOldTargetIfNotFound)
-        {
-            Memory.Save();
-            ClearCurrentTarget();
-            ClearPath();
-
-            // FAIL CASE
-            if (target == null) {
-                if (keepOldTargetIfNotFound) {
-                    Memory.Undo();
-                }
-                TargetType = AITargetType.NONE;
-                return AIMovementResponse.TARGET_NULL;
-            }
-
-            // FAIL CASE
-            if (Owner.ContactArea == null) {
-                TargetType = AITargetType.NONE;
-                return AIMovementResponse.NO_CONTACT_AREA;
-            }
-
-            // SUCCESS CASE
-            if (target.ContactArea == Owner.ContactArea) {
-                MovementState = AIMovementState.FOLLOWING;
-                target.AddFollower( this );
-                FollowedEntity = target;
-                CurrentTarget = target.transform;
-                RefindCountdown.Stop();
-                return AIMovementResponse.TARGET_IN_SAME_AREA;
-            }
-
-            AIPathList newPath = AIManager.FindPath( Owner, target );
-            // FAIL CASE
-            if (newPath == null) {
-                TargetType = AITargetType.NONE;
-                return AIMovementResponse.NO_PATH_TO_TARGET;
-            }
-
-            // SUCCESS CASE
-            CurrentPath = newPath;
-            EntityToFollow = target;
-            FollowedEntity = target;
-            target.AddFollower( this );
-            MovementState = AIMovementState.PATHING;
-            NextNode();
+            ClearTarget();
             RefindCountdown.Stop();
-
-            return AIMovementResponse.PATH_FOUND;
+            MovementState = AIMovementState.NONE;
+            Paused = false;
+            refindOnNextNode = false;
         }
 
-        public AIMovementResponse ReachPosition(Vector2 position, bool keepOldPath = false)
+        private void ClearTarget()
         {
-            TemplateDummy.transform.position = position;
-            TargetType = AITargetType.DUMMY;
-            return FindPath( TemplateDummy, keepOldPath );
+            if (Target.AfterPath != null) {
+                Target.AfterPath.RemoveAIFollower( this );
+            }
+            Target = AIMovementTarget.Empty;
         }
 
-        public AIMovementResponse ReachPosition(Transform transform, bool keepOldPath = false)
+        public AIMovementResponse ReachPosition(Vector2 position, bool keepOldPath = true)
+        {
+            if (Owner.IsDead) {
+                return ResponseBehaviour( AIMovementResponse.OWNER_IS_DEAD );
+            }
+            OwnReachable.transform.position = position;
+            return ResponseBehaviour( FindPath( OwnReachable, keepOldPath, AITargetType.STEADY ) );
+        }
+
+        public AIMovementResponse ReachPosition(Transform transform, bool keepOldPath = true)
         {
             return ReachPosition( transform.position, keepOldPath );
         }
 
-        public AIMovementResponse ReachPosition(Entity entity, bool keepOldPath = false)
+        public AIMovementResponse ReachPosition(Reachable reachable, bool keepOldPath = true)
         {
+            return ReachPosition( reachable.transform.position, keepOldPath );
+        }
+
+        public AIMovementResponse ReachPosition(Entity entity, bool keepOldPath)
+        {
+            // response behaviour is handled in up function
             return ReachPosition( entity.transform.position, keepOldPath );
         }
 
-        public AIMovementResponse TrackTarget(Transform transform, bool keepOldPath = false)
+        public AIMovementResponse FollowTarget(Transform transform, bool keepOldPath = true)
         {
-            Entity entity = transform.GetComponent<Entity>();
-            if (entity == null)
-                return AIMovementResponse.MISSING_ENTITY_COMPONENT;
-            TargetType = AITargetType.MOVEABLE;
-            return TrackTarget( entity, keepOldPath );
+            if (transform == null) {
+                return ResponseBehaviour( AIMovementResponse.TARGET_NULL );
+            }
+
+            Reachable reachable = transform.GetComponent<Reachable>();
+
+            if (reachable == null) {
+                return ResponseBehaviour( AIMovementResponse.TARGET_MISSING_REACHABLE_COMPONENT );
+            }
+
+            return ResponseBehaviour( FollowTarget( reachable, keepOldPath ) );
         }
 
-        public AIMovementResponse TrackTarget(Entity entity, bool keepOldPath = false)
+        public AIMovementResponse FollowTarget(Entity entity, bool keepOldPath = true)
         {
-            return FindPath( entity, keepOldPath );
+            Reachable reachable = entity.GetComponent<Reachable>();
+
+            if (reachable == null) {
+                return ResponseBehaviour( AIMovementResponse.TARGET_MISSING_REACHABLE_COMPONENT );
+            }
+
+            return ResponseBehaviour( FollowTarget( reachable, keepOldPath ) );
         }
 
-
-        /*  public AIMovementResponse TrackTarget(AIReachable aIReachable, bool keepOldPath = false)
-          {
-             // return FindPAt
-          }*/
-
-        /*
-        /// <summary>
-        /// Chase/follow to given target if only it's has same contact area
-        /// </summary>
-        /// <param name="target"></param>
-        /// <returns></returns>
-        private bool TrackTarget(Entity target)
+        public AIMovementResponse FollowTarget(Reachable reachable, bool keepOldPath = true)
         {
-        }
-        */
-
-        /// <summary>
-        /// Checks if given node is in AI path
-        /// </summary>
-        /// <param name="node">Node to check</param>
-        /// <returns><code>TRUE</code> if node is in path, otherwise <code>FALSE</code></returns>
-        public bool IsNodeInPath(Node node)
-        {
-            return CurrentPath.Contains( node );
+            if (Owner.IsDead) {
+                return ResponseBehaviour( AIMovementResponse.OWNER_IS_DEAD );
+            }
+            return ResponseBehaviour( FindPath( reachable, keepOldPath, AITargetType.MOVABLE ) );
         }
 
-        /*
-        /// <summary>
-        /// Start an interval timer which calculate the shortest path to Current target.
-        /// It stops when the path is found or if it exceeds <b>default</b> break time 
-        /// which is 7.5s.
-        /// If Current target is null then it won't start.
-        /// </summary>
-        /// <param name="interval">Time in seconds to repeat</param>
-        /// <returns></returns>
-        public bool StartPathRefind(float interval)
+        private AIMovementResponse FindPath(Reachable target,
+            bool keepOldTargetIfNotFound,
+            AITargetType targetType)
         {
-            //if ( curr)
-            TimerManager.Reset( refindPathCountdownId, interval );
-            return true;
-        }*/
+            if (Target.AfterPath != null) {
+                Memory.Save();
+            }
+
+            Target = new AIMovementTarget(
+                target.transform,
+                AIPathList.Empty,
+                target,
+                targetType,
+                false
+                );
+
+            // FAIL CASE
+            if (target == null) {
+                return AIMovementResponse.TARGET_NULL;
+            }
+
+            if (target.ContactArea == null) {
+                return AIMovementResponse.TARGET_NOT_IN_CONTACT_AREA;
+            }
+
+            // FAIL CASE
+            if (ReachableOwner.ContactArea == null) {
+                return AIMovementResponse.OWNER_NOT_IN_CONTACT_AREA;
+            }
+
+            // SUCCESS CASE
+            if (target.ContactArea == ReachableOwner.ContactArea) {
+                RefindCountdown.Stop();
+                MovementState = AIMovementState.FOLLOWING;
+                target.AddAIFollower( this );
+                Target = new AIMovementTarget(
+                    target.transform,
+                    AIPathList.Empty,
+                    target,
+                    targetType,
+                    false
+                    );
+                return AIMovementResponse.TARGET_IN_SAME_AREA;
+            }
+
+            AIPathList newPath = AIManager.FindPath( ReachableOwner, target );
+            // FAIL CASE
+            if (newPath == null) {
+                return AIMovementResponse.NO_PATH_TO_TARGET;
+            }
+
+            // SUCCESS CASE
+            RefindCountdown.Stop();
+            MovementState = AIMovementState.PATHING;
+            target.AddAIFollower( this );
+            Target = new AIMovementTarget(
+                null,
+                newPath,
+                target,
+                targetType,
+                false
+                );
+            NextNode();
+
+            return AIMovementResponse.PATH_FOUND;
+        }
+
+        private AIMovementResponse RefindPath()
+        {
+            // FAIL CASE
+            if (ReachableOwner.ContactArea == null) {
+                return AIMovementResponse.OWNER_NOT_IN_CONTACT_AREA;
+            }
+
+            // FAIL CASE 
+            if (Target.AfterPath == null) {
+                return AIMovementResponse.TARGET_NULL;
+            }
+
+            // FAIL CASE
+            if (Target.AfterPath.ContactArea == null) {
+                return AIMovementResponse.TARGET_NOT_IN_CONTACT_AREA;
+            }
+
+            /*
+             * Elo kurwa, tutaj trzeba dodać pozostałe przypadki: zostały chyba tylko udane,
+             * a dokładniej gdy jest ta sama area. Potem należy obsłużyć zwracane responsy
+             * dla refinda. Po tym wszystkim sprawdzić pozostałe bugi, a następnie ogarnąć
+             * aby timer poprawnie się wykonywał. To jest priorytet. Po tym wszystkim
+             * wykonać potrzebne testy, jeżeli wszystko śmiga to commit i w końcu wszystko poprawnie działa.
+             * Następne rzeczy wtedy dopiero wprowadzać jako feature!
+             * 
+            */
+
+            if (Target.AfterPath.ContactArea == ReachableOwner.ContactArea) {
+                return AIMovementResponse.TARGET_IN_SAME_AREA;
+            }
+
+            AIPathList newPath = AIManager.FindPath( ReachableOwner, Target.AfterPath );
+            // FAIL CASE
+            if (newPath == null) {
+                return AIMovementResponse.NO_PATH_TO_TARGET;
+            }
+
+            // SUCCESS CASE
+            Target.AfterPath.AddAIFollower( this );
+            Target = new AIMovementTarget(
+                null,
+                newPath,
+                Target.AfterPath,
+                Target.Type,
+                Target.KeepInMemory
+                );
+            NextNode();
+            return AIMovementResponse.PATH_FOUND;
+        }
+
+        private AIMovementResponse ResponseBehaviour(AIMovementResponse response)
+        {
+            bool shouldClear = false;
+
+            switch (response) {
+                case AIMovementResponse.TARGET_NULL:
+                case AIMovementResponse.TARGET_MISSING_REACHABLE_COMPONENT:
+                    if (keepOldTargetIfNotFound) {
+                        Memory.Undo();
+                    } else {
+                        shouldClear = true;
+                    }
+                    break;
+                case AIMovementResponse.OWNER_NOT_IN_CONTACT_AREA:
+                    if (refindWhenOwnerNotInCA) {
+                        StartPathRefind();
+                    } else {
+                        shouldClear = true;
+                    }
+                    break;
+                case AIMovementResponse.NO_PATH_TO_TARGET:
+                    if (refindWhenNotFound) {
+                        StartPathRefind();
+                    } else {
+                        shouldClear = true;
+                    }
+                    break;
+                case AIMovementResponse.TARGET_NOT_IN_CONTACT_AREA:
+                    if (refindWhenTargetNotInCA) {
+                        StartPathRefind();
+                    } else {
+                        shouldClear = true;
+                    }
+                    break;
+                case AIMovementResponse.TARGET_IN_SAME_AREA:
+                    MovementState = AIMovementState.FOLLOWING;
+                    break;
+                case AIMovementResponse.PATH_FOUND:
+                    MovementState = AIMovementState.PATHING;
+                    break;
+            }
+
+            if (shouldClear) {
+                MovementState = AIMovementState.NONE;
+                ClearTarget();
+            }
+
+            return response;
+        }
+
+        private AIMovementResponse ResponseRefindBehaviour(AIMovementResponse response)
+        {
+            switch (response) {
+                case AIMovementResponse.TARGET_NULL: // stops all actions
+                case AIMovementResponse.TARGET_MISSING_REACHABLE_COMPONENT:
+                case AIMovementResponse.OWNER_IS_DEAD:
+                    Stop();
+                    break;
+                case AIMovementResponse.TARGET_NOT_IN_CONTACT_AREA: // just wait till refind counter ends
+                case AIMovementResponse.NO_PATH_TO_TARGET:
+                case AIMovementResponse.OWNER_NOT_IN_CONTACT_AREA:
+                    if (RefindCountdown.HasEnded()) {
+                        Stop();
+                    }
+                    break;
+                case AIMovementResponse.TARGET_IN_SAME_AREA:
+                    MovementState = AIMovementState.FOLLOWING;
+                    RefindCountdown.Stop();
+                    break;
+                case AIMovementResponse.PATH_FOUND:
+                    MovementState = AIMovementState.PATHING;
+                    RefindCountdown.Stop();
+                    break;
+
+            }
+            return response;
+        }
 
         /// <summary>
         /// Start an interval timer which calculate the shortest path to Current target.
         /// It stops when the path is found or if it exceeds given break time.
         /// If Current target is null then it won't start.
         /// </summary>
-        /// <param name="interval">Time in seconds to repeat</param>
-        /// <param name="breakTime">Time after scheduled refinding will broke</param>
         /// <returns></returns>
         public bool StartPathRefind()
         {
+            MovementState = AIMovementState.REFINDING;
             RefindCountdown.Restart();
             return true;
         }
-
-        /* public bool StartPathRefind(Entity entity)
-         {
-
-         }*/
 
         /// <summary>
         /// Gives next node to follow in AI path
         /// </summary>
         private void NextNode()
         {
-            if (!CurrentPath.IsEmpty) {
+            if (refindOnNextNode) {
+                refindOnNextNode = false;
+                /*   if (Target.AfterPath.ContactArea != null && !Target.AfterPath.ContactArea.Contains( Target.Path.Last.Node )) {
+                       AIMovementResponse response = RefindPath();
+                       ResponseBehaviour( response );
+                       return;
+                   } else if (Target.AfterPath.ContactArea == null) {
+                       AIMovementResponse response = RefindPath();
+                       ResponseBehaviour( response );
+                       return;
+                   }*/
+                AIMovementResponse response = RefindPath();
+                ResponseBehaviour( response );
+                return;
+            }
+
+            if (!Target.Path.IsEmpty) {
                 PositionReached = false;
                 XPositionReached = false;
-                CurrentNode = CurrentPath.Next();
-                CurrentTarget = CurrentNode.Node.transform;
-                switch (CurrentNode.Action) {
+                Target.Path.Next();
+                Target.Current = Target.Path.Current.Node.transform;
+                switch (Target.Path.Current.Action) {
                     case AIAction.WALK:
                         break;
                     case AIAction.JUMP:
                         // Sets jump power that depdens on height that must be reached
-                        float heigth = CurrentTarget.position.y - transform.position.y;
+                        float heigth = Target.Current.position.y - transform.position.y;
                         float jumpPower = heigth / JUMP_TIME - Physics.gravity.y / 2f * JUMP_TIME;
                         if (jumpPower < 0) {
                             jumpPower = 0;
                         }
-                        JumpTo( jumpPower, CurrentTarget.position );
+                        JumpTo( jumpPower, Target.Current.position );
                         break;
                 }
             } else {
-                ClearPath();
-                if (EntityToFollow.ContactArea != Owner.ContactArea) {
+                if (Target.AfterPath.ContactArea != ReachableOwner.ContactArea) {
                     StartPathRefind();
-                    /*
-                    AIMovementResponse response = FindPath( EntityToFollowAfterPath, true );
-                    switch (response) {
-                        case AIMovementResponse.TARGET_NULL:
-                        case AIMovementResponse.MISSING_ENTITY_COMPONENT:
-                            ClearCurrentTarget();
-                            ClearDummy();
-                            ClearPath();
-                            break;
-                        case AIMovementResponse.NO_CONTACT_AREA:
-                        case AIMovementResponse.NO_PATH_TO_TARGET:
-                            StartPathRefind();
-                            break;
-                        case AIMovementResponse.PATH_FOUND:
-                        case AIMovementResponse.TARGET_IN_SAME_AREA:
-                            // no action needed
-                            break;
-                    }*/
                 } else {
-                    CurrentTarget = EntityToFollow.transform;
+                    Target.Current = Target.AfterPath.transform;
+                    MovementState = AIMovementState.FOLLOWING;
                 }
             }
         }
@@ -413,7 +585,48 @@ namespace ColdCry.AI
             return ( heigth + JUMP_Y_OFFSET ) <= ( jumpPower * jumpPower / ( 2 * Mathf.Abs( Physics.gravity.y ) ) );
         }
 
+        public void OnContactAreaEnter(ContactArea contactArea)
+        {
+            if (MovementState == AIMovementState.PATHING) {
+                // przypadek jeżeli AI spadł/wypadł z area i kolejna area na jaką trafia nie jest
+                // docelową to trzeba trasę na nowo wyszukać
+                if (OwnReachable.ContactArea == null && !contactArea.Contains( Target.Path.CurrentNode )) {
+                    ResponseBehaviour( FindPath( Target.AfterPath, true, Target.Type ) );
+                }
+            } else if (movementState == AIMovementState.FOLLOWING) {
+                if (OwnReachable.ContactArea == null || OwnReachable.ContactArea != Target.AfterPath.ContactArea) {
+                    ResponseBehaviour( FindPath( Target.AfterPath, true, Target.Type ) );
+                }
+            }
+        }
 
+        public void OnContactAreaExit(ContactArea contactArea)
+        {
+
+        }
+
+        public void OnFollowedObjectAreaEnter(ContactArea contactArea, Reachable reachable)
+        {
+            if ( MovementState == AIMovementState.FOLLOWING ) {
+                if ( contactArea.Contains(Target.Path.CurrentNode) ) {
+                    return;
+                }
+            }
+
+            if (Owner.MovementStatus == MovementStatus.JUMPING) {
+                refindOnNextNode = true;
+            } else {
+                AIMovementResponse response = RefindPath();
+                ResponseBehaviour( response );
+            }
+        }
+
+        public void OnFollowedObjectAreaExit(ContactArea contactArea, Reachable reachable)
+        {
+            if (waitForTargetWhenNotInCA && movementState != AIMovementState.PATHING) {
+                MovementState = AIMovementState.WAITING;
+            }
+        }
 
         public void Subscribe(Utility.IObserver<AIMovementState> observer)
         {
@@ -429,41 +642,39 @@ namespace ColdCry.AI
         public MemoryPart SaveMemory()
         {
             MemoryPart part = new MemoryPart();
-            part.Add( "TargetType", TargetType );
             part.Add( "MovementState", MovementState );
-            part.Add( "TemplateDummy", TemplateDummy );
-            part.Add( "FollowedEntity", FollowedEntity );
-            part.Add( "EntityToFollowAfterPath", EntityToFollow );
-            part.Add( "CurrentTarget", CurrentTarget );
-            part.Add( "CurrentPath", CurrentPath.Clone() );
-            part.Add( "CurrentNode", CurrentNode );
+            part.Add( "Target", Target.Clone() );
             return part;
         }
 
         public void LoadMemory(MemoryPart data)
         {
-            TargetType = data.Get<AITargetType>( "TargetType" );
             MovementState = data.Get<AIMovementState>( "MovementState" );
+            Target = data.Get<AIMovementTarget>( "Target" );
+        }
+
+        public void OnDrawGizmos()
+        {
+            if (drawGizmos && Target.Current != null) {
+                Gizmos.color = Color.blue;
+                Gizmos.DrawLine( transform.position, Target.Current.position );
+            }
         }
 
         #region Getters and Setters
-        public AIPathList CurrentPath { get; private set; } = new AIPathList();
-        public Entity Owner { get; private set; }
-        public Entity EntityToFollow { get; private set; }
-        public Entity FollowedEntity { get; private set; }
-        public Transform CurrentTarget { get; private set; }
-        public Dummy TemplateDummy { get; private set; }
-        public ComplexNode CurrentNode { get; private set; }
+        public Entity Owner { get; private set; } // without it it won't work
+        public Reachable ReachableOwner { get; private set; } // without it it won't work
+        public Reachable OwnReachable { get; private set; } // used for reaching position
         public Memorier<MemoryPart> Memory { get; private set; }
         public List<Utility.IObserver<AIMovementState>> StateChangeObservers { get; private set; } = new List<Utility.IObserver<AIMovementState>>();
-        public ICountdown RefindCountdown { get; private set; }
+        public AIMovementState MovementState { get => movementState; private set => movementState = value; }
+        private AIMovementTarget Target = AIMovementTarget.Empty;
 
-        public AITargetType TargetType { get; private set; }
-        public AIMovementState MovementState { get; private set; }
+        public ICountdown RefindCountdown { get; private set; }
+        public ICountdown NotReachedNodeCountdown_Stuck { get; private set; }
 
         public float RefindInterval { get => pathRefindInterval; set => pathRefindInterval = value; }
-        public bool HasPath { get => !CurrentPath.IsFullyEmpty; }
-        public bool PathHasEnded { get => CurrentPath.IsEmpty; }
+        //  public bool IsReaching { get => Target.TargetAfterPath != null; }
         public bool Paused { get; set; } = false;
         public bool XPositionReached { get; set; } = false;
         public bool PositionReached { get; set; } = false;
@@ -471,5 +682,86 @@ namespace ColdCry.AI
         public int PathRefindRepeats { get => pathRefindRepeats; set => pathRefindRepeats = value; }
         public float PathRefindInterval { get => pathRefindInterval; set => pathRefindInterval = value; }
         #endregion
+
+        private struct AIMovementTarget : ICloneable
+        {
+            private static readonly AIMovementTarget RD_EMPTY;
+
+            static AIMovementTarget()
+            {
+                RD_EMPTY = new AIMovementTarget(
+                    null,
+                    AIPathList.Empty,
+                    null,
+                    AITargetType.NONE,
+                    false
+                    );
+            }
+
+            public Transform Current { get; set; }
+            public AIPathList Path { get; set; }
+            public Reachable AfterPath { get; set; }
+            public AITargetType Type { get; set; }
+            public bool KeepInMemory { get; set; }
+
+            public AIMovementTarget(Transform current, AIPathList path, Reachable afterPath, AITargetType type, bool keepInMemory)
+            {
+                Current = current;
+                Path = path;
+                AfterPath = afterPath;
+                Type = type;
+                this.KeepInMemory = keepInMemory;
+            }
+
+            public object Clone()
+            {
+                AIMovementTarget clone = new AIMovementTarget(
+                    Current,
+                    Path,
+                    AfterPath,
+                    Type,
+                    KeepInMemory
+                );
+                return clone;
+            }
+
+            public static AIMovementTarget Empty { get; }
+        }
+
+        // to implemented later
+        public class AIPathBuilder
+        {
+
+            public AIPathBuilder RefindWhenNotFound()
+            {
+                return this;
+            }
+
+            public AIPathBuilder RefindWhenTargetNotInCA()
+            {
+                return this;
+            }
+
+            public AIPathBuilder RefindWhenOwnerNotInCA()
+            {
+                return this;
+            }
+
+            public AIPathBuilder Reach()
+            {
+                return this;
+            }
+
+            public AIPathBuilder Follow()
+            {
+                return this;
+            }
+
+            public void Find()
+            {
+
+            }
+        }
+
     }
 }

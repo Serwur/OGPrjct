@@ -51,12 +51,6 @@ namespace ColdCry.Objects
                 Gizmos.color = Color.green;
                 Gizmos.DrawWireSphere( transform.position, rangeToKeepThisState );
             }
-            if (GameManager.DrawAIDestination) {
-                Gizmos.color = Color.blue;
-                if ( AIBehaviour != null && AIBehaviour.CurrentTarget != null) {
-                    Gizmos.DrawLine( transform.position, AIBehaviour.CurrentTarget.position );
-                }
-            }
         }
         #endregion
 
