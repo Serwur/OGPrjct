@@ -701,7 +701,7 @@ namespace ColdCry.Utility.Time
             public static Countdown GetInstance(float time = 1f, Action<float> action = null)
             {
                 if (Instance == null) {
-                    throw new MissingEssentialGameObject( "Cannot create countdown without active TimerManager object on scene" );
+                    throw new MissingEssentialGameObjectException( "Cannot create countdown without active TimerManager object on scene" );
                 }
                 if (time < 0)
                     throw new ArgumentException( "Countdown time cannot be less than 0!" );
@@ -811,7 +811,7 @@ namespace ColdCry.Utility.Time
             public static ScheduledCountdown GetInstance(float time = 1f, int repeats = 0, Action<float> action = null)
             {
                 if (Instance == null) {
-                    throw new MissingEssentialGameObject( "Cannot create time without active TimerManager object on scene" );
+                    throw new MissingEssentialGameObjectException( "Cannot create time without active TimerManager object on scene" );
                 }
 
                 if (time < 0) {

@@ -25,8 +25,8 @@ namespace ColdCry.AI.Movement
         [SerializeField] private bool waitForTargetWhenNotInCA = false;
         [SerializeField] private bool keepOldTargetIfNotFound = false;
 
-        [SerializeField] private float distForNextNode = 0.45f;
-        [SerializeField] private float distToStopFollow = 0.33f;
+        [SerializeField] private float distanceToStopReach = 0.45f;
+        [SerializeField] private float distanceToStopFollow = 0.33f;
 
         [Header( "Stuck: not reached node" )]
         [SerializeField] private float nrn_timeToUnstuck = 1.3f;
@@ -106,6 +106,10 @@ namespace ColdCry.AI.Movement
                             Stop();
                         }
                     }
+                } else if ( Input.GetKey(KeyCode.Space )) {
+                    // new AIPathBuilder( this ).Reach().Find();
+                    //new AIPathBuilder( this ).RefindWhen( new uint[] { AIPathBuilder.NOT_FOUND, AIPathBuilder.TARGET_NOT_IN_CA } );
+                    //new AIPathBuilder( this ).RefindWhen( new uint[] { AIPathBuilder.OWNER_NOT_INT_CA, AIPathBuilder.TARGET_NOT_IN_CA } );
                 }
             }
 
@@ -162,7 +166,7 @@ namespace ColdCry.AI.Movement
                 PositionCheck++;
                 if (PositionCheck >= POSITION_CHECK_PERIOD) {
                     PositionCheck = 0;
-                    if (Vector2.Distance( Target.Current.position, transform.position ) <= distForNextNode) {
+                    if (Vector2.Distance( Target.Current.position, transform.position ) <= distanceToStopReach) {
                         NextNode();
                         return;
                     }
@@ -171,7 +175,7 @@ namespace ColdCry.AI.Movement
                 // when entity in in air and x position has been reached we can't move him,
                 // otherwise we move him anyway
                 if (Owner.IsInAir) {
-                    if (Mathf.Abs( Target.Current.position.x - transform.position.x ) >= distForNextNode) {
+                    if (Mathf.Abs( Target.Current.position.x - transform.position.x ) >= distanceToStopReach) {
                         Owner.Move( Target.Current );
                     }
                 } else {
@@ -188,7 +192,7 @@ namespace ColdCry.AI.Movement
                     ResponseBehaviour( response );
                     return;
                 }
-                if (Mathf.Abs( Target.Current.position.x - transform.position.x ) <= distToStopFollow) {
+                if (Mathf.Abs( Target.Current.position.x - transform.position.x ) <= distanceToStopFollow) {
                     switch (Target.Type) {
                         case AITargetType.STEADY:
                             Stop();
@@ -205,7 +209,7 @@ namespace ColdCry.AI.Movement
         private void ReachedUpdate()
         {
             if (Target.Current != Target.AfterPath.transform ||
-                Mathf.Abs( Target.AfterPath.transform.position.x - transform.position.x ) >= distToStopFollow) {
+                Mathf.Abs( Target.AfterPath.transform.position.x - transform.position.x ) >= distanceToStopFollow) {
                 AIMovementResponse response = RefindPath();
                 ResponseBehaviour( response );
             }
@@ -385,16 +389,6 @@ namespace ColdCry.AI.Movement
             if (Target.AfterPath.ContactArea == null) {
                 return AIMovementResponse.TARGET_NOT_IN_CONTACT_AREA;
             }
-
-            /*
-             * Elo kurwa, tutaj trzeba dodać pozostałe przypadki: zostały chyba tylko udane,
-             * a dokładniej gdy jest ta sama area. Potem należy obsłużyć zwracane responsy
-             * dla refinda. Po tym wszystkim sprawdzić pozostałe bugi, a następnie ogarnąć
-             * aby timer poprawnie się wykonywał. To jest priorytet. Po tym wszystkim
-             * wykonać potrzebne testy, jeżeli wszystko śmiga to commit i w końcu wszystko poprawnie działa.
-             * Następne rzeczy wtedy dopiero wprowadzać jako feature!
-             * 
-            */
 
             if (Target.AfterPath.ContactArea == ReachableOwner.ContactArea) {
                 return AIMovementResponse.TARGET_IN_SAME_AREA;
@@ -585,6 +579,8 @@ namespace ColdCry.AI.Movement
             return ( heigth + JUMP_Y_OFFSET ) <= ( jumpPower * jumpPower / ( 2 * Mathf.Abs( Physics.gravity.y ) ) );
         }
 
+
+        //Action testAction;
         public void OnContactAreaEnter(ContactArea contactArea)
         {
             if (MovementState == AIMovementState.PATHING) {
@@ -598,6 +594,9 @@ namespace ColdCry.AI.Movement
                     ResponseBehaviour( FindPath( Target.AfterPath, true, Target.Type ) );
                 }
             }
+
+
+            
         }
 
         public void OnContactAreaExit(ContactArea contactArea)
@@ -626,6 +625,12 @@ namespace ColdCry.AI.Movement
             if (waitForTargetWhenNotInCA && movementState != AIMovementState.PATHING) {
                 MovementState = AIMovementState.WAITING;
             }
+        }
+
+        public AIPathBuilder PathTo()
+        {
+            AIPathBuilder builder = new AIPathBuilder( this );
+            return builder;
         }
 
         public void Subscribe(Utility.IObserver<AIMovementState> observer)
@@ -728,31 +733,82 @@ namespace ColdCry.AI.Movement
             public static AIMovementTarget Empty { get; }
         }
 
-        // to implemented later
+        
+
+        // to implement later
         public class AIPathBuilder
         {
+            private AIMovementBehaviour ai;
 
-            public AIPathBuilder RefindWhenNotFound()
+
+            public AIPathBuilder(AIMovementBehaviour ai)
+            {
+               // this.ai = ai;
+            }
+
+            public static AIPathBuilder Follow(AIMovementBehaviour ai)
+            {
+                return new AIPathBuilder( ai );
+            }
+
+            public static AIPathBuilder Reach(AIMovementBehaviour ai, Vector2 position)
+            {
+                AIPathBuilder builder = new AIPathBuilder( ai );
+                builder.ai = ai;
+                return builder;
+            }
+
+            public AIPathBuilder RefindWhenNotFound(bool val)
             {
                 return this;
             }
 
-            public AIPathBuilder RefindWhenTargetNotInCA()
+            public AIPathBuilder RefindWhenTargetNotInCA(bool val)
             {
                 return this;
             }
 
-            public AIPathBuilder RefindWhenOwnerNotInCA()
+            public AIPathBuilder RefindWhenOwnerNotInCA(bool val)
             {
                 return this;
             }
 
-            public AIPathBuilder Reach()
+            public AIPathBuilder RefindCount(int refindCount)
             {
                 return this;
             }
 
-            public AIPathBuilder Follow()
+            public AIPathBuilder RefindInterval(float interval)
+            {
+                return this;
+            }
+
+            public AIPathBuilder DistanceToStopReach(float distance)
+            {
+                return this;
+            }
+
+            public AIPathBuilder DistanceToStopFollow(float distance)
+            {
+                return this;
+            }
+
+            public AIPathBuilder KeepOldTargetWhenNotFound(bool val)
+            {
+                return this;
+            }
+
+            public AIPathBuilder WaitIfTargetNotInCA(bool val)
+            {
+                return this;
+            }
+
+            public AIPathBuilder Reach(Vector2 position)
+            {
+                return this;
+            }
+
+            public AIPathBuilder Target(Reachable target)
             {
                 return this;
             }
@@ -761,7 +817,45 @@ namespace ColdCry.AI.Movement
             {
 
             }
+
+            public void Find(AIMovementBehaviour ai)
+            {
+                
+            }
         }
 
+        private struct AIFindPath
+        {
+            public AIMovementBehaviour ai;
+            public Reachable target;
+            public Vector2 targetAsPosition;
+
+            public bool stopWhenReachesTarget;
+
+            public float distanceForNextNode;
+            public float distanceForStopFollow;
+
+            public float timeToUnstuck;
+
+            public bool refindWhenNotFound;
+            public bool refindWhenTargetNotInCA;
+            public bool refindWhenOwherNotInCA;
+
+            public int refindRepeats;
+            public int refindInterval;
+        }
     }
+
+    /*
+    public enum AIOpt
+    {
+        
+    }
+
+    public enum AIRefindOpt
+    {
+        NOT_FOUND = 0b_0000_0001,
+        TARGET_NOT_IN_CA = 0b_0000_0010,
+        OWNER_NOT_INT_CA = 0b_0000_0100
+    }*/
 }
