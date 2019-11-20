@@ -1,4 +1,5 @@
-﻿using ColdCry.Objects;
+﻿using ColdCry.Exception;
+using ColdCry.Objects;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -31,6 +32,18 @@ namespace ColdCry.Core
 
         private void Start()
         {
+            Character [] players = GameObject.FindObjectsOfType<Character>();
+            
+            if ( players.Length == 0) {
+                throw new MissingEssentialGameObjectException( "Missing game object of type Character on current scene" );
+            } 
+
+            if ( players.Length > 1) {
+                throw new MissingEssentialGameObjectException("Current state of program doesn't allow these amount of players on scene: " + players.Length);
+            }
+
+            player = players[0];
+
             if ( CameraManager.Exists() ) {
                 CameraManager.FollowPlayer();
             }
@@ -43,9 +56,6 @@ namespace ColdCry.Core
         public static void AddEntity(Entity entity)
         {
             Instance.entities.AddLast( entity );
-            if (entity.GetType() == typeof( Character )) {
-                Instance.player = (Character) entity;
-            }
         }
 
         /// <summary>
