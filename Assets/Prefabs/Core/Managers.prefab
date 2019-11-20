@@ -47,7 +47,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   startTime: 0
-  timeSpeed: 1
 --- !u!114 &5342029441726724994
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -60,6 +59,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4025f2b1dc3386d4bae663dd85d9b46a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  drawEnemyRange: 1
+  drawAIDestination: 1
+  drawNodeConnections: 1
 --- !u!114 &534867184
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -86,3 +88,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefabNode: {fileID: 6718039252219412100, guid: decfadc7a50564947a859c3b14253a9a,
     type: 3}
+  reachablePrefab: {fileID: 7345531237654472676, guid: 577f66e74a3e4e8409feef3a5e8590be,
+    type: 3}
+  logStatCalls: 1

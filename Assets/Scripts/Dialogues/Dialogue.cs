@@ -1,11 +1,15 @@
-﻿using UnityEngine;
+﻿using ColdCry.Core;
+using ColdCry.Objects;
+using ColdCry.Utility;
+using ColdCry.Utility.Time;
+using UnityEngine;
 using UnityEngine.UI;
-using DoubleMMPrjc.Timer;
+using static ColdCry.Utility.Time.TimerManager;
 
-namespace DoubleMMPrjc
+namespace ColdCry
 {
     [System.Serializable]
-    public class Dialogue : IOnCountdownEnd
+    public class Dialogue 
     {
         public string dialogueName = "";
         public string dialogue = "";
@@ -17,7 +21,7 @@ namespace DoubleMMPrjc
         public float followSpeed = 0.45f;
 
         private Entity entity = null;
-        private long countdownID;
+        private ICountdown countdown;
         private int currentChar = 0;
         private bool hasEnded = false;
         private Text dialogueText = null;
@@ -46,11 +50,11 @@ namespace DoubleMMPrjc
         {
             dialogueText.text += dialogue[currentChar++];
             if (currentChar == dialogue.Length) {
-                TimerManager.Destroy( countdownID );
+                countdown.Destroy();
                 hasEnded = true;
             } else {
                 // ZMIENIC POTEM NA STAŁĄ PRĘDKOŚĆ
-                TimerManager.Reset( countdownID, 1 / ( 0.9f + speed / 10f ) - 1 );
+                countdown.Restart( 1 / ( 0.9f + speed / 10f ) - 1 );
             }
         }
 
@@ -71,8 +75,12 @@ namespace DoubleMMPrjc
             if (speed == 1f) {
                 PushToEnd();
             } else {
-                countdownID = TimerManager.Start( 1 / ( 0.9f + speed / 10f ) - 1, this );
+                if (countdown != null)
+                    countdown.Destroy();
+                countdown = Countdown.GetInstance( 1 / ( 0.9f + speed / 10f ) - 1,
+                                                 (overtime) => { NextChar(); } );
             }
+
             if (followObject) {
                 CameraManager.FollowTarget( entity.transform, followSpeed );
             }
@@ -85,15 +93,7 @@ namespace DoubleMMPrjc
         {
             hasEnded = true;
             dialogueText.text = ownerName + ": " + dialogue;
-            TimerManager.Destroy( countdownID );
-        }
-
-
-        public void OnCountdownEnd(long id)
-        {
-            if (id == countdownID) {
-                NextChar();
-            }
+            countdown.Destroy();
         }
 
         /// <summary>
@@ -101,7 +101,8 @@ namespace DoubleMMPrjc
         /// </summary>
         public void _Reset()
         {
-            TimerManager.Destroy( countdownID );
+            countdown.Destroy();
+            countdown = null;
             dialogueText = null;
             hasEnded = false;
             currentChar = 0;

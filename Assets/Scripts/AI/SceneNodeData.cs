@@ -1,13 +1,19 @@
 ﻿using UnityEngine;
 
-public class SceneNodeData : ScriptableObject
+namespace ColdCry.AI
 {
-    [SerializeField] private long currentId = 0;
 
-    public long GetNextId()
+
+    public class SceneNodeData : ScriptableObject
     {
-        return currentId++;
+        [SerializeField] private long currentId = 0;
+
+        public long GetNextId()
+        {
+            return currentId++;
+        }
+
+        public long CurrentId { get => currentId; }
     }
 
-    public long CurrentId { get => currentId; }
 }

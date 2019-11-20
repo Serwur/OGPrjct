@@ -1,14 +1,9 @@
-﻿namespace DoubleMMPrjc
+﻿namespace ColdCry.Utility
 {
-    namespace Utility
+    public interface IExtendedString
     {
-        public interface IExtendedString
-        {
-            string ToExtendedString();
-
-        }
+        string ToExtendedString();
     }
 
+
 }
-
-

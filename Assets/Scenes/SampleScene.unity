@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 170076734}
-  m_IndirectSpecularColor: {r: 0.44657695, g: 0.49641138, b: 0.5748176, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657755, g: 0.4964127, b: 0.57481825, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -54,7 +54,7 @@ LightmapSettings:
     m_EnableBakedLightmaps: 1
     m_EnableRealtimeLightmaps: 0
   m_LightmapEditorSettings:
-    serializedVersion: 10
+    serializedVersion: 12
     m_Resolution: 2
     m_BakeResolution: 10
     m_AtlasSize: 512
@@ -62,6 +62,7 @@ LightmapSettings:
     m_AOMaxDistance: 1
     m_CompAOExponent: 1
     m_CompAOExponentDirect: 0
+    m_ExtractAmbientOcclusion: 0
     m_Padding: 2
     m_LightmapParameters: {fileID: 0}
     m_LightmapsBakeMode: 1
@@ -76,10 +77,16 @@ LightmapSettings:
     m_PVRDirectSampleCount: 32
     m_PVRSampleCount: 256
     m_PVRBounces: 2
+    m_PVREnvironmentSampleCount: 256
+    m_PVREnvironmentReferencePointCount: 2048
+    m_PVRFilteringMode: 2
+    m_PVRDenoiserTypeDirect: 0
+    m_PVRDenoiserTypeIndirect: 0
+    m_PVRDenoiserTypeAO: 0
     m_PVRFilterTypeDirect: 0
     m_PVRFilterTypeIndirect: 0
     m_PVRFilterTypeAO: 0
-    m_PVRFilteringMode: 1
+    m_PVREnvironmentMIS: 0
     m_PVRCulling: 1
     m_PVRFilteringGaussRadiusDirect: 1
     m_PVRFilteringGaussRadiusIndirect: 5
@@ -88,6 +95,7 @@ LightmapSettings:
     m_PVRFilteringAtrousPositionSigmaIndirect: 2
     m_PVRFilteringAtrousPositionSigmaAO: 1
     m_ShowResolutionOverlay: 1
+    m_ExportTrainingData: 0
   m_LightingDataAsset: {fileID: 0}
   m_UseShadowmask: 1
 --- !u!196 &4
@@ -218,6 +226,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000,
         type: 0}
+    - target: {fileID: 4008379001124317226, guid: b1a97b8e2c35d864e8590653f8372304,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -559,7 +572,7 @@ Transform:
   - {fileID: 668542574}
   - {fileID: 1037148606}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &161302243
 PrefabInstance:
@@ -579,6 +592,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000,
         type: 0}
+    - target: {fileID: 4008379001124317226, guid: b1a97b8e2c35d864e8590653f8372304,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -677,12 +695,13 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 170076733}
   m_Enabled: 1
-  serializedVersion: 8
+  serializedVersion: 9
   m_Type: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
+  m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
   m_Shadows:
     m_Type: 2
@@ -692,6 +711,24 @@ Light:
     m_Bias: 0.05
     m_NormalBias: 0.4
     m_NearPlane: 0.2
+    m_CullingMatrixOverride:
+      e00: 1
+      e01: 0
+      e02: 0
+      e03: 0
+      e10: 0
+      e11: 1
+      e12: 0
+      e13: 0
+      e20: 0
+      e21: 0
+      e22: 1
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
+    m_UseCullingMatrixOverride: 0
   m_Cookie: {fileID: 0}
   m_DrawHalo: 0
   m_Flare: {fileID: 0}
@@ -699,12 +736,15 @@ Light:
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  m_RenderingLayerMask: 1
   m_Lightmapping: 4
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
+  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
 --- !u!4 &170076735
@@ -719,7 +759,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: 0, z: 0}
 --- !u!1 &190442801
 GameObject:
@@ -832,6 +872,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000,
         type: 0}
+    - target: {fileID: 4008379001124317226, guid: b1a97b8e2c35d864e8590653f8372304,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1095,6 +1140,7 @@ GameObject:
   - component: {fileID: 237256845}
   - component: {fileID: 237256844}
   - component: {fileID: 237256843}
+  - component: {fileID: 237256848}
   m_Layer: 10
   m_Name: NPC_ENEMY
   m_TagString: Enemy
@@ -1145,56 +1191,56 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitPoints:
-    basic: 13
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   sourcePoints:
     basic: 0
     current: 0
     max: 0
-  armor:
-    basic: 5
-    current: 0
-    max: 0
+    canExceedMax: 0
   moveSpeed:
-    basic: 9
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   jumpPower:
-    basic: 25
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   damage:
     basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
-  isInviolability: 0
+  isDamageImmune: 0
   isPaused: 0
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
+  minDamagableFallSpeed: 30
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
-  contactArea: {fileID: 0}
-  jumpSpeed:
-    basic: 0
-    current: 0
-    max: 0
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &237256845
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1253,6 +1299,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 237256841}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &237256848
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 237256841}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76cdab0fbcbf32e4aa507f3a6a6a8d3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  contactArea: {fileID: 0}
 --- !u!1 &269189213
 GameObject:
   m_ObjectHideFlags: 0
@@ -1549,6 +1608,7 @@ GameObject:
   - component: {fileID: 389829475}
   - component: {fileID: 389829474}
   - component: {fileID: 389829473}
+  - component: {fileID: 389829478}
   m_Layer: 10
   m_Name: NPC_ENEMY
   m_TagString: Enemy
@@ -1599,56 +1659,56 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitPoints:
-    basic: 12
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   sourcePoints:
     basic: 0
     current: 0
     max: 0
-  armor:
-    basic: 5
-    current: 0
-    max: 0
+    canExceedMax: 0
   moveSpeed:
-    basic: 9
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   jumpPower:
-    basic: 25
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   damage:
     basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
-  isInviolability: 0
+  isDamageImmune: 0
   isPaused: 0
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
+  minDamagableFallSpeed: 30
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
-  contactArea: {fileID: 0}
-  jumpSpeed:
-    basic: 0
-    current: 0
-    max: 0
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &389829475
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1707,6 +1767,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 389829471}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &389829478
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 389829471}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76cdab0fbcbf32e4aa507f3a6a6a8d3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  contactArea: {fileID: 0}
 --- !u!1 &407951705
 GameObject:
   m_ObjectHideFlags: 0
@@ -1803,7 +1876,7 @@ Transform:
   - {fileID: 53533089}
   - {fileID: 161302244}
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &454915860
 PrefabInstance:
@@ -1823,6 +1896,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000,
         type: 0}
+    - target: {fileID: 4008379001124317226, guid: b1a97b8e2c35d864e8590653f8372304,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -2014,102 +2092,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 33
   edges: []
---- !u!1 &534669902
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 534669905}
-  - component: {fileID: 534669904}
-  - component: {fileID: 534669903}
-  - component: {fileID: 534669906}
-  m_Layer: 0
-  m_Name: Main Camera
-  m_TagString: MainCamera
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!81 &534669903
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 534669902}
-  m_Enabled: 1
---- !u!20 &534669904
-Camera:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 534669902}
-  m_Enabled: 1
-  serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
-  m_projectionMatrixMode: 1
-  m_SensorSize: {x: 36, y: 24}
-  m_LensShift: {x: 0, y: 0}
-  m_GateFitMode: 2
-  m_FocalLength: 50
-  m_NormalizedViewPortRect:
-    serializedVersion: 2
-    x: 0
-    y: 0
-    width: 1
-    height: 1
-  near clip plane: 0.3
-  far clip plane: 1000
-  field of view: 60
-  orthographic: 1
-  orthographic size: 5
-  m_Depth: -1
-  m_CullingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_RenderingPath: -1
-  m_TargetTexture: {fileID: 0}
-  m_TargetDisplay: 0
-  m_TargetEye: 3
-  m_HDR: 1
-  m_AllowMSAA: 1
-  m_AllowDynamicResolution: 0
-  m_ForceIntoRT: 0
-  m_OcclusionCulling: 1
-  m_StereoConvergence: 10
-  m_StereoSeparation: 0.022
---- !u!4 &534669905
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 534669902}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 15.59, y: -0.73, z: -25}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &534669906
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 534669902}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 15b6d58c295496a4384692592e54b3cb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isFollowingTarget: 1
 --- !u!1 &541264099
 GameObject:
   m_ObjectHideFlags: 0
@@ -2187,6 +2169,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000,
         type: 0}
+    - target: {fileID: 4008379001124317226, guid: b1a97b8e2c35d864e8590653f8372304,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -2653,6 +2640,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000,
         type: 0}
+    - target: {fileID: 4008379001124317226, guid: b1a97b8e2c35d864e8590653f8372304,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -2921,6 +2913,7 @@ GameObject:
   - component: {fileID: 668542577}
   - component: {fileID: 668542576}
   - component: {fileID: 668542575}
+  - component: {fileID: 668542580}
   m_Layer: 10
   m_Name: NPC_ENEMY (4)
   m_TagString: Enemy
@@ -2971,56 +2964,56 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitPoints:
-    basic: 13
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   sourcePoints:
     basic: 0
     current: 0
     max: 0
-  armor:
-    basic: 5
-    current: 0
-    max: 0
+    canExceedMax: 0
   moveSpeed:
-    basic: 9
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   jumpPower:
-    basic: 25
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   damage:
     basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
-  isInviolability: 0
+  isDamageImmune: 0
   isPaused: 0
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
+  minDamagableFallSpeed: 30
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
-  contactArea: {fileID: 0}
-  jumpSpeed:
-    basic: 0
-    current: 0
-    max: 0
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &668542577
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3079,6 +3072,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 668542573}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &668542580
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 668542573}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76cdab0fbcbf32e4aa507f3a6a6a8d3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  contactArea: {fileID: 0}
 --- !u!4 &686904184 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
@@ -3344,6 +3350,7 @@ GameObject:
   - component: {fileID: 766342578}
   - component: {fileID: 766342577}
   - component: {fileID: 766342576}
+  - component: {fileID: 766342581}
   m_Layer: 10
   m_Name: NPC_ENEMY
   m_TagString: Enemy
@@ -3394,56 +3401,56 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitPoints:
-    basic: 13
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   sourcePoints:
     basic: 0
     current: 0
     max: 0
-  armor:
-    basic: 5
-    current: 0
-    max: 0
+    canExceedMax: 0
   moveSpeed:
-    basic: 9
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   jumpPower:
-    basic: 25
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   damage:
     basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
-  isInviolability: 0
+  isDamageImmune: 0
   isPaused: 0
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
+  minDamagableFallSpeed: 30
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
-  contactArea: {fileID: 0}
-  jumpSpeed:
-    basic: 0
-    current: 0
-    max: 0
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &766342578
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3502,6 +3509,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 766342574}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &766342581
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 766342574}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76cdab0fbcbf32e4aa507f3a6a6a8d3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  contactArea: {fileID: 0}
 --- !u!1 &787294472
 GameObject:
   m_ObjectHideFlags: 0
@@ -3560,6 +3580,7 @@ GameObject:
   - component: {fileID: 790311756}
   - component: {fileID: 790311755}
   - component: {fileID: 790311754}
+  - component: {fileID: 790311759}
   m_Layer: 10
   m_Name: NPC_ENEMY (1)
   m_TagString: Enemy
@@ -3610,56 +3631,56 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitPoints:
-    basic: 13
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   sourcePoints:
     basic: 0
     current: 0
     max: 0
-  armor:
-    basic: 5
-    current: 0
-    max: 0
+    canExceedMax: 0
   moveSpeed:
-    basic: 9
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   jumpPower:
-    basic: 25
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   damage:
     basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
-  isInviolability: 0
+  isDamageImmune: 0
   isPaused: 0
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
+  minDamagableFallSpeed: 30
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
-  contactArea: {fileID: 0}
-  jumpSpeed:
-    basic: 0
-    current: 0
-    max: 0
-  state: 0
-  movingState: 0
-  logStatusChange: 1
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &790311756
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3718,6 +3739,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 790311752}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &790311759
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 790311752}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76cdab0fbcbf32e4aa507f3a6a6a8d3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  contactArea: {fileID: 0}
 --- !u!1 &796574463
 GameObject:
   m_ObjectHideFlags: 0
@@ -3957,6 +3991,7 @@ GameObject:
   - component: {fileID: 840994754}
   - component: {fileID: 840994753}
   - component: {fileID: 840994752}
+  - component: {fileID: 840994757}
   m_Layer: 10
   m_Name: NPC_ENEMY (3)
   m_TagString: Enemy
@@ -4007,56 +4042,56 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitPoints:
-    basic: 13
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   sourcePoints:
     basic: 0
     current: 0
     max: 0
-  armor:
-    basic: 5
-    current: 0
-    max: 0
+    canExceedMax: 0
   moveSpeed:
-    basic: 9
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   jumpPower:
-    basic: 25
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   damage:
     basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
-  isInviolability: 0
+  isDamageImmune: 0
   isPaused: 0
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
+  minDamagableFallSpeed: 30
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
-  contactArea: {fileID: 0}
-  jumpSpeed:
-    basic: 0
-    current: 0
-    max: 0
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &840994754
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4115,6 +4150,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 840994750}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &840994757
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 840994750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76cdab0fbcbf32e4aa507f3a6a6a8d3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  contactArea: {fileID: 0}
 --- !u!1 &845873025
 GameObject:
   m_ObjectHideFlags: 0
@@ -4294,6 +4342,221 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &866961337
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 866961345}
+  - component: {fileID: 866961344}
+  - component: {fileID: 866961343}
+  - component: {fileID: 866961342}
+  - component: {fileID: 866961341}
+  - component: {fileID: 866961340}
+  - component: {fileID: 866961339}
+  - component: {fileID: 866961338}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!65 &866961338
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 866961337}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.2, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!33 &866961339
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 866961337}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!23 &866961340
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 866961337}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+--- !u!114 &866961341
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 866961337}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d06fb6b445ebf41458f32e61efb91d19, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  waitForTargetWhenNotInCA: 0
+  keepOldTargetIfNotFound: 0
+  distForNextNode: 0.45
+  distToStopFollow: 0.33
+  nrn_timeToUnstuck: 1.3
+  nrn_distanceToUnstuck: 0.4
+  refindWhenNotFound: 1
+  refindWhenTargetNotInCA: 1
+  refindWhenOwnerNotInCA: 1
+  pathRefindRepeats: 10
+  pathRefindInterval: 0.75
+  movementState: 0
+  logger:
+    logging: 1
+  drawGizmos: 1
+  testingMode: 1
+--- !u!114 &866961342
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 866961337}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af8c2ff46acb54d44bf645913942f274, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hitPoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  sourcePoints:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  moveSpeed:
+    basic: 15
+    current: 0
+    max: 0
+    canExceedMax: 0
+  jumpPower:
+    basic: 22
+    current: 0
+    max: 0
+    canExceedMax: 0
+  damage:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
+  regenHitPoints: 0
+  regenSourcePoints: 0
+  isDead: 0
+  canMove: 1
+  isDamageImmune: 1
+  isPaused: 0
+  isBlocking: 0
+  isPushImmune: 0
+  isFallDamagable: 1
+  isInAir: 0
+  minDamagableFallSpeed: 30
+  dialogueLists: []
+  groundLayers:
+    serializedVersion: 2
+    m_Bits: 512
+  anotherCollider: 0
+  colliderChild: 
+  startPosition: {x: 0, y: 0, z: 0}
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
+--- !u!114 &866961343
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 866961337}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76cdab0fbcbf32e4aa507f3a6a6a8d3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  contactArea: {fileID: 0}
+--- !u!54 &866961344
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 866961337}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!4 &866961345
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 866961337}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3, y: 5.54, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 10
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &871472604
 GameObject:
   m_ObjectHideFlags: 0
@@ -4523,6 +4786,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000,
         type: 0}
+    - target: {fileID: 4008379001124317226, guid: b1a97b8e2c35d864e8590653f8372304,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -4850,6 +5118,7 @@ GameObject:
   - component: {fileID: 980447538}
   - component: {fileID: 980447537}
   - component: {fileID: 980447536}
+  - component: {fileID: 980447541}
   m_Layer: 10
   m_Name: NPC_ENEMY
   m_TagString: Enemy
@@ -4900,56 +5169,56 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitPoints:
-    basic: 13
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   sourcePoints:
     basic: 0
     current: 0
     max: 0
-  armor:
-    basic: 5
-    current: 0
-    max: 0
+    canExceedMax: 0
   moveSpeed:
-    basic: 9
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   jumpPower:
-    basic: 25
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   damage:
     basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
-  isInviolability: 0
+  isDamageImmune: 0
   isPaused: 0
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
+  minDamagableFallSpeed: 30
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
-  contactArea: {fileID: 0}
-  jumpSpeed:
-    basic: 0
-    current: 0
-    max: 0
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &980447538
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5008,6 +5277,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 980447534}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &980447541
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 980447534}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76cdab0fbcbf32e4aa507f3a6a6a8d3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  contactArea: {fileID: 0}
 --- !u!1001 &981611437
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5026,6 +5308,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000,
         type: 0}
+    - target: {fileID: 4008379001124317226, guid: b1a97b8e2c35d864e8590653f8372304,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -5161,6 +5448,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000,
         type: 0}
+    - target: {fileID: 4008379001124317226, guid: b1a97b8e2c35d864e8590653f8372304,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -5252,6 +5544,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000,
         type: 0}
+    - target: {fileID: 4008379001124317226, guid: b1a97b8e2c35d864e8590653f8372304,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -5508,6 +5805,7 @@ GameObject:
   - component: {fileID: 1037148609}
   - component: {fileID: 1037148608}
   - component: {fileID: 1037148607}
+  - component: {fileID: 1037148612}
   m_Layer: 10
   m_Name: NPC_ENEMY (5)
   m_TagString: Enemy
@@ -5558,56 +5856,56 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitPoints:
-    basic: 13
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   sourcePoints:
     basic: 0
     current: 0
     max: 0
-  armor:
-    basic: 5
-    current: 0
-    max: 0
+    canExceedMax: 0
   moveSpeed:
-    basic: 9
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   jumpPower:
-    basic: 25
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   damage:
     basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
-  isInviolability: 0
+  isDamageImmune: 0
   isPaused: 0
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
+  minDamagableFallSpeed: 30
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
-  contactArea: {fileID: 0}
-  jumpSpeed:
-    basic: 0
-    current: 0
-    max: 0
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &1037148609
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5666,6 +5964,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1037148605}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1037148612
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1037148605}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76cdab0fbcbf32e4aa507f3a6a6a8d3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  contactArea: {fileID: 0}
 --- !u!1 &1091532689
 GameObject:
   m_ObjectHideFlags: 0
@@ -5678,8 +5989,10 @@ GameObject:
   - component: {fileID: 1091532695}
   - component: {fileID: 1091532694}
   - component: {fileID: 1091532693}
+  - component: {fileID: 1091532697}
   - component: {fileID: 1091532692}
   - component: {fileID: 1091532691}
+  - component: {fileID: 1091532696}
   m_Layer: 10
   m_Name: NPC_ENEMY
   m_TagString: Enemy
@@ -5730,56 +6043,56 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitPoints:
-    basic: 13
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   sourcePoints:
     basic: 0
     current: 0
     max: 0
-  armor:
-    basic: 5
-    current: 0
-    max: 0
+    canExceedMax: 0
   moveSpeed:
-    basic: 9
-    current: 0
-    max: 0
+    basic: 8
+    current: 8
+    max: 8
+    canExceedMax: 0
   jumpPower:
     basic: 25
-    current: 0
-    max: 0
+    current: 25
+    max: 25
+    canExceedMax: 0
   damage:
     basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 12
+    current: 12
+    max: 12
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
-  isInviolability: 0
+  isDamageImmune: 1
   isPaused: 0
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
+  minDamagableFallSpeed: 30
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
-  contactArea: {fileID: 0}
-  jumpSpeed:
-    basic: 0
-    current: 0
-    max: 0
-  state: 0
-  movingState: 0
-  logStatusChange: 1
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &1091532693
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5838,6 +6151,47 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1091532689}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1091532696
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1091532689}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76cdab0fbcbf32e4aa507f3a6a6a8d3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  contactArea: {fileID: 0}
+--- !u!114 &1091532697
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1091532689}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d06fb6b445ebf41458f32e61efb91d19, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  waitForTargetWhenNotInCA: 1
+  keepOldTargetIfNotFound: 0
+  distForNextNode: 0.5
+  distToStopFollow: 0.5
+  nrn_timeToUnstuck: 1.3
+  nrn_distanceToUnstuck: 0.4
+  refindWhenNotFound: 1
+  refindWhenTargetNotInCA: 1
+  refindWhenOwnerNotInCA: 1
+  pathRefindRepeats: 10
+  pathRefindInterval: 0.75
+  movementState: 0
+  logger:
+    logging: 1
+  drawGizmos: 1
+  testingMode: 1
 --- !u!1 &1128911717
 GameObject:
   m_ObjectHideFlags: 0
@@ -6042,6 +6396,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000,
         type: 0}
+    - target: {fileID: 4008379001124317226, guid: b1a97b8e2c35d864e8590653f8372304,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -6718,6 +7077,7 @@ GameObject:
   - component: {fileID: 1226763771}
   - component: {fileID: 1226763770}
   - component: {fileID: 1226763769}
+  - component: {fileID: 1226763774}
   m_Layer: 10
   m_Name: NPC_ENEMY
   m_TagString: Enemy
@@ -6768,56 +7128,56 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitPoints:
-    basic: 13
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   sourcePoints:
     basic: 0
     current: 0
     max: 0
-  armor:
-    basic: 5
-    current: 0
-    max: 0
+    canExceedMax: 0
   moveSpeed:
-    basic: 9
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   jumpPower:
-    basic: 25
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   damage:
     basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
-  isInviolability: 0
+  isDamageImmune: 0
   isPaused: 0
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
+  minDamagableFallSpeed: 30
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
-  contactArea: {fileID: 0}
-  jumpSpeed:
-    basic: 0
-    current: 0
-    max: 0
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &1226763771
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6876,6 +7236,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1226763767}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1226763774
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1226763767}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76cdab0fbcbf32e4aa507f3a6a6a8d3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  contactArea: {fileID: 0}
 --- !u!1 &1232624957
 GameObject:
   m_ObjectHideFlags: 0
@@ -7056,6 +7429,104 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &1253162280
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1253162283}
+  - component: {fileID: 1253162282}
+  - component: {fileID: 1253162281}
+  - component: {fileID: 1253162284}
+  m_Layer: 0
+  m_Name: Camera
+  m_TagString: MainCamera
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!81 &1253162281
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1253162280}
+  m_Enabled: 1
+--- !u!20 &1253162282
+Camera:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1253162280}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_ClearFlags: 1
+  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_projectionMatrixMode: 1
+  m_GateFitMode: 2
+  m_FOVAxisMode: 0
+  m_SensorSize: {x: 36, y: 24}
+  m_LensShift: {x: 0, y: 0}
+  m_FocalLength: 50
+  m_NormalizedViewPortRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
+  near clip plane: 0.3
+  far clip plane: 1000
+  field of view: 45
+  orthographic: 1
+  orthographic size: 8.5
+  m_Depth: 0
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RenderingPath: -1
+  m_TargetTexture: {fileID: 0}
+  m_TargetDisplay: 0
+  m_TargetEye: 3
+  m_HDR: 1
+  m_AllowMSAA: 1
+  m_AllowDynamicResolution: 0
+  m_ForceIntoRT: 0
+  m_OcclusionCulling: 1
+  m_StereoConvergence: 10
+  m_StereoSeparation: 0.022
+--- !u!4 &1253162283
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1253162280}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -20}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1253162284
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1253162280}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15b6d58c295496a4384692592e54b3cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isFollowingTarget: 1
+  mouseControl: 0
 --- !u!1 &1259821226
 GameObject:
   m_ObjectHideFlags: 0
@@ -7432,27 +7903,8 @@ Transform:
   - {fileID: 1573625005}
   - {fileID: 2038290662}
   m_Father: {fileID: 0}
-  m_RootOrder: 9
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1292397456 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5464372047202170794, guid: ff65f7d603e277d4cbf835f790dccc72,
-    type: 3}
-  m_PrefabInstance: {fileID: 5464372047085463094}
-  m_PrefabAsset: {fileID: 0}
---- !u!65 &1292397459
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1292397456}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.9999998, y: 2.2132838, z: 11.427207}
-  m_Center: {x: 0.018532794, y: 0.106677994, z: 1.6413668}
 --- !u!1001 &1295336130
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7471,6 +7923,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000,
         type: 0}
+    - target: {fileID: 4008379001124317226, guid: b1a97b8e2c35d864e8590653f8372304,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -7557,6 +8014,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000,
         type: 0}
+    - target: {fileID: 4008379001124317226, guid: b1a97b8e2c35d864e8590653f8372304,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -7879,6 +8341,7 @@ GameObject:
   - component: {fileID: 1368282724}
   - component: {fileID: 1368282723}
   - component: {fileID: 1368282722}
+  - component: {fileID: 1368282727}
   m_Layer: 10
   m_Name: NPC_ENEMY
   m_TagString: Enemy
@@ -7929,56 +8392,56 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitPoints:
-    basic: 13
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   sourcePoints:
     basic: 0
     current: 0
     max: 0
-  armor:
-    basic: 5
-    current: 0
-    max: 0
+    canExceedMax: 0
   moveSpeed:
-    basic: 9
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   jumpPower:
-    basic: 25
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   damage:
     basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
-  isInviolability: 0
+  isDamageImmune: 0
   isPaused: 0
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
+  minDamagableFallSpeed: 30
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
-  contactArea: {fileID: 0}
-  jumpSpeed:
-    basic: 0
-    current: 0
-    max: 0
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &1368282724
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -8037,6 +8500,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1368282720}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1368282727
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1368282720}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76cdab0fbcbf32e4aa507f3a6a6a8d3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  contactArea: {fileID: 0}
 --- !u!1 &1388531575
 GameObject:
   m_ObjectHideFlags: 0
@@ -8158,6 +8634,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000,
         type: 0}
+    - target: {fileID: 4008379001124317226, guid: b1a97b8e2c35d864e8590653f8372304,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -8244,6 +8725,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000,
         type: 0}
+    - target: {fileID: 4008379001124317226, guid: b1a97b8e2c35d864e8590653f8372304,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -8302,7 +8788,7 @@ PrefabInstance:
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 6.384265
+      value: 6.703478
       objectReference: {fileID: 0}
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
@@ -8492,6 +8978,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000,
         type: 0}
+    - target: {fileID: 4008379001124317226, guid: b1a97b8e2c35d864e8590653f8372304,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -8923,6 +9414,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000,
         type: 0}
+    - target: {fileID: 4008379001124317226, guid: b1a97b8e2c35d864e8590653f8372304,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -9024,6 +9520,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000,
         type: 0}
+    - target: {fileID: 4008379001124317226, guid: b1a97b8e2c35d864e8590653f8372304,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -9106,6 +9607,7 @@ GameObject:
   - component: {fileID: 1568389164}
   - component: {fileID: 1568389163}
   - component: {fileID: 1568389162}
+  - component: {fileID: 1568389167}
   m_Layer: 10
   m_Name: NPC_ENEMY
   m_TagString: Enemy
@@ -9156,56 +9658,56 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitPoints:
-    basic: 13
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   sourcePoints:
     basic: 0
     current: 0
     max: 0
-  armor:
-    basic: 5
-    current: 0
-    max: 0
+    canExceedMax: 0
   moveSpeed:
-    basic: 9
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   jumpPower:
-    basic: 25
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   damage:
     basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
-  isInviolability: 0
+  isDamageImmune: 0
   isPaused: 0
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
+  minDamagableFallSpeed: 30
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
-  contactArea: {fileID: 0}
-  jumpSpeed:
-    basic: 0
-    current: 0
-    max: 0
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &1568389164
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -9264,6 +9766,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1568389160}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1568389167
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1568389160}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76cdab0fbcbf32e4aa507f3a6a6a8d3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  contactArea: {fileID: 0}
 --- !u!1 &1572803237
 GameObject:
   m_ObjectHideFlags: 0
@@ -9381,6 +9896,7 @@ GameObject:
   - component: {fileID: 1582667454}
   - component: {fileID: 1582667453}
   - component: {fileID: 1582667452}
+  - component: {fileID: 1582667457}
   m_Layer: 10
   m_Name: NPC_ENEMY
   m_TagString: Enemy
@@ -9431,56 +9947,56 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitPoints:
-    basic: 13
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   sourcePoints:
     basic: 0
     current: 0
     max: 0
-  armor:
-    basic: 5
-    current: 0
-    max: 0
+    canExceedMax: 0
   moveSpeed:
-    basic: 9
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   jumpPower:
-    basic: 25
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   damage:
     basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
-  isInviolability: 0
+  isDamageImmune: 0
   isPaused: 0
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
+  minDamagableFallSpeed: 30
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
-  contactArea: {fileID: 0}
-  jumpSpeed:
-    basic: 0
-    current: 0
-    max: 0
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &1582667454
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -9539,6 +10055,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1582667450}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1582667457
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1582667450}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76cdab0fbcbf32e4aa507f3a6a6a8d3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  contactArea: {fileID: 0}
 --- !u!1 &1590233191
 GameObject:
   m_ObjectHideFlags: 0
@@ -9553,6 +10082,7 @@ GameObject:
   - component: {fileID: 1590233195}
   - component: {fileID: 1590233194}
   - component: {fileID: 1590233193}
+  - component: {fileID: 1590233198}
   m_Layer: 10
   m_Name: NPC_ENEMY
   m_TagString: Enemy
@@ -9603,56 +10133,56 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitPoints:
-    basic: 13
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   sourcePoints:
     basic: 0
     current: 0
     max: 0
-  armor:
-    basic: 5
-    current: 0
-    max: 0
+    canExceedMax: 0
   moveSpeed:
-    basic: 9
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   jumpPower:
-    basic: 25
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   damage:
     basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
-  isInviolability: 0
+  isDamageImmune: 0
   isPaused: 0
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
+  minDamagableFallSpeed: 30
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
-  contactArea: {fileID: 0}
-  jumpSpeed:
-    basic: 0
-    current: 0
-    max: 0
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &1590233195
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -9711,6 +10241,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1590233191}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1590233198
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1590233191}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76cdab0fbcbf32e4aa507f3a6a6a8d3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  contactArea: {fileID: 0}
 --- !u!1 &1591277226
 GameObject:
   m_ObjectHideFlags: 0
@@ -9773,6 +10316,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000,
         type: 0}
+    - target: {fileID: 4008379001124317226, guid: b1a97b8e2c35d864e8590653f8372304,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -10148,6 +10696,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000,
         type: 0}
+    - target: {fileID: 4008379001124317226, guid: b1a97b8e2c35d864e8590653f8372304,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -10280,25 +10833,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 22
   edges: []
---- !u!1 &1701435578 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5464372047447310923, guid: ff65f7d603e277d4cbf835f790dccc72,
-    type: 3}
-  m_PrefabInstance: {fileID: 5464372047085463094}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1701435585
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1701435578}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca08f71fb1efd60438a40a790bb12efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  timeOfLerp: 0
 --- !u!1 &1723552710
 GameObject:
   m_ObjectHideFlags: 0
@@ -10717,6 +11251,90 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1794885768}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1001 &1825062384
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 5464372047447310923, guid: ff65f7d603e277d4cbf835f790dccc72,
+        type: 3}
+      propertyPath: m_Name
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 5464372047447310923, guid: ff65f7d603e277d4cbf835f790dccc72,
+        type: 3}
+      propertyPath: m_TagString
+      value: Untagged
+      objectReference: {fileID: 0}
+    - target: {fileID: 5464372047447310920, guid: ff65f7d603e277d4cbf835f790dccc72,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5464372047447310920, guid: ff65f7d603e277d4cbf835f790dccc72,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5464372047447310920, guid: ff65f7d603e277d4cbf835f790dccc72,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5464372047447310920, guid: ff65f7d603e277d4cbf835f790dccc72,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5464372047447310920, guid: ff65f7d603e277d4cbf835f790dccc72,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5464372047447310920, guid: ff65f7d603e277d4cbf835f790dccc72,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5464372047447310920, guid: ff65f7d603e277d4cbf835f790dccc72,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5464372047447310920, guid: ff65f7d603e277d4cbf835f790dccc72,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 5464372047447310920, guid: ff65f7d603e277d4cbf835f790dccc72,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5464372047447310920, guid: ff65f7d603e277d4cbf835f790dccc72,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5464372047447310920, guid: ff65f7d603e277d4cbf835f790dccc72,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5464372047447311031, guid: ff65f7d603e277d4cbf835f790dccc72,
+        type: 3}
+      propertyPath: jumpPower.basic
+      value: 21
+      objectReference: {fileID: 0}
+    - target: {fileID: 1701435585, guid: ff65f7d603e277d4cbf835f790dccc72, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 1701435585, guid: ff65f7d603e277d4cbf835f790dccc72, type: 3}
+  m_SourcePrefab: {fileID: 100100000, guid: ff65f7d603e277d4cbf835f790dccc72, type: 3}
 --- !u!1 &1827651316
 GameObject:
   m_ObjectHideFlags: 0
@@ -10863,6 +11481,7 @@ GameObject:
   - component: {fileID: 1849537560}
   - component: {fileID: 1849537559}
   - component: {fileID: 1849537558}
+  - component: {fileID: 1849537563}
   m_Layer: 10
   m_Name: NPC_ENEMY
   m_TagString: Enemy
@@ -10913,56 +11532,56 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitPoints:
-    basic: 13
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   sourcePoints:
     basic: 0
     current: 0
     max: 0
-  armor:
-    basic: 5
-    current: 0
-    max: 0
+    canExceedMax: 0
   moveSpeed:
-    basic: 9
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   jumpPower:
-    basic: 25
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   damage:
     basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
-  isInviolability: 0
+  isDamageImmune: 0
   isPaused: 0
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
+  minDamagableFallSpeed: 30
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
-  contactArea: {fileID: 0}
-  jumpSpeed:
-    basic: 0
-    current: 0
-    max: 0
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &1849537560
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -11021,6 +11640,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1849537556}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1849537563
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1849537556}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76cdab0fbcbf32e4aa507f3a6a6a8d3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  contactArea: {fileID: 0}
 --- !u!1 &1870031591
 GameObject:
   m_ObjectHideFlags: 0
@@ -11094,6 +11726,7 @@ GameObject:
   - component: {fileID: 1886493621}
   - component: {fileID: 1886493620}
   - component: {fileID: 1886493619}
+  - component: {fileID: 1886493624}
   m_Layer: 10
   m_Name: NPC_ENEMY
   m_TagString: Enemy
@@ -11144,56 +11777,56 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitPoints:
-    basic: 13
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   sourcePoints:
     basic: 0
     current: 0
     max: 0
-  armor:
-    basic: 5
-    current: 0
-    max: 0
+    canExceedMax: 0
   moveSpeed:
-    basic: 9
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   jumpPower:
-    basic: 25
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   damage:
     basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
-  isInviolability: 0
+  isDamageImmune: 0
   isPaused: 0
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
+  minDamagableFallSpeed: 30
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
-  contactArea: {fileID: 0}
-  jumpSpeed:
-    basic: 0
-    current: 0
-    max: 0
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &1886493621
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -11252,6 +11885,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1886493617}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1886493624
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1886493617}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76cdab0fbcbf32e4aa507f3a6a6a8d3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  contactArea: {fileID: 0}
 --- !u!1 &1887526987
 GameObject:
   m_ObjectHideFlags: 0
@@ -11310,6 +11956,7 @@ GameObject:
   - component: {fileID: 1915000149}
   - component: {fileID: 1915000148}
   - component: {fileID: 1915000147}
+  - component: {fileID: 1915000152}
   m_Layer: 10
   m_Name: NPC_ENEMY
   m_TagString: Enemy
@@ -11360,56 +12007,56 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitPoints:
-    basic: 12
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   sourcePoints:
     basic: 0
     current: 0
     max: 0
-  armor:
-    basic: 5
-    current: 0
-    max: 0
+    canExceedMax: 0
   moveSpeed:
-    basic: 9
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   jumpPower:
-    basic: 25
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   damage:
     basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
-  isInviolability: 0
+  isDamageImmune: 0
   isPaused: 0
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
+  minDamagableFallSpeed: 30
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
-  contactArea: {fileID: 0}
-  jumpSpeed:
-    basic: 0
-    current: 0
-    max: 0
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &1915000149
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -11468,6 +12115,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1915000145}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1915000152
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1915000145}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76cdab0fbcbf32e4aa507f3a6a6a8d3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  contactArea: {fileID: 0}
 --- !u!1 &1916996267
 GameObject:
   m_ObjectHideFlags: 0
@@ -11589,6 +12249,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000,
         type: 0}
+    - target: {fileID: 4008379001124317226, guid: b1a97b8e2c35d864e8590653f8372304,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -11676,6 +12341,7 @@ GameObject:
   - component: {fileID: 1958992140}
   - component: {fileID: 1958992139}
   - component: {fileID: 1958992138}
+  - component: {fileID: 1958992143}
   m_Layer: 10
   m_Name: NPC_ENEMY
   m_TagString: Enemy
@@ -11726,56 +12392,56 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitPoints:
-    basic: 13
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   sourcePoints:
     basic: 0
     current: 0
     max: 0
-  armor:
-    basic: 5
-    current: 0
-    max: 0
+    canExceedMax: 0
   moveSpeed:
-    basic: 9
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   jumpPower:
-    basic: 25
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   damage:
     basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
-  isInviolability: 0
+  isDamageImmune: 0
   isPaused: 0
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
+  minDamagableFallSpeed: 30
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
-  contactArea: {fileID: 0}
-  jumpSpeed:
-    basic: 0
-    current: 0
-    max: 0
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &1958992140
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -11834,6 +12500,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1958992136}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1958992143
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1958992136}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76cdab0fbcbf32e4aa507f3a6a6a8d3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  contactArea: {fileID: 0}
 --- !u!1001 &2035087732
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11852,6 +12531,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000,
         type: 0}
+    - target: {fileID: 4008379001124317226, guid: b1a97b8e2c35d864e8590653f8372304,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -12033,7 +12717,7 @@ Transform:
   - {fileID: 558525381}
   - {fileID: 1128911718}
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2051231695
 GameObject:
@@ -12142,6 +12826,7 @@ GameObject:
   - component: {fileID: 2064548827}
   - component: {fileID: 2064548826}
   - component: {fileID: 2064548825}
+  - component: {fileID: 2064548830}
   m_Layer: 10
   m_Name: NPC_ENEMY (2)
   m_TagString: Enemy
@@ -12192,56 +12877,56 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitPoints:
-    basic: 13
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   sourcePoints:
     basic: 0
     current: 0
     max: 0
-  armor:
-    basic: 5
-    current: 0
-    max: 0
+    canExceedMax: 0
   moveSpeed:
-    basic: 9
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   jumpPower:
-    basic: 25
+    basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
   damage:
     basic: 0
     current: 0
     max: 0
+    canExceedMax: 0
+  flySpeed:
+    basic: 0
+    current: 0
+    max: 0
+    canExceedMax: 0
   regenHitPoints: 0
   regenSourcePoints: 0
-  damageTakenMult: 1
-  fallDamageMult: 1
   isDead: 0
   canMove: 1
-  isInviolability: 0
+  isDamageImmune: 0
   isPaused: 0
   isBlocking: 0
   isPushImmune: 0
   isFallDamagable: 1
+  isInAir: 0
+  minDamagableFallSpeed: 30
   dialogueLists: []
   groundLayers:
     serializedVersion: 2
     m_Bits: 512
-  pathRefindTimer: 0.6
   anotherCollider: 0
   colliderChild: 
   startPosition: {x: 0, y: 0, z: 0}
-  contactArea: {fileID: 0}
-  jumpSpeed:
-    basic: 0
-    current: 0
-    max: 0
-  state: 0
-  movingState: 0
-  logStatusChange: 0
+  lookDirection: {x: 1, y: 0}
+  lastMinFallSpeed: 3.4028235e+38
+  movementStatus: 0
 --- !u!65 &2064548827
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -12300,6 +12985,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2064548823}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &2064548830
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2064548823}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76cdab0fbcbf32e4aa507f3a6a6a8d3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  contactArea: {fileID: 0}
 --- !u!1 &2067719697
 GameObject:
   m_ObjectHideFlags: 0
@@ -12403,36 +13101,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!1 &2101302339
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2101302340}
-  m_Layer: 0
-  m_Name: Enemies
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2101302340
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2101302339}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7.0461745, y: 8.272952, z: -2.2834916}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 21
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2111194612
 GameObject:
   m_ObjectHideFlags: 0
@@ -12594,6 +13262,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000,
         type: 0}
+    - target: {fileID: 4008379001124317226, guid: b1a97b8e2c35d864e8590653f8372304,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -12738,109 +13411,12 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5342029441726724994, guid: 286b266f65aa0b342b6fa3ca1f8c2d4a,
-        type: 3}
-      propertyPath: drawEnemyRange
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5342029441726724994, guid: 286b266f65aa0b342b6fa3ca1f8c2d4a,
-        type: 3}
-      propertyPath: drawAIDestination
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5342029441726724994, guid: 286b266f65aa0b342b6fa3ca1f8c2d4a,
-        type: 3}
-      propertyPath: drawNodeConnections
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1652563428329008102, guid: 286b266f65aa0b342b6fa3ca1f8c2d4a,
-        type: 3}
-      propertyPath: dummyAsset
-      value: 
-      objectReference: {fileID: 6385979166743037539, guid: 3493584b3a0b90f47b303eac5c35411e,
-        type: 3}
-    - target: {fileID: 1652563428329008102, guid: 286b266f65aa0b342b6fa3ca1f8c2d4a,
-        type: 3}
-      propertyPath: logStatCalls
+    - target: {fileID: 534867184, guid: 286b266f65aa0b342b6fa3ca1f8c2d4a, type: 3}
+      propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 286b266f65aa0b342b6fa3ca1f8c2d4a, type: 3}
---- !u!1001 &5464372047085463094
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 5464372047447310923, guid: ff65f7d603e277d4cbf835f790dccc72,
-        type: 3}
-      propertyPath: m_Name
-      value: Player
-      objectReference: {fileID: 0}
-    - target: {fileID: 5464372047447310920, guid: ff65f7d603e277d4cbf835f790dccc72,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 15.41
-      objectReference: {fileID: 0}
-    - target: {fileID: 5464372047447310920, guid: ff65f7d603e277d4cbf835f790dccc72,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -0.65
-      objectReference: {fileID: 0}
-    - target: {fileID: 5464372047447310920, guid: ff65f7d603e277d4cbf835f790dccc72,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5464372047447310920, guid: ff65f7d603e277d4cbf835f790dccc72,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5464372047447310920, guid: ff65f7d603e277d4cbf835f790dccc72,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5464372047447310920, guid: ff65f7d603e277d4cbf835f790dccc72,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5464372047447310920, guid: ff65f7d603e277d4cbf835f790dccc72,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5464372047447310920, guid: ff65f7d603e277d4cbf835f790dccc72,
-        type: 3}
-      propertyPath: m_RootOrder
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 5464372047447310920, guid: ff65f7d603e277d4cbf835f790dccc72,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5464372047447310920, guid: ff65f7d603e277d4cbf835f790dccc72,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5464372047447310920, guid: ff65f7d603e277d4cbf835f790dccc72,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5464372047447311031, guid: ff65f7d603e277d4cbf835f790dccc72,
-        type: 3}
-      propertyPath: jumpPower.basic
-      value: 19.5
-      objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 5464372047202170792, guid: ff65f7d603e277d4cbf835f790dccc72, type: 3}
-  m_SourcePrefab: {fileID: 100100000, guid: ff65f7d603e277d4cbf835f790dccc72, type: 3}
 --- !u!1001 &5924441121314341198
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12859,6 +13435,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000,
         type: 0}
+    - target: {fileID: 4008379001124317226, guid: b1a97b8e2c35d864e8590653f8372304,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -12917,7 +13498,7 @@ PrefabInstance:
     - target: {fileID: 4008379001124317221, guid: b1a97b8e2c35d864e8590653f8372304,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.89625
+      value: 2.0629306
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b1a97b8e2c35d864e8590653f8372304, type: 3}

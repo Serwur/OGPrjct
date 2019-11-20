@@ -1,14 +1,19 @@
 ﻿using UnityEngine;
 
-namespace DoubleMMPrjc
+namespace ColdCry.Core
 {
     public class CameraManager : MonoBehaviour
     {
         public bool isFollowingTarget = true;
 
+
         private Transform targetToFollow;
         private bool slowTargetChange = false;
         private float speedTargetChange = 0f;
+
+        #region DevSection
+        public bool mouseControl = false;
+        #endregion
 
         private static CameraManager Instance;
         private static readonly Vector3 OFFSET_Z = new Vector3( 0f, 0f, -20f );
@@ -22,14 +27,15 @@ namespace DoubleMMPrjc
             Instance = this;
         }
 
-        public void Start()
-        {
-            targetToFollow = GameManager.Character.transform;
-        }
-
         public void Update()
         {
-            if (isFollowingTarget) {
+            if (mouseControl) {
+                if (Input.GetKey( KeyCode.Mouse2 )) {
+                    Vector3 mousePos = Camera.main.ScreenToWorldPoint( Input.mousePosition );
+                    Vector2 deltaMove = mousePos - Camera.main.transform.position;
+                    Camera.main.transform.position = Camera.main.transform.position + new Vector3( deltaMove.x, deltaMove.y ) * 0.2f;
+                }
+            } else if (isFollowingTarget) {
                 transform.position = targetToFollow.position + OFFSET_Z;
             } else if (slowTargetChange) {
                 transform.position = Vector3.LerpUnclamped( transform.position, targetToFollow.position + OFFSET_Z, speedTargetChange * Time.deltaTime );
@@ -40,14 +46,19 @@ namespace DoubleMMPrjc
             }
         }
 
+        public static bool Exists()
+        {
+            return Instance != null;
+        }
+
         public static void FollowPlayer()
         {
-            FollowTarget( GameManager.Character.transform );
+            FollowTarget( GameManager.Player.transform );
         }
 
         public static void FollowPlayer(float speedTargetChange)
         {
-            FollowTarget( GameManager.Character.transform, speedTargetChange );
+            FollowTarget( GameManager.Player.transform, speedTargetChange );
         }
 
         public static void FollowTarget(Transform transform)

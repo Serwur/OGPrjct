@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace DoubleMMPrjc
+namespace ColdCry.Editors
 {
     public class DialogueEditor : EditorWindow
     {

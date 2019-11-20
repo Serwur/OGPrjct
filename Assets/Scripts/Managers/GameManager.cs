@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using ColdCry.Exception;
+using ColdCry.Objects;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -6,14 +8,14 @@ using UnityEngine;
 /// znajdujących się na poziomie. Powinna ona posiadać metody ułatwiające komunikację z graczami, a obiektami</br>
 /// na których mogą wykonywać interakcje.
 /// </summary>
-namespace DoubleMMPrjc
+namespace ColdCry.Core
 {
     public class GameManager : MonoBehaviour
     {
         private static GameManager Instance;
 
         private LinkedList<Entity> entities = new LinkedList<Entity>();
-        private Character character;
+        private Character player;
 
         [SerializeField] private bool drawEnemyRange = true;
         [SerializeField] private bool drawAIDestination = true;
@@ -28,6 +30,25 @@ namespace DoubleMMPrjc
             Instance = this;
         }
 
+        private void Start()
+        {
+            Character [] players = GameObject.FindObjectsOfType<Character>();
+            
+            if ( players.Length == 0) {
+                throw new MissingEssentialGameObjectException( "Missing game object of type Character on current scene" );
+            } 
+
+            if ( players.Length > 1) {
+                throw new MissingEssentialGameObjectException("Current state of program doesn't allow these amount of players on scene: " + players.Length);
+            }
+
+            player = players[0];
+
+            if ( CameraManager.Exists() ) {
+                CameraManager.FollowPlayer();
+            }
+        }
+
         /// <summary>
         /// Adds an entity to the list. It should be called whenever a new entity is created on scene.
         /// </summary>
@@ -35,9 +56,6 @@ namespace DoubleMMPrjc
         public static void AddEntity(Entity entity)
         {
             Instance.entities.AddLast( entity );
-            if (entity.GetType() == typeof( Character )) {
-                Instance.character = (Character) entity;
-            }
         }
 
         /// <summary>
@@ -95,7 +113,7 @@ namespace DoubleMMPrjc
             return entities;
         }
 
-        public static Character Character { get => Instance.character; }
+        public static Character Player { get => Instance.player; }
         public static bool DrawEnemyRange { get => Instance != null && Instance.drawEnemyRange; }
         public static bool DrawAIDestination { get => Instance != null && Instance.drawAIDestination; }
         public static bool DrawNodeConnections { get => Instance != null && Instance.drawNodeConnections; }

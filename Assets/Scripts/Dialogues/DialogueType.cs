@@ -1,5 +1,5 @@
 ﻿
-namespace DoubleMMPrjc
+namespace ColdCry
 {
     public enum DialogueType
     {

@@ -1,11 +1,12 @@
-﻿using System.Collections;
+﻿using ColdCry.AI;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 /*using UnityEngine.VFX;                                                                /////////////VFX\\\\\\\\\\\\\\
 using UnityEditor.Experimental.Rendering.HDPipeline;
 using UnityEditor.VFX; */
 
-namespace DoubleMMPrjc
+namespace ColdCry
 {
     public class MainSkill : MonoBehaviour
     {

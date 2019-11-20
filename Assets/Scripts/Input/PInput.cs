@@ -17,6 +17,8 @@ namespace Inputs
         private KeyboardSettings alternativeKeyboard = null;
         [SerializeField]
         private bool inputEnabled = true;
+        [SerializeField]
+        private bool useKeyboardAndJoy = true;
 
         #region DeadZones
         [Header( "Joystick Dead Zone" )]
@@ -194,14 +196,8 @@ namespace Inputs
 
         private void FixedUpdate()
         {
-            /*  string [] joys =  Input.GetJoystickNames();
-              for ( int i = 0;  i < joys.Length; i++) {
-                  if ( joys[i] == null || joys[i].Length == 0) {
-                      Debug.Log("Its shit");
-                  } else {
-                      Debug.Log(joys[i]);
-                  }
-              }*/
+          //  CheckValidation();
+
             if (inputEnabled) {
                 if (stickInput != null) {
                     StickAxisUpdate( leftStick );
@@ -225,6 +221,18 @@ namespace Inputs
                     ButtonUpdate( buttonRightBumper );
                     ButtonUpdate( buttonLeftStick );
                     ButtonUpdate( buttonRightStick );
+                }
+            }
+        }
+
+        private void CheckValidation()
+        {
+            string[] joys = Input.GetJoystickNames();
+            for (int i = 0; i < joys.Length; i++) {
+                if (joys[i] == null || joys[i].Length == 0) {
+                    Debug.Log( "Its shit" );
+                } else {
+                    Debug.Log( joys[i] );
                 }
             }
         }
@@ -309,7 +317,7 @@ namespace Inputs
             if (axis.HasAnyChanged())
                 arrowsInput.OnArrowsChange( axis );
         }
-        
+
         private bool IsBelowDead(float axis, float dead)
         {
             return axis <= dead;
@@ -330,6 +338,7 @@ namespace Inputs
         public bool UsesJoystick { get => usesJoystick; set => usesJoystick = value; }
         public KeyboardSettings AlternativeKeyboard { get => alternativeKeyboard; }
         public int PlayerNumber { get => playerNumber; set => playerNumber = value; }
+        public bool UseKeyboardAndJoy { get => useKeyboardAndJoy; set => useKeyboardAndJoy = value; }
         #endregion
     }
 }

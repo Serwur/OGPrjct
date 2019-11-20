@@ -1,62 +1,107 @@
-﻿/// <summary>
+﻿using ColdCry.Utility.Patterns.Builder;
+using System;
+/// <summary>
 /// <br>Klasa przeznaczona do sprawnego modyfikowania statystyk postaci/przeciwników. Używa się jej</br>
 /// <br>klas bazowych, którymi są <code>PermamentModifier</code> oraz <code>TemplateModifier</code>.</br>
 /// <br>Jak same nazwy mówią pierwszy modifier działa przez cały okres czasu życia jednostki,</br>
 /// <br>natomiast drugi znika po określonym czasie.</br>
 /// </summary>
-namespace DoubleMMPrjc
+namespace ColdCry
 {
-    public abstract class Modifier
+    public class Modifier : ICloneable
     {
-        /// <summary>
-        /// Tryb modyfikatora, pozytywny zwiększający atrybut, negatywny zmniejsząjacy atrybut
-        /// </summary>
-        public enum Mod
+        public Modifier(float value, string name, ModifierEffect effect)
         {
-            POSITIVE, NEGATIVE
+            Value = value;
+            Name = name;
+            Effect = effect;
         }
 
-        public Attribute attribute;
-        public float modifer;
-        public string modifierName;
-        public Mod mod;
+        public float GetModifier()
+        {
+            if (Effect == ModifierEffect.POSITIVE) {
+                return Value + 1;
+            }
+            throw new NotImplementedException();
+        }
 
-        public Modifier(float modifer, Mod mod, Attribute attribute) : this( modifer, mod, "", attribute )
+        public virtual object Clone()
+        {
+            return new Modifier( Value, Name, Effect );
+        }
+
+        public float Value { get; private set; }
+        public string Name { get; private set; }
+        public ModifierEffect Effect { get; private set; }
+    }
+
+    public class Builder : IBuilder<Modifier>
+    {
+        private float value = 0f;
+        private string name = "";
+        private ModifierEffect effect = ModifierEffect.POSITIVE;
+        private Attribute attribute;
+
+        private Builder()
         { }
 
-        /// <summary>
-        /// <br>Konstruktor do tworzenia modyfikatora.</br>
-        /// </summary>
-        /// <param name="modifer">Gdy parametr <b>mod</b> to <b>POSITIVE</b>, wtedy ten parametr musi być większy od 0,
-        /// natomiast w przypadku <b>NEGATIVE</b> parametr ten powinien być większy od 0 i mniejszy od 1</param>
-        /// <param name="mod">Tryb modyfikatora <b>POSITIVE</b> lub <b>NEGATIVE</b></param>
-        /// <param name="modifierName">Nazwa modyfikatora</param>
-        /// <param name="attribute">Atrybut do którego będzie przypisany modyfikator, jeżeli parametr ten nie jest <b>NULL</b>
-        /// wtedy modyfikator jest automatycznie dodany do atrybutu</param>
-        public Modifier(float modifer, Mod mod, string modifierName, Attribute attribute)
+        public Builder Value(float value)
         {
-            if (modifer < 0) {
-                throw new System.Exception( "Modifier::Constructor::Name::" + modifierName + "::" + "(Modifier value cannot be less than 0!)" );
-            }
-            if (mod == Mod.NEGATIVE && modifer >= 1) {
-                throw new System.Exception( "Modifier::Constructor::Name::" + modifierName + "::" + "(Modifier value with MOD::NEGATIVE cannot be bigger or equal 1.0!)" );
-            }
-            this.modifer = modifer;
-            this.mod = mod;
-            this.modifierName = modifierName;
-            this.attribute = attribute ?? throw new System.Exception( "Modifier::Constructor::Name::" + modifierName + "::" + "(Attribute cannot be null!)" );
-            attribute.AddModifier( this );
+            this.value = value;
+            return this;
         }
 
-        /// <summary>
-        /// Zwraca odpowiednią wartość modyfikatora w zależności od jego wartości oraz pola <b>Mod</b>
-        /// </summary>
-        /// <returns>Wartość modyfikacji atrybutu</returns>
-        public float GetModify()
+        public Builder Name(string name)
         {
-            if (mod == Mod.POSITIVE)
-                return ( 1 + modifer );
-            return ( 1 - modifer );
+            this.name = name;
+            return this;
         }
+
+        public Builder Effect(ModifierEffect effect)
+        {
+            this.effect = effect;
+            return this;
+        }
+
+        public Builder Positive()
+        {
+            effect = ModifierEffect.POSITIVE;
+            return this;
+        }
+
+        public Builder Negative()
+        {
+            effect = ModifierEffect.NEGATIVE;
+            return this;
+        }
+
+        public Builder Clone(Modifier modifier)
+        {
+            value = modifier.Value;
+            name = modifier.Name;
+            effect = modifier.Effect;
+            return this;
+        }
+
+        public Builder Attribute(Attribute attribute)
+        {
+            this.attribute = attribute;
+            return this;
+        }
+
+        public Modifier Build()
+        {
+            if (attribute == null) {
+                throw new ArgumentNullException( "Attribute cannot be null" );
+            }
+            Modifier modifier = new Modifier( value, name, effect );
+            attribute.AddModifier( modifier );
+            return modifier;
+        }
+
+        public static Builder Get { get => new Builder(); }
     }
+
+
+
 }

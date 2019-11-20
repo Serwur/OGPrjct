@@ -1,14 +1,18 @@
-﻿using UnityEngine;
-using DoubleMMPrjc.Timer;
+﻿using ColdCry.Core;
+using ColdCry.Objects;
+using ColdCry.Utility;
+using ColdCry.Utility.Time;
+using UnityEngine;
+using static ColdCry.Utility.Time.TimerManager;
 
-namespace DoubleMMPrjc
+namespace ColdCry
 {
-    public class Weapon : MonoBehaviour, IOnCountdownEnd
+    public class Weapon : MonoBehaviour
     {
         private Character character;
         private Attack attack;
         private Collider coll;
-        private long collisionOffDelayCountdown;
+        private ICountdown collisionOffDelayCountdown;
 
         public void Awake()
         {
@@ -18,7 +22,11 @@ namespace DoubleMMPrjc
         public void Start()
         {
             character = (Character) GameManager.GetEntityByName( "Player" );
-            collisionOffDelayCountdown = TimerManager.Create( this );
+            collisionOffDelayCountdown = Countdown.GetInstance();
+            collisionOffDelayCountdown.SetAction ( (overtime) => {
+                coll.enabled = false;
+                attack = null;
+            });
         }
 
         public void OnTriggerEnter(Collider other)
@@ -37,7 +45,7 @@ namespace DoubleMMPrjc
         {
             this.attack = attack;
             coll.enabled = true;
-            TimerManager.Reset( collisionOffDelayCountdown, disableDelay );
+            collisionOffDelayCountdown.Restart( disableDelay );
         }
 
         public void Disable(float delay = 0)
@@ -46,14 +54,8 @@ namespace DoubleMMPrjc
             if (delay == 0) {
                 coll.enabled = false;
             } else {
-                TimerManager.Reset( collisionOffDelayCountdown, delay );
+                collisionOffDelayCountdown.Restart( delay );
             }
-        }
-
-        public void OnCountdownEnd(long id)
-        {
-            coll.enabled = false;
-            attack = null;
         }
     }
 }
