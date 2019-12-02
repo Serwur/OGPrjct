@@ -291,7 +291,7 @@ namespace DoubleMMPrjc
                             break;
                         case ButtonCode.LeftBumper:
                             if (canMove) {
-                               // mainSkill.GetComponent<MainSkill>().ChangeWorld();
+                               mainSkill.GetComponent<MainSkill>().ChangeWorld();
                             }
                             currentCombination.AddLast( code );
                             break;

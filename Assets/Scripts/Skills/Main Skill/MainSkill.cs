@@ -30,7 +30,6 @@ namespace DoubleMMPrjc
 
         void Awake()
         {
-            isInRealLife = false;
             transform.localScale = new Vector3( 0, 0, 0 );  // circle is 0 size at the start
                                                             /* vfx.SetActive(false);                                                        /////////////VFX\\\\\\\\\\\\\\
                                                             visualEffect.SetFloat("minor radius", 1f); */
@@ -39,6 +38,10 @@ namespace DoubleMMPrjc
             camera = Camera.main.transform;
         }
 
+        private void Start()
+        {
+            isInRealLife = false;
+        }
 
 
         public void ChangeWorld()
@@ -63,7 +66,6 @@ namespace DoubleMMPrjc
         void Update()
         {
 
-            //Debug.Log(isInRealLife + " is in real life");
             if (isInRealLife == true && changingCircleAtTheMoment == false)
             {
                 
@@ -78,9 +80,10 @@ namespace DoubleMMPrjc
 
             if (changingCircleAtTheMoment == true) {
                 if (isInRealLife == true) {
-                    size = Lerp( size, Screen.width / 128, timeStartedLerping, 0.7f );
+                    size = LinearInterpolation.Lerp( size, Screen.width / 128, timeStartedLerping, 0.7f );
                     transform.localScale = new Vector3( size, size, 0 );
-                    transform.position = LerpV3(transform.position, new Vector3(camera.position.x,camera.position.y,0), timeStartedLerping, 0.7f);
+                    transform.position = 
+                    transform.position = LinearInterpolation.LerpV3(transform.position, new Vector3(camera.position.x,camera.position.y,0), timeStartedLerping, 0.7f);
 
                     if (size >= Screen.width / 128) {
                         changingCircleAtTheMoment = false;
@@ -88,9 +91,9 @@ namespace DoubleMMPrjc
 
 
                 } else {
-                    size = Lerp( size, 0, timeStartedLerping, 0.7f );
+                    size = LinearInterpolation.Lerp( size, 0, timeStartedLerping, 0.7f );
                     transform.localScale = new Vector3( size, size, 0 );
-                    transform.position = LerpV3(transform.position, player.position, timeStartedLerping, 0.7f);
+                    transform.position = LinearInterpolation.LerpV3(transform.position, player.position, timeStartedLerping, 0.7f);
 
                     if (size <= 0) {
                         changingCircleAtTheMoment = false;
@@ -104,7 +107,7 @@ namespace DoubleMMPrjc
                 {
                     vfx.SetActive(true);
 
-                    majorRadius = Lerp(majorRadius, 8, timeStartedLerping, 0.7f);
+                    majorRadius = LinearInterpolation.Lerp(majorRadius, 8, timeStartedLerping, 0.7f);
                     visualEffect.SetFloat("major radius", majorRadius);
 
 
@@ -118,7 +121,7 @@ namespace DoubleMMPrjc
                 else
                 {
                     Debug.Log("Down");
-                    majorRadius = Lerp(majorRadius, 0, timeStartedLerping, 0.7f);
+                    majorRadius = LinearInterpolation.Lerp(majorRadius, 0, timeStartedLerping, 0.7f);
                     visualEffect.SetFloat("major radius", majorRadius);
                     if (majorRadius <= 0)
                     {
@@ -140,22 +143,6 @@ namespace DoubleMMPrjc
         {
             timeStartedLerping = Time.time;
         }
-
-        private float Lerp(float start, float end, float timeStartedLerping, float lerpTime = 1) //Easier usage of lerp
-        {
-            float timeSinceStarted = Time.time - timeStartedLerping;
-            float percentageComplete = timeSinceStarted / lerpTime;
-            float result = Mathf.Lerp( start, end, percentageComplete );
-            return result;
-        }
-        private Vector3 LerpV3(Vector3 startPosition, Vector3 endPosition, float timeStartedLerping, float lerpTime = 1) //Easier usage of 3D lerp
-        {
-            float timeSinceStarted = Time.time - timeStartedLerping;
-            float percentageComplete = timeSinceStarted / lerpTime;
-            Vector3 result = Vector3.Lerp(startPosition, endPosition, percentageComplete);
-            return result;
-        }
-
 
     }
 }
