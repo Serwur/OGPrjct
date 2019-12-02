@@ -10,5 +10,8 @@ public class itemInInventory : ScriptableObject
     public new string name;
     public string description;
     public Sprite artwork;
-    public bool isEquipable;
+
+    //is passive/is active/or just a member of inventory
+    public ItemState steteOfItem;
+
 }
